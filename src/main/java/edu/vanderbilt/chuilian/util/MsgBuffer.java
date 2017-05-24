@@ -22,10 +22,10 @@ public class MsgBuffer {
         this.buff.add(message);
     }
 
-    public void swap(MsgBuffer newBuff) {
+    public void swap(MsgBuffer that) {
         Queue<ZMsg> temp = this.buff;
-        this.buff = newBuff.buff;
-        newBuff.buff = temp;
+        this.buff = that.buff;
+        that.buff = temp;
     }
 
     public Iterator<ZMsg> iterator() {

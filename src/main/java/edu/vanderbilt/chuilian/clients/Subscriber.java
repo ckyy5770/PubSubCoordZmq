@@ -7,6 +7,7 @@ import org.zeromq.ZMQ.Socket;
 import org.zeromq.ZMsg;
 
 import java.util.Iterator;
+import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -36,7 +37,26 @@ public class Subscriber {
 		// here we get the default sending address, make a default receiver for it, and initialize topic receiver map
 		this.topicReceiverMap = new TopicReceiverMap(new DefaultReceiver(defaultAddress, this.msgBufferMap, this.executor));
 		this.topicReceiverMap.getDefault().start();
-		// TODO: 5/24/17 there should be a thread constantly check MsgBuffer and process msgs 
+		// this thread will constantly (10s) check MsgBuffer and process msgs
+		executor.submit(() -> {
+			while (true) {
+				try {
+					TimeUnit.SECONDS.sleep(10);
+				} catch (InterruptedException e) {
+					throw new IllegalStateException("I'm sleeping! Why interrupt me?!", e);
+				}
+				// iterate through the map
+				for (Map.Entry<String, MsgBuffer> entry : this.msgBufferMap.entrySet()) {
+					// create a new empty buffer for this entry
+					MsgBuffer buff = new MsgBuffer(entry.getKey());
+					// swap the new empty buffer with old buffer
+					// TODO: 5/24/17 here need lock
+					entry.getValue().swap(buff);
+					// then we process messages in this old buffer
+					this.processBuffer(buff);
+				}
+			}
+		});
 	}
 
 	public void subscribe(String topic) {

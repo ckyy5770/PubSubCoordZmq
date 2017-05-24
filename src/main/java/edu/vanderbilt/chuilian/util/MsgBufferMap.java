@@ -4,6 +4,8 @@ package edu.vanderbilt.chuilian.util;
  * Created by Killian on 5/24/17.
  */
 
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -39,5 +41,14 @@ public class MsgBufferMap {
      */
     public MsgBuffer unregister(String topic) {
         return this.map.remove(topic);
+    }
+
+    /**
+     * Returns a Set view of the mappings contained in this map. for iterating the map
+     *
+     * @return
+     */
+    public Set<Map.Entry<String, MsgBuffer>> entrySet() {
+        return this.map.entrySet();
     }
 }
