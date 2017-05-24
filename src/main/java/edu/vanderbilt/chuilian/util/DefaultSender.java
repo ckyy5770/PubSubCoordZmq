@@ -18,8 +18,4 @@ public class DefaultSender extends DataSender {
     public void send(String message) {
         throw new UnsupportedOperationException("you must specify message topic when sending message through default data sender!");
     }
-
-    public static void main(String[] args) {
-    }
-
 }
