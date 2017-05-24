@@ -5,6 +5,7 @@ package edu.vanderbilt.chuilian.util;
  */
 
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutorService;
 
 /**
  * topic --> corresponding data sender ref
@@ -35,10 +36,10 @@ public class TopicSenderMap {
      * @param topic
      * @return return newly created sender, if the sender for the topic already exist, return null
      */
-    public DataSender register(String topic, String address) {
-        if (this.map.contains(topic)) return null;
+    public DataSender register(String topic, String address, ExecutorService executor) {
+        if (this.map.containsKey(topic)) return null;
         else {
-            DataSender newSender = new DataSender(topic, address);
+            DataSender newSender = new DataSender(topic, address, executor);
             this.map.put(topic, newSender);
             return newSender;
         }

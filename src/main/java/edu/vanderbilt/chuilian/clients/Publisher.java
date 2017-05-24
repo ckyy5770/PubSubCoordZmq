@@ -18,12 +18,12 @@ public class Publisher {
 
 	public Publisher() {
 		this.topicSenderMap = null;
-		this.executor = Executors.newFixedThreadPool(2);
+		this.executor = Executors.newFixedThreadPool(100);
 	}
 
 	public void start() {
 		// initialize a default data sender
-		// try to get default address, if fail, wait 2 second and do it again.
+		// try to get default address, if fail, wait 2 seconds and do it again.
 		String defaultAddress;
 		while ((defaultAddress = getDefaultAddress()) == null) {
 			try {
@@ -33,14 +33,15 @@ public class Publisher {
 			}
 		}
 		// here we get the default receiving address, make a default sender for it, and initialize topic sender map
-		this.topicSenderMap = new TopicSenderMap(new DefaultSender(defaultAddress));
+		this.topicSenderMap = new TopicSenderMap(new DefaultSender(defaultAddress, this.executor));
+		this.topicSenderMap.getDefault().start();
 	}
 
 	public void send(String topic, String message) {
 		// try to get data sender for this topic
 		DataSender sender = topicSenderMap.get(topic);
 		if (sender == null) {
-			// if the sender doesn't exist, get the receiver address
+			// if the sender doesn't exist, get the broker receiver address
 			String address = getAddress(topic);
 			if (address == null) {
 				// if can not get it, send the message through default data sender
@@ -51,9 +52,16 @@ public class Publisher {
 				}
 				defaultSender.send(topic, message);
 				return;
+			} else {
+				// successfully get the sender from zookeeper
+				// create new sender
+				sender = this.topicSenderMap.register(topic, address, this.executor);
+				sender.start();
+				sender.send(message);
+				return;
 			}
 		} else {
-			// successfully get the sender
+			// successfully get the sender from local list
 			sender.send(message);
 		}
 

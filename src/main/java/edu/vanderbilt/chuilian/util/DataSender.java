@@ -3,7 +3,6 @@ package edu.vanderbilt.chuilian.util;
 import org.zeromq.ZMQ;
 
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 /**
  * Created by Killian on 5/24/17.
@@ -23,19 +22,20 @@ public class DataSender {
     protected DataSender() {
     }
 
-    ;
 
-    public DataSender(String topic, String address) {
+    public DataSender(String topic, String address, ExecutorService executor) {
         this.topic = topic;
         this.address = address;
         this.sendContext = ZMQ.context(1);
         this.sendSocket = sendContext.socket(ZMQ.PUB);
-        this.executor = Executors.newFixedThreadPool(2);
+        this.executor = executor;
     }
 
     public void start() {
         // connect to the receiver address
         this.sendSocket.connect("tcp://" + this.address);
+        // keep checking message buffer and send message.
+        // TODO: 5/24/17
     }
 
     public void send(String message) {

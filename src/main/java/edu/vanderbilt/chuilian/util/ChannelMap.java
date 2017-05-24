@@ -40,7 +40,7 @@ public class ChannelMap {
      * @return the previous Channel ref associated with topic, or null if there was no mapping for topic
      */
     public MsgChannel unregister(String topic){
-        return map.remove(topic);
+        return this.map.remove(topic);
     }
 
     /**
@@ -49,7 +49,7 @@ public class ChannelMap {
      * @return null if topic not existed
      */
     public MsgChannel get(String topic){
-        return map.get(topic);
+        return this.map.get(topic);
     }
 
 }
