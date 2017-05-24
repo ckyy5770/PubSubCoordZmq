@@ -10,7 +10,8 @@ import java.util.concurrent.ExecutorService;
 /**
  * Channel Map is a hash map that takes the topic name as the key and corresponding msg channel reference as value.
  * each edge broker should have ONE and ONLY ONE channel map.
- * Note: this hash map may be accessed by multiple threads, simply make it concurrent might not be enough for efficiency
+ * Note: this hash map may be accessed by multiple threads(main channel may add something to it, other channels may delete
+ * themselves from it when their life ends), simply make it concurrent might not be enough for efficiency
  * concerns. May need to change concurrency logic for future experiment.
  */
 public class ChannelMap {

@@ -8,10 +8,10 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class EdgeBroker {
-    private ChannelMap channelMap;
-    private PortList portList;
+    private final ChannelMap channelMap;
+    private final PortList portList;
     // the executor for working threads
-    private ExecutorService executor;
+    private final ExecutorService executor;
 
     /**
      * Constructor will NOT immediately create socket and bind any port,

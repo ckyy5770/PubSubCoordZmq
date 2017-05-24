@@ -2,7 +2,7 @@
   <library name="org.zeromq:jeromq:0.4.0" type="repository">
     <properties maven-id="org.zeromq:jeromq:0.4.0" />
     <CLASSES>
-      <root url="jar://$MAVEN_REPOSITORY$/org/zeromq/jeromq/0.4.0/jeromq-0.4.0.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/jeromq-0.4.0.jar!/" />
     </CLASSES>
     <JAVADOC />
     <SOURCES />

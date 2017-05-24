@@ -38,9 +38,12 @@ public class MsgChannel {
 
     //default constructor simply do nothing
     public MsgChannel(){};
+
     /**
-     * Must assign a topic to initialize
+     *
      * @param topic
+     * @param portList available port list, there should be only one port list within a broker
+     * @param executor executor for worker threads, there should be only one executor within a broker
      */
     public MsgChannel(String topic, PortList portList,ExecutorService executor){
         // initialize member vars

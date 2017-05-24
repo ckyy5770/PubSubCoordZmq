@@ -2,7 +2,6 @@ package edu.vanderbilt.chuilian.util;
 
 import org.zeromq.ZMsg;
 
-import java.nio.channels.Channel;
 import java.util.concurrent.ExecutorService;
 
 /**
@@ -10,8 +9,8 @@ import java.util.concurrent.ExecutorService;
  */
 
 /**
- * every new topic will be sent to Main channel, then main channel will then create a channel for it.
- * main channel will also send messages directly to subscribers, before the new channel starts
+ * every new topic will be sent to Main channel, then main channel will then create a message channel for it.
+ * note main channel will still behave like a normal message channel: sending messages directly to subscribers
  */
 public class MainChannel extends MsgChannel{
     private ChannelMap channelMap;
