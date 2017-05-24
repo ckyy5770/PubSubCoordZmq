@@ -29,7 +29,7 @@ public class ChannelMap {
         if(this.map.containsKey(topic)) return null;
         else{
             MsgChannel newChannel = new MsgChannel(topic, portList, executor);
-            map.put(topic, newChannel);
+            this.map.put(topic, newChannel);
             return newChannel;
         }
     }

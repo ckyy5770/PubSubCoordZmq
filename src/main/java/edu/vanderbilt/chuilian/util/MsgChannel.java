@@ -2,9 +2,7 @@ package edu.vanderbilt.chuilian.util;
 
 import org.zeromq.ZMQ;
 import org.zeromq.ZMsg;
-import zmq.Msg;
 
-import java.util.LinkedList;
 import java.util.Queue;
 import java.util.concurrent.ExecutorService;
 
@@ -37,7 +35,10 @@ public class MsgChannel {
     ExecutorService executor;
 
     //default constructor simply do nothing
-    public MsgChannel(){};
+    protected MsgChannel() {
+    }
+
+    ;
 
     /**
      *

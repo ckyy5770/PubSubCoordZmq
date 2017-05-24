@@ -10,8 +10,8 @@ import java.util.concurrent.Executors;
 public class EdgeBroker {
     private final ChannelMap channelMap;
     private final PortList portList;
-    // the executor for working threads
-    private final ExecutorService executor;
+    // the executor for channel threads
+    private final ExecutorService channelExecutor;
 
     /**
      * Constructor will NOT immediately create socket and bind any port,
@@ -24,7 +24,7 @@ public class EdgeBroker {
         // init port list
         this.portList = new PortList();
         // init executors
-        this.executor = Executors.newFixedThreadPool(100);
+        this.channelExecutor = Executors.newFixedThreadPool(100);
     }
 
     /**
@@ -32,7 +32,7 @@ public class EdgeBroker {
      */
     public void start(){
         // create and start main channel
-        MainChannel mainChannel = new MainChannel("", this.portList, this.executor, this.channelMap);
+        MainChannel mainChannel = new MainChannel("", this.portList, this.channelExecutor, this.channelMap);
         mainChannel.start();
     }
 
