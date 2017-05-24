@@ -50,7 +50,7 @@ public class Subscriber {
 					// create a new empty buffer for this entry
 					MsgBuffer buff = new MsgBuffer(entry.getKey());
 					// swap the new empty buffer with old buffer
-					// TODO: 5/24/17 here need lock
+					// TODO: 5/24/17 here may need lock
 					entry.getValue().swap(buff);
 					// then we process messages in this old buffer
 					this.processBuffer(buff);
