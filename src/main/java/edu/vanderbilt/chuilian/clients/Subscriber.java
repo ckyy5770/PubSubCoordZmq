@@ -1,9 +1,6 @@
 package edu.vanderbilt.chuilian.clients;
 
 import edu.vanderbilt.chuilian.util.*;
-import org.zeromq.ZMQ;
-import org.zeromq.ZMQ.Context;
-import org.zeromq.ZMQ.Socket;
 import org.zeromq.ZMsg;
 
 import java.util.Iterator;
@@ -119,8 +116,15 @@ public class Subscriber {
 		if (addresses[1] == "null") return null;
 		return addresses[1];
 	}
-	
-	public static void main(String args[]){
+
+	public static void main(String args[]) throws Exception {
+		Subscriber sub = new Subscriber();
+		sub.start();
+		sub.subscribe("topic1");
+		Thread.sleep(5000);
+		sub.subscribe("topic2");
+		sub.subscribe("topic3");
+		/*
 		Context context= ZMQ.context(1);
 		Socket subscriber= context.socket(ZMQ.SUB);	
 		subscriber.connect("tcp://localhost:5556");
@@ -132,7 +136,7 @@ public class Subscriber {
 			//System.out.println(DataSampleHelper.deserialize(receivedMsg.getLast().getData()).sampleId());
 			System.out.println(new String(receivedMsg.getLast().getData()));
 		}
-
+		*/
 	}
 
 }

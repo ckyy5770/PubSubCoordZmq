@@ -44,7 +44,6 @@ public class MsgChannel {
     ;
 
     /**
-     *
      * @param topic
      * @param portList available port list, there should be only one port list within a broker
      * @param executor executor for worker threads, there should be only one executor within a broker
@@ -56,10 +55,10 @@ public class MsgChannel {
         this.executor = executor;
         this.zkConnect = zkConnect;
         // initialize socket
-        this.recContext= ZMQ.context(1);
-        this.recSocket= this.recContext.socket(ZMQ.SUB);
-        this.sendContext= ZMQ.context(1);
-        this.sendSocket= this.sendContext.socket(ZMQ.PUB);
+        this.recContext = ZMQ.context(1);
+        this.recSocket = this.recContext.socket(ZMQ.SUB);
+        this.sendContext = ZMQ.context(1);
+        this.sendSocket = this.sendContext.socket(ZMQ.PUB);
         // get two unused port number from available list
         this.sendPort = portList.get();
         this.recPort = portList.get();
@@ -69,71 +68,78 @@ public class MsgChannel {
      * start the channel: activate sender socket and receiver socket
      * keep receiving and sending messages.
      */
-    public void start(){
-        this.executor.submit(()->{
-            // start listening to receiver port
-            this.recSocket.bind("tcp://*:" + this.recPort);
-            // subscribe topic
-            this.recSocket.subscribe(this.topic.getBytes());
-            // start connecting to sending port
-            this.sendSocket.bind("tcp://*:" + this.sendPort);
-            // register itself to zookeeper service
-            this.zkConnect.registerChannel(this.topic, this.ip + ":" + Integer.toString(this.recPort), this.ip + ":" + Integer.toString(this.sendPort));
-            // begin receiving and sending messages
-            while(true){
-                // just keep receiving and sending messages
-                if(!this.isEmpty()){
-                    ZMsg receivedMsg= ZMsg.recvMsg(this.recSocket);
-                    {
-                        // debug
-                        System.out.println("Message Received from Port " + this.recPort);
-                        System.out.println(new String(receivedMsg.getFirst().getData()));
-                        //System.out.println(DataSampleHelper.deserialize(receivedMsg.getLast().getData()).sampleId());
-                        System.out.println(new String(receivedMsg.getLast().getData()));
-                    }
-                    this.sendSocket.sendMore(receivedMsg.getFirst().getData());
-                    this.sendSocket.send(receivedMsg.getLast().getData());
-                    {
-                        // debug
-                        System.out.println("Message Sent to Port " + this.sendPort);
-                        System.out.println(new String(receivedMsg.getFirst().getData()));
-                        //System.out.println(DataSampleHelper.deserialize(receivedMsg.getLast().getData()).sampleId());
-                        System.out.println(new String(receivedMsg.getLast().getData()));
-                    }
-                }
-            }
-        });
+    public void start() throws Exception {
+        // start listening to receiver port
+        this.recSocket.bind("tcp://*:" + this.recPort);
+        // subscribe topic
+        this.recSocket.subscribe(this.topic.getBytes());
+        // start connecting to sending port
+        this.sendSocket.bind("tcp://*:" + this.sendPort);
+        // register itself to zookeeper service
+        this.zkConnect.registerChannel(this.topic, this.ip + ":" + Integer.toString(this.recPort), this.ip + ":" + Integer.toString(this.sendPort));
         {
             // debug
             System.out.println("Channel Started, topic: " + this.topic);
+        }
+        // begin receiving and sending messages
+        this.executor.submit(() -> {
+            {
+                // debug
+                System.out.println("Channel Thread Started, topic: " + this.topic);
+            }
+            while (true) {
+                worker();
+            }
+        });
+    }
+
+    public void worker() throws Exception {
+        // just keep receiving and sending messages
+        ZMsg receivedMsg = ZMsg.recvMsg(this.recSocket);
+        {
+            // debug
+            System.out.println("Message Received from Port " + this.recPort);
+            System.out.println(new String(receivedMsg.getFirst().getData()));
+            //System.out.println(DataSampleHelper.deserialize(receivedMsg.getLast().getData()).sampleId());
+            System.out.println(new String(receivedMsg.getLast().getData()));
+        }
+        this.sendSocket.sendMore(receivedMsg.getFirst().getData());
+        this.sendSocket.send(receivedMsg.getLast().getData());
+        {
+            // debug
+            System.out.println("Message Sent to Port " + this.sendPort);
+            System.out.println(new String(receivedMsg.getFirst().getData()));
+            //System.out.println(DataSampleHelper.deserialize(receivedMsg.getLast().getData()).sampleId());
+            System.out.println(new String(receivedMsg.getLast().getData()));
         }
     }
 
     /**
      * add a message to the end of the queue
+     *
      * @param msg
      */
-    private void add(ZMsg msg){
+    private void add(ZMsg msg) {
         msgList.add(msg);
     }
 
     /**
      * get and remove the first message from the queue
+     *
      * @return the first message, if the queue is empty, return null.
      */
-    private ZMsg poll(){
+    private ZMsg poll() {
         return msgList.poll();
     }
 
     /**
      * is empty
+     *
      * @return
      */
-    protected boolean isEmpty(){
+    protected boolean isEmpty() {
         return msgList.isEmpty();
     }
-
-
 
 
 }

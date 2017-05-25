@@ -43,6 +43,10 @@ public class DataSender {
         this.executor = executor;
         this.msgBufferMap = msgBufferMap;
         this.zkConnect = zkConnect;
+        {
+            //debug
+            System.out.println("new sender object created: " + topic);
+        }
     }
 
     public void start() throws Exception {
@@ -53,10 +57,14 @@ public class DataSender {
         if (this.msgBuffer == null) {
             throw new IllegalStateException("message buffer with the topic name " + this.topic + " already exist!");
         }
-        // register this subscriber to zookeeper
-        this.zkConnect.registerSub(this.topic, this.ip);
+        // register this publisher to zookeeper
+        this.zkConnect.registerPub(this.topic, this.ip);
         // execute sender thread for this topic
         this.future = executor.submit(() -> {
+            {
+                //debug
+                System.out.println("new sender thread created: " + topic);
+            }
             while (true) {
                 this.sender();
             }
@@ -94,13 +102,14 @@ public class DataSender {
 
         {
             //debug
-            System.out.println("Sent Message:");
+            System.out.println("Sent Message from sender: (" + this.topic + ")" + " to address: " + this.address);
             System.out.println(new String(msg.getFirst().getData()));
             //System.out.println(DataSampleHelper.deserialize(receivedMsg.getLast().getData()).sampleId());
             System.out.println(new String(msg.getLast().getData()));
         }
     }
 
+    // user should send messages only through this method
     public void send(String message) {
         // wrap the message to ZMsg and push it to the message buffer, waiting to be sent
         ZMsg newMsg = ZMsg.newStringMsg();

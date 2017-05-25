@@ -43,7 +43,7 @@ public class ZkConnect {
      * @throws Exception
      */
     public void resetServer() throws Exception {
-        if (existsNode("/topics")) this.deleteNode("/topics");
+        if (existsNode("/topics")) this.recursiveDelete("/topics");
         // "null" means the default channel address is not set yet
         this.createNode("/topics", "null".getBytes());
     }
@@ -147,7 +147,20 @@ public class ZkConnect {
         return subNum;
     }
 
-
+    /**
+     * recursively delete all nodes under a path
+     */
+    public void recursiveDelete(String path) throws Exception {
+        List<String> children = zk.getChildren(path, true);
+        if (children.size() == 0) {
+            deleteNode(path);
+        } else {
+            for (String child : children) {
+                recursiveDelete(path + "/" + child);
+            }
+            deleteNode(path);
+        }
+    }
     /**
      * true if the node exists
      *

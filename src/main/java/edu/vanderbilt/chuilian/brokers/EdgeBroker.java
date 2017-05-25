@@ -26,7 +26,7 @@ public class EdgeBroker {
         // init port list
         this.portList = new PortList();
         // init executors
-        this.channelExecutor = Executors.newFixedThreadPool(100);
+        this.channelExecutor = Executors.newFixedThreadPool(10);
         // make a new zookeeper connector
         this.zkConnect = new ZkConnect();
     }
@@ -40,7 +40,7 @@ public class EdgeBroker {
         // clear the data tree
         this.zkConnect.resetServer();
         // create and start main channel
-        MainChannel mainChannel = new MainChannel("", this.portList, this.channelExecutor, this.channelMap);
+        MainChannel mainChannel = new MainChannel("", this.portList, this.channelExecutor, this.zkConnect, this.channelMap);
         mainChannel.start();
     }
 

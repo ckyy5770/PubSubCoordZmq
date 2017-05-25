@@ -1,9 +1,6 @@
 package edu.vanderbilt.chuilian.clients;
 
 import edu.vanderbilt.chuilian.util.*;
-import org.zeromq.ZMQ;
-import org.zeromq.ZMQ.Context;
-import org.zeromq.ZMQ.Socket;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -50,7 +47,7 @@ public class Publisher {
 			if (address == null) {
 				// if can not get it, send the message through default data sender
 				DefaultSender defaultSender = topicSenderMap.getDefault();
-				if (sender == null) {
+				if (defaultSender == null) {
 					// this should never happen in a well-designed system
 					throw new IllegalStateException("cannot get default sender");
 				}
@@ -96,7 +93,39 @@ public class Publisher {
 	}
 
 
-	public static void main(String args[]) throws InterruptedException{
+	public static void main(String args[]) throws Exception {
+		Publisher pub = new Publisher();
+		pub.start();
+		while (true) {
+			for (int i = 0; i < 5; i++) {
+				pub.send("topic1", Integer.toString(i));
+				Thread.sleep(100);
+			}
+			Thread.sleep(1000);
+			for (int i = 0; i < 5; i++) {
+				pub.send("topic2", Integer.toString(i));
+				Thread.sleep(100);
+			}
+			Thread.sleep(1000);
+			for (int i = 0; i < 5; i++) {
+				pub.send("topic3", Integer.toString(i));
+				Thread.sleep(100);
+			}
+		}
+		/*
+		Thread.sleep(1000);
+		for(int i=0; i<10; i++){
+			pub.send("topic1", Integer.toString(i));
+			Thread.sleep(100);
+		}
+		Thread.sleep(1000);
+		for(int i=0; i<10; i++){
+			pub.send("topic2", Integer.toString(i));
+			Thread.sleep(100);
+		}
+		return;
+		*/
+		/*
 		Context context= ZMQ.context(1);
 		Socket publisher= context.socket(ZMQ.PUB);
 		publisher.connect("tcp://localhost:5555");
@@ -110,5 +139,6 @@ public class Publisher {
 		}
 		publisher.close();
 		context.term();
+		*/
 	}
 }
