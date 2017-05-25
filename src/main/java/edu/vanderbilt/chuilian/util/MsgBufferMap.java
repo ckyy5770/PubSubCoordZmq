@@ -51,4 +51,14 @@ public class MsgBufferMap {
     public Set<Map.Entry<String, MsgBuffer>> entrySet() {
         return this.map.entrySet();
     }
+
+    /**
+     * get the buffer
+     *
+     * @param topic
+     * @return
+     */
+    public MsgBuffer get(String topic) {
+        return this.map.get(topic);
+    }
 }

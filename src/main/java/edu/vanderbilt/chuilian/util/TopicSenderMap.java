@@ -36,10 +36,10 @@ public class TopicSenderMap {
      * @param topic
      * @return return newly created sender, if the sender for the topic already exist, return null
      */
-    public DataSender register(String topic, String address, ExecutorService executor) {
+    public DataSender register(String topic, String address, MsgBufferMap msgBufferMap, ExecutorService executor, ZkConnect zkConnect) {
         if (this.map.containsKey(topic)) return null;
         else {
-            DataSender newSender = new DataSender(topic, address, executor);
+            DataSender newSender = new DataSender(topic, address, msgBufferMap, executor, zkConnect);
             this.map.put(topic, newSender);
             return newSender;
         }

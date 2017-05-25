@@ -31,3 +31,17 @@ When a new topic comes into the default channel, the main channel thread will fi
 Subscriber will have similar logic as the publisher.
 
 When the broker stops, it should delete all topics and data under /topics, and all data in /topics.
+
+## data format
+
+data storing at "/topics" should follow following format:
+
+1. "null" --> this node should be initialized with a string "null", which indicates no valid information yet
+
+2. "IP_ADDRESS:PORT_NUMBER\nIP_ADDRESS:PORT_NUMBER" this information should always added by the broker's message channel. When channel established, the channel thread should go to zookeeper server update its address under proper node. The first line should be the channel's receiver address, and the second line should be the channel's sender address. 
+
+data storing at "/topics/sometopic" must be "null"
+
+data storing at "/topics/sometopic/pub" or "/topics/sometopic/sub" must be:
+
+"IP_ADDRESS:PORT_NUMBER" which indicates where publisher/subscriber should connect to.

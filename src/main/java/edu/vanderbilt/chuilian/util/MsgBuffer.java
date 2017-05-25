@@ -28,6 +28,10 @@ public class MsgBuffer {
         that.buff = temp;
     }
 
+    public boolean isEmpty() {
+        return this.buff.isEmpty();
+    }
+
     public Iterator<ZMsg> iterator() {
         return this.buff.iterator();
     }

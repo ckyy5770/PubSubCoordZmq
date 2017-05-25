@@ -6,8 +6,8 @@ import java.util.concurrent.ExecutorService;
  * Created by Killian on 5/24/17.
  */
 public class DefaultSender extends DataSender {
-    public DefaultSender(String address, ExecutorService executor) {
-        super("", address, executor);
+    public DefaultSender(String address, MsgBufferMap msgBufferMap, ExecutorService executor, ZkConnect zkConnect) {
+        super("", address, msgBufferMap, executor, zkConnect);
     }
 
     public void send(String topic, String message) {

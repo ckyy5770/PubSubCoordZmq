@@ -10,6 +10,8 @@ import java.util.concurrent.Future;
  * Created by Killian on 5/24/17.
  */
 public class DataReceiver {
+    // TODO: 5/25/17 hard coded ip
+    String ip = "127.0.0.1";
     String topic;
     String address;
     MsgBufferMap msgBufferMap;
@@ -19,21 +21,24 @@ public class DataReceiver {
     ExecutorService executor;
     // future is a reference of the receiver thread, it can be used to stop the thread.
     Future<?> future;
+    // zookeeper client
+    ZkConnect zkConnect;
 
     //default constructor simply do nothing
     protected DataReceiver() {
     }
 
-    public DataReceiver(String topic, String address, MsgBufferMap msgBufferMap, ExecutorService executor) {
+    public DataReceiver(String topic, String address, MsgBufferMap msgBufferMap, ExecutorService executor, ZkConnect zkConnect) {
         this.topic = topic;
         this.address = address;
         this.msgBufferMap = msgBufferMap;
         this.recContext = ZMQ.context(1);
         this.recSocket = recContext.socket(ZMQ.SUB);
         this.executor = executor;
+        this.zkConnect = zkConnect;
     }
 
-    public void start() {
+    public void start() throws Exception {
         // connect to the sender address
         this.recSocket.connect("tcp://" + this.address);
         // subscribe topic
@@ -41,12 +46,14 @@ public class DataReceiver {
         // register message buffer for this topic
         this.msgBuffer = this.msgBufferMap.register(this.topic);
         if (this.msgBuffer == null) {
-            throw new IllegalStateException("message buffer with the topic name " + topic + " already exist!");
+            throw new IllegalStateException("message buffer with the topic name " + this.topic + " already exist!");
         }
+        // register this subscriber to zookeeper
+        this.zkConnect.registerSub(this.topic, this.ip);
         // execute receiver thread for this topic
         this.future = executor.submit(() -> {
             while (true) {
-                this.receive();
+                this.receiver();
             }
         });
     }
@@ -59,9 +66,9 @@ public class DataReceiver {
         return this.msgBufferMap.unregister(this.topic);
     }
 
-    public void receive() {
+    public void receiver() {
         ZMsg receivedMsg = ZMsg.recvMsg(this.recSocket);
-        msgBuffer.add(receivedMsg);
+        this.msgBuffer.add(receivedMsg);
         {
             //debug
             System.out.println("Message Received:");

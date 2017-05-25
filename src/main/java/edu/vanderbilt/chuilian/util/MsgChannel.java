@@ -24,7 +24,8 @@ public class MsgChannel {
     // ref to available port list
     PortList portList;
     // socket configs
-    String ip;
+    // TODO: 5/25/17 hard coded ip for now
+    String ip = "127.0.0.1";
     int sendPort;
     ZMQ.Context sendContext;
     ZMQ.Socket sendSocket;
@@ -33,6 +34,8 @@ public class MsgChannel {
     ZMQ.Socket recSocket;
     // worker threads are all managed by this executor, which is passed from the broker main thread.
     ExecutorService executor;
+    // zookeeper service handler, which is passed from the broker main thread.
+    ZkConnect zkConnect;
 
     //default constructor simply do nothing
     protected MsgChannel() {
@@ -46,11 +49,12 @@ public class MsgChannel {
      * @param portList available port list, there should be only one port list within a broker
      * @param executor executor for worker threads, there should be only one executor within a broker
      */
-    public MsgChannel(String topic, PortList portList,ExecutorService executor){
+    public MsgChannel(String topic, PortList portList, ExecutorService executor, ZkConnect zkConnect) {
         // initialize member vars
         this.topic = topic;
         this.portList = portList;
         this.executor = executor;
+        this.zkConnect = zkConnect;
         // initialize socket
         this.recContext= ZMQ.context(1);
         this.recSocket= this.recContext.socket(ZMQ.SUB);
@@ -70,9 +74,12 @@ public class MsgChannel {
             // start listening to receiver port
             this.recSocket.bind("tcp://*:" + this.recPort);
             // subscribe topic
-            this.recSocket.subscribe(topic.getBytes());
+            this.recSocket.subscribe(this.topic.getBytes());
             // start connecting to sending port
             this.sendSocket.bind("tcp://*:" + this.sendPort);
+            // register itself to zookeeper service
+            this.zkConnect.registerChannel(this.topic, this.ip + ":" + Integer.toString(this.recPort), this.ip + ":" + Integer.toString(this.sendPort));
+            // begin receiving and sending messages
             while(true){
                 // just keep receiving and sending messages
                 if(!this.isEmpty()){

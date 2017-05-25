@@ -1,8 +1,6 @@
 package edu.vanderbilt.chuilian.clients;
 
-import edu.vanderbilt.chuilian.util.DataSender;
-import edu.vanderbilt.chuilian.util.DefaultSender;
-import edu.vanderbilt.chuilian.util.TopicSenderMap;
+import edu.vanderbilt.chuilian.util.*;
 import org.zeromq.ZMQ;
 import org.zeromq.ZMQ.Context;
 import org.zeromq.ZMQ.Socket;
@@ -14,14 +12,20 @@ import java.util.concurrent.TimeUnit;
 
 public class Publisher {
 	private TopicSenderMap topicSenderMap;
-	private ExecutorService executor;
+	private final ExecutorService executor;
+	private final MsgBufferMap msgBufferMap;
+	private final ZkConnect zkConnect;
 
 	public Publisher() {
 		this.topicSenderMap = null;
 		this.executor = Executors.newFixedThreadPool(100);
+		this.zkConnect = new ZkConnect();
+		this.msgBufferMap = new MsgBufferMap();
 	}
 
-	public void start() {
+	public void start() throws Exception {
+		// start zookeeper client
+		this.zkConnect.connect("127.0.0.1:2181");
 		// initialize a default data sender
 		// try to get default address, if fail, wait 2 seconds and do it again.
 		String defaultAddress;
@@ -33,11 +37,11 @@ public class Publisher {
 			}
 		}
 		// here we get the default receiving address, make a default sender for it, and initialize topic sender map
-		this.topicSenderMap = new TopicSenderMap(new DefaultSender(defaultAddress, this.executor));
+		this.topicSenderMap = new TopicSenderMap(new DefaultSender(defaultAddress, this.msgBufferMap, this.executor, this.zkConnect));
 		this.topicSenderMap.getDefault().start();
 	}
 
-	public void send(String topic, String message) {
+	public void send(String topic, String message) throws Exception {
 		// try to get data sender for this topic
 		DataSender sender = topicSenderMap.get(topic);
 		if (sender == null) {
@@ -55,7 +59,7 @@ public class Publisher {
 			} else {
 				// successfully get the sender from zookeeper
 				// create new sender
-				sender = this.topicSenderMap.register(topic, address, this.executor);
+				sender = this.topicSenderMap.register(topic, address, this.msgBufferMap, this.executor, this.zkConnect);
 				sender.start();
 				sender.send(message);
 				return;
@@ -73,9 +77,9 @@ public class Publisher {
 	 * @param topic
 	 * @return null if can not get it
 	 */
-	private String getAddress(String topic) {
-		// TODO: 5/24/17  
-		return null;
+	private String getAddress(String topic) throws Exception {
+		String address = zkConnect.getNodeData("/topics/" + topic + "/pub");
+		return address;
 	}
 
 	/**
@@ -83,9 +87,12 @@ public class Publisher {
 	 *
 	 * @return
 	 */
-	private String getDefaultAddress() {
-		// TODO: 5/24/17
-		return null;
+	private String getDefaultAddress() throws Exception {
+		String data = zkConnect.getNodeData("/topics");
+		if (data == null) return null;
+		String[] addresses = data.split("\n");
+		if (addresses[0] == "null") return null;
+		return addresses[0];
 	}
 
 

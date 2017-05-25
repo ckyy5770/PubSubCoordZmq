@@ -13,17 +13,23 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 public class Subscriber {
+	// TODO: 5/25/17 hard coded ip 
+	private final String ip = "127.0.0.1";
 	private TopicReceiverMap topicReceiverMap;
-	private MsgBufferMap msgBufferMap;
-	private ExecutorService executor;
+	private final MsgBufferMap msgBufferMap;
+	private final ExecutorService executor;
+	private final ZkConnect zkConnect;
 
 	public Subscriber() {
 		this.topicReceiverMap = null;
 		this.msgBufferMap = new MsgBufferMap();
 		this.executor = Executors.newFixedThreadPool(100);
+		this.zkConnect = new ZkConnect();
 	}
 
-	public void start() {
+	public void start() throws Exception {
+		// start zookeeper client
+		this.zkConnect.connect("127.0.0.1:2181");
 		// initialize a default data receiver
 		// try to get default address, if fail, wait 2 seconds and do it again.
 		String defaultAddress;
@@ -35,7 +41,7 @@ public class Subscriber {
 			}
 		}
 		// here we get the default sending address, make a default receiver for it, and initialize topic receiver map
-		this.topicReceiverMap = new TopicReceiverMap(new DefaultReceiver(defaultAddress, this.msgBufferMap, this.executor));
+		this.topicReceiverMap = new TopicReceiverMap(new DefaultReceiver(defaultAddress, this.msgBufferMap, this.executor, this.zkConnect));
 		this.topicReceiverMap.getDefault().start();
 		// this thread will constantly (10s) check MsgBuffer and process msgs
 		executor.submit(() -> {
@@ -59,14 +65,14 @@ public class Subscriber {
 		});
 	}
 
-	public void subscribe(String topic) {
+	public void subscribe(String topic) throws Exception {
 		// if the topic is already subscribed, do nothing
 		if (this.topicReceiverMap.get(topic) != null) return;
-		// try to get the broker sender address for this topic, if not found, just return and do nothing
+		// try to get the broker sender address for this topic, if not found, throw a topic not found exception
 		String address;
-		if ((address = getAddress(topic)) == null) return;
+		if ((address = getAddress(topic)) == null) throw new RuntimeException("topic not found");
 		// here we successfully get the broker sender address for this topic, create a data receiver for it.
-		DataReceiver newReceiver = this.topicReceiverMap.register(topic, address, this.msgBufferMap, this.executor);
+		DataReceiver newReceiver = this.topicReceiverMap.register(topic, address, this.msgBufferMap, this.executor, this.zkConnect);
 		newReceiver.start();
 	}
 
@@ -96,9 +102,9 @@ public class Subscriber {
 	 * @param topic
 	 * @return null if can not get it
 	 */
-	private String getAddress(String topic) {
-		// TODO: 5/24/17
-		return null;
+	private String getAddress(String topic) throws Exception {
+		String address = zkConnect.getNodeData("/topics/" + topic + "/sub");
+		return address;
 	}
 
 	/**
@@ -106,9 +112,12 @@ public class Subscriber {
 	 *
 	 * @return
 	 */
-	private String getDefaultAddress() {
-		// TODO: 5/24/17
-		return null;
+	private String getDefaultAddress() throws Exception {
+		String data = zkConnect.getNodeData("/topics");
+		if (data == null) return null;
+		String[] addresses = data.split("\n");
+		if (addresses[1] == "null") return null;
+		return addresses[1];
 	}
 	
 	public static void main(String args[]){

@@ -8,13 +8,13 @@ import java.util.concurrent.ExecutorService;
  * Created by Killian on 5/24/17.
  */
 public class DefaultReceiver extends DataReceiver {
-    public DefaultReceiver(String address, MsgBufferMap msgBufferMap, ExecutorService executor) {
-        super("", address, msgBufferMap, executor);
+    public DefaultReceiver(String address, MsgBufferMap msgBufferMap, ExecutorService executor, ZkConnect zkConnect) {
+        super("", address, msgBufferMap, executor, zkConnect);
     }
 
     @Override
     // all message received by default receiver are stored in topic "", may need to change in the future
-    public void receive() {
+    public void receiver() {
         ZMsg receivedMsg = ZMsg.recvMsg(this.recSocket);
         msgBuffer.add(receivedMsg);
         {
