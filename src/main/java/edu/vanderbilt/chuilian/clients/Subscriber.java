@@ -7,6 +7,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
 public class Subscriber {
@@ -16,6 +17,7 @@ public class Subscriber {
 	private final MsgBufferMap msgBufferMap;
 	private final ExecutorService executor;
 	private final ZkConnect zkConnect;
+	private Future<?> processorFuture;
 
 	public Subscriber() {
 		this.topicReceiverMap = null;
@@ -40,10 +42,10 @@ public class Subscriber {
 		// here we get the default sending address, make a default receiver for it, and initialize topic receiver map
 		this.topicReceiverMap = new TopicReceiverMap(new DefaultReceiver(defaultAddress, this.msgBufferMap, this.executor, this.zkConnect));
 		this.topicReceiverMap.getDefault().start();
-		// this thread will constantly (10s) check MsgBuffer and process msgs
-		executor.submit(() -> {
+		// this thread will constantly (3s) check MsgBuffer and process msgs
+		this.processorFuture = executor.submit(() -> {
 			while (true) {
-				Thread.sleep(10000);
+				Thread.sleep(3000);
 				processor();
 			}
 		});
@@ -80,14 +82,18 @@ public class Subscriber {
 	 * shutdown all data receiver including default sender.
 	 */
 	public void close() throws Exception {
-		// shutdown default sender first, so that no more new receiver will be created
+		// shutdown processor thread first
+		this.processorFuture.cancel(false);
+		// shutdown default receiver
 		this.topicReceiverMap.getDefault().stop();
 		// iterate through the map, shutdown every single receiver.
 		for (Map.Entry<String, DataReceiver> entry : this.topicReceiverMap.entrySet()) {
-			entry.getValue().stop();
+			this.unsubscribe(entry.getKey());
 		}
 		// reset topicReceiverMap
 		this.topicReceiverMap = null;
+		// turn off executor
+		this.executor.shutdownNow();
 		// shutdown zookeeper client
 		this.zkConnect.close();
 	}
@@ -151,10 +157,12 @@ public class Subscriber {
 		Subscriber sub = new Subscriber();
 		sub.start();
 		sub.subscribe("topic1");
-		Thread.sleep(10000);
 		sub.subscribe("topic2");
 		sub.subscribe("topic3");
+		Thread.sleep(10000);
 		sub.unsubscribe("topic1");
+		Thread.sleep(10000);
+		sub.close();
 		/*
 		Context context= ZMQ.context(1);
 		Socket subscriber= context.socket(ZMQ.SUB);	

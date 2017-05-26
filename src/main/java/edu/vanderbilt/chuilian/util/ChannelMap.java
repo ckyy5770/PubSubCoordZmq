@@ -4,6 +4,8 @@ package edu.vanderbilt.chuilian.util;
  * Created by Killian on 5/23/17.
  */
 
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 
@@ -16,8 +18,16 @@ import java.util.concurrent.ExecutorService;
  */
 public class ChannelMap {
     private ConcurrentHashMap<String, MsgChannel> map;
+    private MainChannel mainChannel;
+
+
     public ChannelMap(){
+        this.mainChannel = null;
         this.map = new ConcurrentHashMap<>();
+    }
+
+    public void setMain(MainChannel mainChannel) {
+        this.mainChannel = mainChannel;
     }
 
     /**
@@ -25,10 +35,10 @@ public class ChannelMap {
      * @param topic
      * @return null if the topic already existed
      */
-    public MsgChannel register(String topic, PortList portList, ExecutorService executor, ZkConnect zkConnect) {
+    public MsgChannel register(String topic, PortList portList, ExecutorService executor, ZkConnect zkConnect, ChannelMap channelMap) {
         if(this.map.containsKey(topic)) return null;
         else{
-            MsgChannel newChannel = new MsgChannel(topic, portList, executor, zkConnect);
+            MsgChannel newChannel = new MsgChannel(topic, portList, executor, zkConnect, channelMap);
             this.map.put(topic, newChannel);
             return newChannel;
         }
@@ -50,6 +60,24 @@ public class ChannelMap {
      */
     public MsgChannel get(String topic){
         return this.map.get(topic);
+    }
+
+    /**
+     * get main channel reference
+     *
+     * @return null if topic not existed
+     */
+    public MsgChannel getMain() {
+        return this.mainChannel;
+    }
+
+    /**
+     * Returns a Set view of the mappings contained in this map. for iterating the map
+     *
+     * @return
+     */
+    public Set<Map.Entry<String, MsgChannel>> entrySet() {
+        return this.map.entrySet();
     }
 
 }

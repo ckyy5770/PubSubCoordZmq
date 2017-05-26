@@ -34,7 +34,7 @@ public class DefaultSender extends DataSender {
     public void stop() throws Exception {
         {
             //debug
-            System.out.println("stopping default ender: " + topic);
+            System.out.println("stopping default sender: " + topic);
         }
         // stop the sender thread first,
         // otherwise there could be interruption between who ever invoked this method and the sender thread.
@@ -49,8 +49,6 @@ public class DefaultSender extends DataSender {
         // shutdown zmq socket and context
         this.sendSocket.close();
         this.sendContext.term();
-        // shutdown zookeeper connection
-        this.zkConnect.close();
         // default sender will not unregister itself from zookeeper since it never registered
         {
             //debug

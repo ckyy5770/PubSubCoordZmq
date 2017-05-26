@@ -81,8 +81,6 @@ public class DataReceiver {
         // shutdown zmq socket and context
         this.recSocket.close();
         this.recContext.term();
-        // shutdown zookeeper connection
-        this.zkConnect.close();
         {
             //debug
             System.out.println("receiver stopped: " + topic);

@@ -13,10 +13,9 @@ import java.util.concurrent.ExecutorService;
  * note main channel will still behave like a normal message channel: sending messages directly to subscribers
  */
 public class MainChannel extends MsgChannel {
-    private ChannelMap channelMap;
 
     public MainChannel(String topic, PortList portList, ExecutorService executor, ZkConnect zkConnect, ChannelMap channelMap) {
-        super(topic, portList, executor, zkConnect);
+        super(topic, portList, executor, zkConnect, channelMap);
         // channel map is used to create new channel
         this.channelMap = channelMap;
     }
@@ -36,7 +35,7 @@ public class MainChannel extends MsgChannel {
             System.out.println("Main Channel Started, topic: " + this.topic);
         }
         // start receiving and sending messages
-        this.executor.submit(() -> {
+        this.workerFuture = this.executor.submit(() -> {
             {
                 // debug
                 System.out.println("Main Channel Thread Started, topic: " + this.topic);
@@ -45,6 +44,36 @@ public class MainChannel extends MsgChannel {
                 worker();
             }
         });
+        // main channel won't have a terminator, it should be terminated explicitly by the broker
+    }
+
+    @Override
+    // main channel will never stop automatically unless being stopped explicitly by broker
+    public void stop() throws Exception {
+        {
+            //debug
+            {
+                System.out.println("shutting down main channel: ");
+            }
+            // unregister itself from zookeeper server
+            this.zkConnect.unregisterDefaultChannel();
+            // stop worker thread
+            this.workerFuture.cancel(false);
+            // shutdown zmq socket and context
+            this.recSocket.close();
+            this.recContext.term();
+            this.sendSocket.close();
+            this.sendContext.term();
+            // return used port to port list
+            this.portList.put(this.recPort);
+            this.portList.put(this.sendPort);
+            // unregister itself from Channel Map since never registered
+            this.channelMap.setMain(null);
+            {
+                //debug
+                System.out.println("main channel closed: ");
+            }
+        }
     }
 
     @Override
@@ -65,7 +94,7 @@ public class MainChannel extends MsgChannel {
                 // debug
                 System.out.println("This is a new topic, building a new Channel for it...");
             }
-            MsgChannel newChannel = channelMap.register(msgTopic, this.portList, this.executor, this.zkConnect);
+            MsgChannel newChannel = channelMap.register(msgTopic, this.portList, this.executor, this.zkConnect, this.channelMap);
             if (newChannel != null) newChannel.start();
         }
         this.sendSocket.sendMore(receivedMsg.getFirst().getData());
@@ -78,4 +107,5 @@ public class MainChannel extends MsgChannel {
             System.out.println(new String(receivedMsg.getLast().getData()));
         }
     }
+
 }

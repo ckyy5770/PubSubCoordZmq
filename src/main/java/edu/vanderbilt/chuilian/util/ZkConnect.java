@@ -96,6 +96,54 @@ public class ZkConnect {
         this.createNode("/topics/" + topic + "/sub", sendAddress.getBytes());
     }
 
+    public void unregisterChannel(String topic) throws Exception {
+        // if the channel does not exist on zookeeper, throw an exception
+        if (!existsNode("/topics/" + topic))
+            throw new IllegalStateException("/topics/" + topic + " node does not exist");
+        // if there still are subscribers or publishers on this topic, throw
+        if (anyPublisher(topic) || anySubsciber(topic))
+            throw new IllegalStateException("/topics/" + topic + " still has alive pub/sub!");
+        // now delete this channel
+        recursiveDelete("/topics/" + topic);
+    }
+
+    /**
+     * check if there is any subscriber on the topic, return true if there exists one.
+     *
+     * @param topic
+     * @return
+     */
+    public boolean anySubsciber(String topic) throws Exception {
+        // if the topic does not exist on zookeeper, throw an exception
+        if (!existsNode("/topics/" + topic))
+            throw new IllegalStateException("/topics/" + topic + " node does not exist");
+        return getNumChildren("/topics/" + topic + "/sub") > 0;
+    }
+
+    /**
+     * check if there is any publisher on the topic, return true if there exists one.
+     *
+     * @param topic
+     * @return
+     */
+    public boolean anyPublisher(String topic) throws Exception {
+        // if the topic does not exist on zookeeper, throw an exception
+        if (!existsNode("/topics/" + topic))
+            throw new IllegalStateException("/topics/" + topic + " node does not exist");
+        return getNumChildren("/topics/" + topic + "/pub") > 0;
+    }
+
+    /**
+     * check if there is any channel, return true if there exists one.
+     *
+     * @return
+     */
+    public boolean anyChannel() throws Exception {
+        // if the topics does not exist on zookeeper, throw an exception
+        if (!existsNode("/topics")) throw new IllegalStateException("/topics node does not exist");
+        return getNumChildren("/topics") > 0;
+    }
+
     /**
      * register default channel
      *
@@ -109,6 +157,18 @@ public class ZkConnect {
         // here everything is fine, we update node data
         String data = recAddress + "\n" + sendAddress;
         this.updateNode("/topics", data.getBytes());
+    }
+
+    /**
+     * unregister default channel
+     *
+     * @throws Exception
+     */
+    public void unregisterDefaultChannel() throws Exception {
+        // if there is no /topics yet, throw a exception, this will never happen in a well-designed system
+        if (!existsNode("/topics")) throw new IllegalStateException("/topics node does not exist");
+        // here we delete default channel by updating /topics to "null"
+        updateNode("/topics", "null".getBytes());
     }
 
     /**

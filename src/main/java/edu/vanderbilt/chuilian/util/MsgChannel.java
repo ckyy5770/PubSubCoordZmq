@@ -5,6 +5,7 @@ import org.zeromq.ZMsg;
 
 import java.util.Queue;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
 
 /**
  * Created by Chuilian on 5/23/17.
@@ -21,6 +22,8 @@ public class MsgChannel {
     String topic;
     // a message queue for storing message, not used for now
     Queue<ZMsg> msgList = null;
+    // Channel map
+    ChannelMap channelMap;
     // ref to available port list
     PortList portList;
     // socket configs
@@ -36,19 +39,21 @@ public class MsgChannel {
     ExecutorService executor;
     // zookeeper service handler, which is passed from the broker main thread.
     ZkConnect zkConnect;
+    // worker future is a reference of the worker thread, it can be used to stop the thread.
+    Future<?> workerFuture;
+    // terminator will periodically check if there is still a publisher or subscriber alive on this topic
+    Future<?> terminatorFuture;
 
     //default constructor simply do nothing
     protected MsgChannel() {
     }
-
-    ;
 
     /**
      * @param topic
      * @param portList available port list, there should be only one port list within a broker
      * @param executor executor for worker threads, there should be only one executor within a broker
      */
-    public MsgChannel(String topic, PortList portList, ExecutorService executor, ZkConnect zkConnect) {
+    public MsgChannel(String topic, PortList portList, ExecutorService executor, ZkConnect zkConnect, ChannelMap channelMap) {
         // initialize member vars
         this.topic = topic;
         this.portList = portList;
@@ -62,6 +67,8 @@ public class MsgChannel {
         // get two unused port number from available list
         this.sendPort = portList.get();
         this.recPort = portList.get();
+        // channel map
+        this.channelMap = channelMap;
     }
 
     /**
@@ -82,15 +89,62 @@ public class MsgChannel {
             System.out.println("Channel Started, topic: " + this.topic);
         }
         // begin receiving and sending messages
-        this.executor.submit(() -> {
+        this.workerFuture = this.executor.submit(() -> {
             {
                 // debug
-                System.out.println("Channel Thread Started, topic: " + this.topic);
+                System.out.println("Channel Worker Thread Started, topic: " + this.topic);
             }
             while (true) {
                 worker();
             }
         });
+        // terminator will periodically check if there is still a publisher or subscriber alive on this topic
+        this.terminatorFuture = this.executor.submit(() -> {
+            {
+                // debug
+                System.out.println("Channel Terminator Thread Started, topic: " + this.topic);
+            }
+            try {
+                while (true) {
+                    Thread.sleep(5000);
+                    if (!this.zkConnect.anyPublisher(this.topic) && !this.zkConnect.anySubsciber(this.topic)) {
+                        {
+                            // debug
+                            System.out.println("Detected no pub/sub alive on topic: " + this.topic);
+                            System.out.println("Closing channel");
+                        }
+                        this.stop();
+                        return;
+                    }
+                }
+            } catch (Exception e) {
+            }
+        });
+    }
+
+    public void stop() throws Exception {
+        //debug
+        {
+            System.out.println("shutting down channel: " + topic);
+        }
+        // unregister itself from zookeeper server
+        this.zkConnect.unregisterChannel(this.topic);
+        // stop worker thread
+        this.workerFuture.cancel(false);
+        // shutdown zmq socket and context
+        this.recSocket.close();
+        this.recContext.term();
+        this.sendSocket.close();
+        this.sendContext.term();
+        // return used port to port list
+        this.portList.put(this.recPort);
+        this.portList.put(this.sendPort);
+        // unregister itself from Channel Map
+        this.channelMap.unregister(this.topic);
+        {
+            //debug
+            System.out.println("channel closed" + topic);
+        }
     }
 
     public void worker() throws Exception {
@@ -113,6 +167,7 @@ public class MsgChannel {
             System.out.println(new String(receivedMsg.getLast().getData()));
         }
     }
+
 
     /**
      * add a message to the end of the queue

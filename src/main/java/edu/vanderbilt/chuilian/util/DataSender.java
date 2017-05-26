@@ -67,8 +67,8 @@ public class DataSender {
                 System.out.println("new sender thread created: " + topic);
             }
             while (true) {
-                // checking message buffer and send message every 2 secs
-                Thread.sleep(2000);
+                // checking message buffer and send message every 0.1 secs
+                Thread.sleep(100);
                 this.sender();
             }
         });
@@ -94,8 +94,6 @@ public class DataSender {
         this.sendContext.term();
         // unregister itself from zookeeper server
         this.zkConnect.unregisterPub(this.topic, this.pubID);
-        // shutdown zookeeper connection
-        this.zkConnect.close();
         {
             //debug
             System.out.println("sender stopped: " + topic);

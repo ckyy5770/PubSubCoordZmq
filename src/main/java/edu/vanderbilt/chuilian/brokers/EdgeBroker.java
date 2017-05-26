@@ -1,15 +1,13 @@
 package edu.vanderbilt.chuilian.brokers;
 
-import edu.vanderbilt.chuilian.util.ChannelMap;
-import edu.vanderbilt.chuilian.util.MainChannel;
-import edu.vanderbilt.chuilian.util.PortList;
-import edu.vanderbilt.chuilian.util.ZkConnect;
+import edu.vanderbilt.chuilian.util.*;
 
+import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class EdgeBroker {
-    private final ChannelMap channelMap;
+    private ChannelMap channelMap;
     private final PortList portList;
     // the executor for channel threads
     private final ExecutorService channelExecutor;
@@ -41,6 +39,7 @@ public class EdgeBroker {
         this.zkConnect.resetServer();
         // create and start main channel
         MainChannel mainChannel = new MainChannel("", this.portList, this.channelExecutor, this.zkConnect, this.channelMap);
+        this.channelMap.setMain(mainChannel);
         mainChannel.start();
     }
 
@@ -50,8 +49,20 @@ public class EdgeBroker {
      * @throws Exception
      */
     public void stop() throws Exception {
+        // close every message channel, including default channel
+        // stop default channel first
+        this.channelMap.getMain().stop();
+        // close any other channel
+        // iterate through the map, shutdown every single sender.
+        for (Map.Entry<String, MsgChannel> entry : this.channelMap.entrySet()) {
+            entry.getValue().stop();
+        }
+        // create a new map, discard the old one
+        this.channelMap = new ChannelMap();
         // clear the data tree
         this.zkConnect.resetServer();
+        // turn off executor
+        this.channelExecutor.shutdownNow();
         // close zookeeper client
         this.zkConnect.close();
     }
@@ -60,6 +71,8 @@ public class EdgeBroker {
     public static void main(String args[]) throws Exception {
         EdgeBroker broker = new EdgeBroker();
         broker.start();
+        Thread.sleep(60000);
+        broker.stop();
     }
 
 

@@ -62,11 +62,9 @@ public class DefaultReceiver extends DataReceiver {
         // shutdown zmq socket and context
         this.recSocket.close();
         this.recContext.term();
-        // shutdown zookeeper connection
-        this.zkConnect.close();
         {
             //debug
-            System.out.println("stopping default receiver: " + topic);
+            System.out.println("default receiver stopped: " + topic);
         }
         // unregister the message buffer, the return value is the old buffer, which may have some old message left
         // return them to subscriber for properly handling.

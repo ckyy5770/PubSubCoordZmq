@@ -79,6 +79,7 @@ public class Publisher {
 		if (sender != null) {
 			sender.stop();
 		}
+		this.topicSenderMap.unregister(topic);
 	}
 
 	/**
@@ -89,10 +90,12 @@ public class Publisher {
 		this.topicSenderMap.getDefault().stop();
 		// iterate through the map, shutdown every single sender.
 		for (Map.Entry<String, DataSender> entry : this.topicSenderMap.entrySet()) {
-			entry.getValue().stop();
+			this.stop(entry.getKey());
 		}
 		// reset topicSenderMap
 		this.topicSenderMap = null;
+		// turn off executor
+		this.executor.shutdownNow();
 		// shutdown zookeeper client
 		this.zkConnect.close();
 	}
@@ -126,23 +129,19 @@ public class Publisher {
 		int counter = 10;
 		Publisher pub = new Publisher();
 		pub.start();
-		while (counter-- !=0) {
-			for (int i = 0; i < 5; i++) {
-				pub.send("topic1", Integer.toString(i));
-				Thread.sleep(100);
-			}
-			Thread.sleep(1000);
-			for (int i = 0; i < 5; i++) {
-				pub.send("topic2", Integer.toString(i));
-				Thread.sleep(100);
-			}
-			Thread.sleep(1000);
-			for (int i = 0; i < 5; i++) {
-				pub.send("topic3", Integer.toString(i));
-				Thread.sleep(100);
-			}
+		for (int i = 0; i < 40; i++) {
+			pub.send("topic1", Integer.toString(i));
+			pub.send("topic2", Integer.toString(i));
+			pub.send("topic3", Integer.toString(i));
+			Thread.sleep(500);
 		}
 		pub.stop("topic1");
+		for (int i = 0; i < 40; i++) {
+			pub.send("topic2", Integer.toString(i));
+			pub.send("topic3", Integer.toString(i));
+			Thread.sleep(500);
+		}
+		pub.close();
 		/*
 		Thread.sleep(1000);
 		for(int i=0; i<10; i++){
