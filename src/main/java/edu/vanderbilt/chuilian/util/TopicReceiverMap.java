@@ -4,6 +4,8 @@ package edu.vanderbilt.chuilian.util;
  * Created by Killian on 5/24/17.
  */
 
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 
@@ -46,7 +48,7 @@ public class TopicReceiverMap {
     }
 
     /**
-     * delete a topic along with the receiver that corresponding to it
+     * delete a topic along with the receiver that corresponding to it, before delete the receiver, stop it first.
      *
      * @param topic
      * @return the previous receiver associated with topic, or null if there was no mapping for topic
@@ -62,5 +64,14 @@ public class TopicReceiverMap {
      */
     public DefaultReceiver getDefault() {
         return this.defaultReceiver;
+    }
+
+    /**
+     * Returns a Set view of the mappings contained in this map. for iterating the map
+     *
+     * @return
+     */
+    public Set<Map.Entry<String, DataReceiver>> entrySet() {
+        return this.map.entrySet();
     }
 }

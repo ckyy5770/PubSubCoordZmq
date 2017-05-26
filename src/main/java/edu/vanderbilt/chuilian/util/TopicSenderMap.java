@@ -4,6 +4,8 @@ package edu.vanderbilt.chuilian.util;
  * Created by Killian on 5/24/17.
  */
 
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 
@@ -63,4 +65,14 @@ public class TopicSenderMap {
     public DefaultSender getDefault() {
         return this.defaultSender;
     }
+
+    /**
+     * Returns a Set view of the mappings contained in this map. for iterating the map
+     *
+     * @return
+     */
+    public Set<Map.Entry<String, DataSender>> entrySet() {
+        return this.map.entrySet();
+    }
+
 }

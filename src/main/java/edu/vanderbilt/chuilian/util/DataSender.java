@@ -6,7 +6,6 @@ import org.zeromq.ZMsg;
 import java.util.Iterator;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Created by Killian on 5/24/17.
@@ -29,6 +28,8 @@ public class DataSender {
     Future<?> future;
     // zookeeper client
     ZkConnect zkConnect;
+    // unique pub ID assigned by zookeeper
+    String pubID;
 
     //default constructor simply do nothing
     protected DataSender() {
@@ -58,7 +59,7 @@ public class DataSender {
             throw new IllegalStateException("message buffer with the topic name " + this.topic + " already exist!");
         }
         // register this publisher to zookeeper
-        this.zkConnect.registerPub(this.topic, this.ip);
+        this.pubID = this.zkConnect.registerPub(this.topic, this.ip);
         // execute sender thread for this topic
         this.future = executor.submit(() -> {
             {
@@ -66,37 +67,61 @@ public class DataSender {
                 System.out.println("new sender thread created: " + topic);
             }
             while (true) {
+                // checking message buffer and send message every 2 secs
+                Thread.sleep(2000);
                 this.sender();
             }
         });
     }
 
-    public void sender() {
-        // keep checking message buffer and send message.
-        while (true) {
-            try {
-                TimeUnit.SECONDS.sleep(2);
-            } catch (InterruptedException e) {
-                throw new IllegalStateException("I'm sleeping! Why interrupt me?!", e);
-            }
-            // create a new empty buffer for this topic
-            MsgBuffer buff = new MsgBuffer(this.topic);
-            // swap the new empty buffer with old buffer
-            // TODO: 5/24/17 here may need lock
-            this.msgBufferMap.get(this.topic).swap(buff);
-            // then we process messages in this old buffer
-            this.processBuffer(buff);
+    public void stop() throws Exception {
+        {
+            //debug
+            System.out.println("stopping sender: " + topic);
+        }
+        // stop the sender thread first,
+        // otherwise there could be interruption between who ever invoked this method and the sender thread.
+        this.future.cancel(false);
+        // stop logic should be different than receivers, since here in sender, we should make sure every messages
+        // in the old sending buffer are sent before we shut down the sender.
+        // unregister the message buffer, the return value is the old buffer, which may have some old message left
+        // return them to publisher for properly handling.
+        MsgBuffer oldBuffer = this.msgBufferMap.unregister(this.topic);
+        // send messages in old buffer
+        this.processBuffer(oldBuffer);
+        // shutdown zmq socket and context
+        this.sendSocket.close();
+        this.sendContext.term();
+        // unregister itself from zookeeper server
+        this.zkConnect.unregisterPub(this.topic, this.pubID);
+        // shutdown zookeeper connection
+        this.zkConnect.close();
+        {
+            //debug
+            System.out.println("sender stopped: " + topic);
         }
     }
 
-    private void processBuffer(MsgBuffer buff) {
+    public void sender() {
+        // checking message buffer and send message.
+        // create a new empty buffer for this topic
+        MsgBuffer buff = new MsgBuffer(this.topic);
+        // swap the new empty buffer with old buffer
+        // TODO: 5/24/17 here may need lock
+        this.msgBufferMap.get(this.topic).swap(buff);
+        // then we process messages in this old buffer
+        this.processBuffer(buff);
+    }
+
+    protected void processBuffer(MsgBuffer buff) {
+        if (buff == null) return;
         Iterator<ZMsg> iter = buff.iterator();
         while (iter.hasNext()) {
             processMsg(iter.next());
         }
     }
 
-    private void processMsg(ZMsg msg) {
+    protected void processMsg(ZMsg msg) {
         this.sendSocket.sendMore(new String(msg.getFirst().getData()));
         this.sendSocket.send(new String(msg.getLast().getData()));
 

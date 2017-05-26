@@ -2,6 +2,7 @@ package edu.vanderbilt.chuilian.clients;
 
 import edu.vanderbilt.chuilian.util.*;
 
+import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -69,6 +70,34 @@ public class Publisher {
 	}
 
 	/**
+	 * shutdown the sender corresponding to the topic, if the sender does not exist, simply do nothing
+	 *
+	 * @param topic
+	 */
+	public void stop(String topic) throws Exception {
+		DataSender sender = this.topicSenderMap.get(topic);
+		if (sender != null) {
+			sender.stop();
+		}
+	}
+
+	/**
+	 * shutdown all data sender including default sender.
+	 */
+	public void close() throws Exception {
+		// shutdown default sender first, so that no more new sender will be created
+		this.topicSenderMap.getDefault().stop();
+		// iterate through the map, shutdown every single sender.
+		for (Map.Entry<String, DataSender> entry : this.topicSenderMap.entrySet()) {
+			entry.getValue().stop();
+		}
+		// reset topicSenderMap
+		this.topicSenderMap = null;
+		// shutdown zookeeper client
+		this.zkConnect.close();
+	}
+
+	/**
 	 * get the specific receiver address from zookeeper server
 	 *
 	 * @param topic
@@ -94,9 +123,10 @@ public class Publisher {
 
 
 	public static void main(String args[]) throws Exception {
+		int counter = 10;
 		Publisher pub = new Publisher();
 		pub.start();
-		while (true) {
+		while (counter-- !=0) {
 			for (int i = 0; i < 5; i++) {
 				pub.send("topic1", Integer.toString(i));
 				Thread.sleep(100);
@@ -112,6 +142,7 @@ public class Publisher {
 				Thread.sleep(100);
 			}
 		}
+		pub.stop("topic1");
 		/*
 		Thread.sleep(1000);
 		for(int i=0; i<10; i++){

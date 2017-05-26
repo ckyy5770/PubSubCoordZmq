@@ -23,6 +23,8 @@ public class DataReceiver {
     Future<?> future;
     // zookeeper client
     ZkConnect zkConnect;
+    // unique sub ID assigned by zookeeper
+    String subID;
 
     //default constructor simply do nothing
     protected DataReceiver() {
@@ -36,6 +38,11 @@ public class DataReceiver {
         this.recSocket = recContext.socket(ZMQ.SUB);
         this.executor = executor;
         this.zkConnect = zkConnect;
+        this.subID = null;
+        {
+            //debug
+            System.out.println("new receiver object created: " + topic);
+        }
     }
 
     public void start() throws Exception {
@@ -49,18 +56,37 @@ public class DataReceiver {
             throw new IllegalStateException("message buffer with the topic name " + this.topic + " already exist!");
         }
         // register this subscriber to zookeeper
-        this.zkConnect.registerSub(this.topic, this.ip);
+        this.subID = this.zkConnect.registerSub(this.topic, this.ip);
         // execute receiver thread for this topic
         this.future = executor.submit(() -> {
+            {
+                //debug
+                System.out.println("new receiver thread created: " + topic);
+            }
             while (true) {
                 this.receiver();
             }
         });
     }
 
-    public MsgBuffer stop() {
+    public MsgBuffer stop() throws Exception {
+        {
+            //debug
+            System.out.println("stopping receiver: " + topic);
+        }
+        // unregister itself from zookeeper server
+        this.zkConnect.unregisterSub(this.topic, this.subID);
         // stop the receiver thread
-        this.future.cancel(true);
+        this.future.cancel(false);
+        // shutdown zmq socket and context
+        this.recSocket.close();
+        this.recContext.term();
+        // shutdown zookeeper connection
+        this.zkConnect.close();
+        {
+            //debug
+            System.out.println("receiver stopped: " + topic);
+        }
         // unregister the message buffer, the return value is the old buffer, which may have some old message left
         // return them to subscriber for properly handling.
         return this.msgBufferMap.unregister(this.topic);

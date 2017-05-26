@@ -26,6 +26,10 @@ public class DefaultReceiver extends DataReceiver {
         }
         // execute receiver thread for this topic
         this.future = executor.submit(() -> {
+            {
+                //debug
+                System.out.println("default receiver thread created: " + topic);
+            }
             while (true) {
                 this.receiver();
             }
@@ -44,5 +48,28 @@ public class DefaultReceiver extends DataReceiver {
             //System.out.println(DataSampleHelper.deserialize(receivedMsg.getLast().getData()).sampleId());
             System.out.println(new String(receivedMsg.getLast().getData()));
         }
+    }
+
+    @Override
+    // will not unregister itself from zookeeper server since it never does
+    public MsgBuffer stop() throws Exception {
+        {
+            //debug
+            System.out.println("stopping default receiver: " + topic);
+        }
+        // stop the receiver thread
+        this.future.cancel(false);
+        // shutdown zmq socket and context
+        this.recSocket.close();
+        this.recContext.term();
+        // shutdown zookeeper connection
+        this.zkConnect.close();
+        {
+            //debug
+            System.out.println("stopping default receiver: " + topic);
+        }
+        // unregister the message buffer, the return value is the old buffer, which may have some old message left
+        // return them to subscriber for properly handling.
+        return this.msgBufferMap.unregister(this.topic);
     }
 }

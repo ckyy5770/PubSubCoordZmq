@@ -112,39 +112,69 @@ public class ZkConnect {
     }
 
     /**
-     * register a publisher, return its unique number
+     * register a publisher, return its unique ID
      *
      * @param topic
      * @param sendAddress
      * @return
      * @throws Exception
      */
-    public int registerPub(String topic, String sendAddress) throws Exception {
+    public String registerPub(String topic, String sendAddress) throws Exception {
         // if there is no /topics/topic/pub yet, throw a exception
         Stat stat = zk.exists("/topics/" + topic + "/pub", true);
         if (stat == null) throw new IllegalStateException("/topics/" + topic + "/pub" + " node does not exist");
         // here we create a new pub node under /pub
         int pubNum = stat.getNumChildren() + 1;
         this.createNode("/topics/" + topic + "/pub/" + "pub" + Integer.toString(pubNum), sendAddress.getBytes());
-        return pubNum;
+        return Integer.toString(pubNum);
     }
 
     /**
-     * register a suscriber, return its unique number
+     * unregister a publisher
+     *
+     * @param topic
+     * @param id
+     * @throws Exception
+     */
+    public void unregisterPub(String topic, String id) throws Exception {
+        // if the given pub doesn't exist in zookeeper, throw a exception
+        Stat stat = zk.exists("/topics/" + topic + "/pub/" + "pub" + id, false);
+        if (stat == null)
+            throw new IllegalStateException("/topics/" + topic + "/pub/" + "pub" + id + " node does not exist");
+        this.deleteNode("/topics/" + topic + "/pub/" + "pub" + id);
+    }
+
+    /**
+     * register a subscriber, return its unique ID
      *
      * @param topic
      * @param recAddress
      * @return
      * @throws Exception
      */
-    public int registerSub(String topic, String recAddress) throws Exception {
+    public String registerSub(String topic, String recAddress) throws Exception {
         // if there is no /topics/topic/sub yet, throw a exception
         Stat stat = zk.exists("/topics/" + topic + "/sub", true);
         if (stat == null) throw new IllegalStateException("/topics/" + topic + "/sub" + " node does not exist");
         // here we create a new sub node under /sub
         int subNum = stat.getNumChildren() + 1;
         this.createNode("/topics/" + topic + "/sub/" + "sub" + Integer.toString(subNum), recAddress.getBytes());
-        return subNum;
+        return Integer.toString(subNum);
+    }
+
+    /**
+     * unregister a subscriber
+     *
+     * @param topic
+     * @param id
+     * @throws Exception
+     */
+    public void unregisterSub(String topic, String id) throws Exception {
+        // if the given sub doesn't exist in zookeeper, throw a exception
+        Stat stat = zk.exists("/topics/" + topic + "/sub/" + "sub" + id, false);
+        if (stat == null)
+            throw new IllegalStateException("/topics/" + topic + "/sub/" + "sub" + id + " node does not exist");
+        this.deleteNode("/topics/" + topic + "/sub/" + "sub" + id);
     }
 
     /**

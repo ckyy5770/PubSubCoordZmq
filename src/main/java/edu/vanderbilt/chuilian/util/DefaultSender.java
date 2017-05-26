@@ -30,6 +30,34 @@ public class DefaultSender extends DataSender {
         });
     }
 
+    @Override
+    public void stop() throws Exception {
+        {
+            //debug
+            System.out.println("stopping default ender: " + topic);
+        }
+        // stop the sender thread first,
+        // otherwise there could be interruption between who ever invoked this method and the sender thread.
+        this.future.cancel(false);
+        // stop logic should be different than receivers, since here in sender, we should make sure every messages
+        // in the old sending buffer are sent before we shut down the sender.
+        // unregister the message buffer, the return value is the old buffer, which may have some old message left
+        // return them to publisher for properly handling.
+        MsgBuffer oldBuffer = this.msgBufferMap.unregister(this.topic);
+        // send messages in old buffer
+        this.processBuffer(oldBuffer);
+        // shutdown zmq socket and context
+        this.sendSocket.close();
+        this.sendContext.term();
+        // shutdown zookeeper connection
+        this.zkConnect.close();
+        // default sender will not unregister itself from zookeeper since it never registered
+        {
+            //debug
+            System.out.println("default sender stopped: " + topic);
+        }
+    }
+
     // user should send messages only through this method
     public void send(String topic, String message) {
         // wrap the message to ZMsg and push it to the message buffer, waiting to be sent
