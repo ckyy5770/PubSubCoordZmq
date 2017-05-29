@@ -29,7 +29,7 @@ public class TopicReceiverMap {
      * @return null if no such data receiver exist
      */
     public DataReceiver get(String topic) {
-        return this.map.get(topic);
+        return map.get(topic);
     }
 
     /**
@@ -39,10 +39,10 @@ public class TopicReceiverMap {
      * @return return newly created receiver, if the receiver for the topic already exist, return null
      */
     public DataReceiver register(String topic, String address, MsgBufferMap msgBufferMap, ExecutorService executor, ZkConnect zkConnect) {
-        if (this.map.containsKey(topic)) return null;
+        if (map.containsKey(topic)) return null;
         else {
             DataReceiver newReceiver = new DataReceiver(topic, address, msgBufferMap, executor, zkConnect);
-            this.map.put(topic, newReceiver);
+            map.put(topic, newReceiver);
             return newReceiver;
         }
     }
@@ -72,6 +72,6 @@ public class TopicReceiverMap {
      * @return
      */
     public Set<Map.Entry<String, DataReceiver>> entrySet() {
-        return this.map.entrySet();
+        return map.entrySet();
     }
 }

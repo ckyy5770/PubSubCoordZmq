@@ -89,11 +89,11 @@ public class ZkConnect {
         if (existsNode("/topics/" + topic))
             throw new IllegalStateException("try to register a topic that already exists on zookeeper. topic: " + topic);
         // here everything is fine, we create a new node with "null" data
-        this.createNode("/topics/" + topic, "null".getBytes());
+        createNode("/topics/" + topic, "null".getBytes());
         // Create two child node under this node: pub and sub
         // and put receiver address and sender address in them separately
-        this.createNode("/topics/" + topic + "/pub", recAddress.getBytes());
-        this.createNode("/topics/" + topic + "/sub", sendAddress.getBytes());
+        createNode("/topics/" + topic + "/pub", recAddress.getBytes());
+        createNode("/topics/" + topic + "/sub", sendAddress.getBytes());
     }
 
     public void unregisterChannel(String topic) throws Exception {
@@ -156,7 +156,7 @@ public class ZkConnect {
         if (!existsNode("/topics")) throw new IllegalStateException("/topics node does not exist");
         // here everything is fine, we update node data
         String data = recAddress + "\n" + sendAddress;
-        this.updateNode("/topics", data.getBytes());
+        updateNode("/topics", data.getBytes());
     }
 
     /**
@@ -185,7 +185,7 @@ public class ZkConnect {
         if (stat == null) throw new IllegalStateException("/topics/" + topic + "/pub" + " node does not exist");
         // here we create a new pub node under /pub
         int pubNum = stat.getNumChildren() + 1;
-        this.createNode("/topics/" + topic + "/pub/" + "pub" + Integer.toString(pubNum), sendAddress.getBytes());
+        createNode("/topics/" + topic + "/pub/" + "pub" + Integer.toString(pubNum), sendAddress.getBytes());
         return Integer.toString(pubNum);
     }
 
@@ -218,7 +218,7 @@ public class ZkConnect {
         if (stat == null) throw new IllegalStateException("/topics/" + topic + "/sub" + " node does not exist");
         // here we create a new sub node under /sub
         int subNum = stat.getNumChildren() + 1;
-        this.createNode("/topics/" + topic + "/sub/" + "sub" + Integer.toString(subNum), recAddress.getBytes());
+        createNode("/topics/" + topic + "/sub/" + "sub" + Integer.toString(subNum), recAddress.getBytes());
         return Integer.toString(subNum);
     }
 
@@ -234,7 +234,7 @@ public class ZkConnect {
         Stat stat = zk.exists("/topics/" + topic + "/sub/" + "sub" + id, false);
         if (stat == null)
             throw new IllegalStateException("/topics/" + topic + "/sub/" + "sub" + id + " node does not exist");
-        this.deleteNode("/topics/" + topic + "/sub/" + "sub" + id);
+        deleteNode("/topics/" + topic + "/sub/" + "sub" + id);
     }
 
     /**

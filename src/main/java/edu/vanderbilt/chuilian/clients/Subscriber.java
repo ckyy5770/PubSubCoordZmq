@@ -28,8 +28,8 @@ public class Subscriber {
 
 	public void start() throws Exception {
 		// start zookeeper client
-		this.zkConnect.connect("127.0.0.1:2181");
-		// initialize a default data receiver
+        zkConnect.connect("127.0.0.1:2181");
+        // initialize a default data receiver
 		// try to get default address, if fail, wait 2 seconds and do it again.
 		String defaultAddress;
 		while ((defaultAddress = getDefaultAddress()) == null) {
@@ -40,11 +40,11 @@ public class Subscriber {
 			}
 		}
 		// here we get the default sending address, make a default receiver for it, and initialize topic receiver map
-		this.topicReceiverMap = new TopicReceiverMap(new DefaultReceiver(defaultAddress, this.msgBufferMap, this.executor, this.zkConnect));
-		this.topicReceiverMap.getDefault().start();
-		// this thread will constantly (3s) check MsgBuffer and process msgs
-		this.processorFuture = executor.submit(() -> {
-			while (true) {
+        topicReceiverMap = new TopicReceiverMap(new DefaultReceiver(defaultAddress, this.msgBufferMap, this.executor, this.zkConnect));
+        topicReceiverMap.getDefault().start();
+        // this thread will constantly (3s) check MsgBuffer and process msgs
+        processorFuture = executor.submit(() -> {
+            while (true) {
 				Thread.sleep(3000);
 				processor();
 			}
@@ -57,13 +57,13 @@ public class Subscriber {
 			System.out.println("Subscribe topic: " + topic);
 		}
 		// if the topic is already subscribed, do nothing
-		if (this.topicReceiverMap.get(topic) != null) return;
-		// try to get the broker sender address for this topic, if not found, throw a topic not found exception
+        if (topicReceiverMap.get(topic) != null) return;
+        // try to get the broker sender address for this topic, if not found, throw a topic not found exception
 		String address;
 		if ((address = getAddress(topic)) == null) throw new RuntimeException("topic not found");
 		// here we successfully get the broker sender address for this topic, create a data receiver for it.
-		DataReceiver newReceiver = this.topicReceiverMap.register(topic, address, this.msgBufferMap, this.executor, this.zkConnect);
-		newReceiver.start();
+        DataReceiver newReceiver = topicReceiverMap.register(topic, address, this.msgBufferMap, this.executor, this.zkConnect);
+        newReceiver.start();
 	}
 
 	public void unsubscribe(String topic) throws Exception {
@@ -72,46 +72,46 @@ public class Subscriber {
 			System.out.println("Unsubscribe topic: " + topic);
 		}
 		// stop the receiver thread, get unprocessed messages
-		MsgBuffer unprocessedMsg = this.topicReceiverMap.get(topic).stop();
-		this.processBuffer(unprocessedMsg);
-		// unregister from topic receiver map
-		this.topicReceiverMap.unregister(topic);
-	}
+        MsgBuffer unprocessedMsg = topicReceiverMap.get(topic).stop();
+        processBuffer(unprocessedMsg);
+        // unregister from topic receiver map
+        topicReceiverMap.unregister(topic);
+    }
 
 	/**
 	 * shutdown all data receiver including default sender.
 	 */
 	public void close() throws Exception {
 		// shutdown processor thread first
-		this.processorFuture.cancel(false);
-		// shutdown default receiver
-		this.topicReceiverMap.getDefault().stop();
-		// iterate through the map, shutdown every single receiver.
-		for (Map.Entry<String, DataReceiver> entry : this.topicReceiverMap.entrySet()) {
-			this.unsubscribe(entry.getKey());
-		}
+        processorFuture.cancel(false);
+        // shutdown default receiver
+        topicReceiverMap.getDefault().stop();
+        // iterate through the map, shutdown every single receiver.
+        for (Map.Entry<String, DataReceiver> entry : topicReceiverMap.entrySet()) {
+            unsubscribe(entry.getKey());
+        }
 		// reset topicReceiverMap
-		this.topicReceiverMap = null;
-		// turn off executor
-		this.executor.shutdownNow();
-		// shutdown zookeeper client
-		this.zkConnect.close();
-	}
+        topicReceiverMap = null;
+        // turn off executor
+        executor.shutdownNow();
+        // shutdown zookeeper client
+        zkConnect.close();
+    }
 
 	/**
 	 * a worker that loop through buffer map and process each messages in each msgbuffer
 	 */
 	private void processor() {
 		// iterate through the map, process every buffer
-		for (Map.Entry<String, MsgBuffer> entry : this.msgBufferMap.entrySet()) {
-			// create a new empty buffer for this entry
+        for (Map.Entry<String, MsgBuffer> entry : msgBufferMap.entrySet()) {
+            // create a new empty buffer for this entry
 			MsgBuffer buff = new MsgBuffer(entry.getKey());
 			// swap the new empty buffer with old buffer
 			// TODO: 5/24/17 here may need lock
 			entry.getValue().swap(buff);
 			// then we process messages in this old buffer
-			this.processBuffer(buff);
-		}
+            processBuffer(buff);
+        }
 	}
 
 	private void processBuffer(MsgBuffer buff) {

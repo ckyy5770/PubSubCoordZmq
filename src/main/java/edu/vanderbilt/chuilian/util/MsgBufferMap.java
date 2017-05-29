@@ -25,10 +25,10 @@ public class MsgBufferMap {
      * @return new message buffer, null if the topic already exist
      */
     public MsgBuffer register(String topic) {
-        if (this.map.containsKey(topic)) return null;
+        if (map.containsKey(topic)) return null;
         else {
             MsgBuffer newBuffer = new MsgBuffer(topic);
-            this.map.put(topic, newBuffer);
+            map.put(topic, newBuffer);
             return newBuffer;
         }
     }
@@ -40,7 +40,7 @@ public class MsgBufferMap {
      * @return the previous buffer ref associated with topic, or null if there was no mapping for topic
      */
     public MsgBuffer unregister(String topic) {
-        return this.map.remove(topic);
+        return map.remove(topic);
     }
 
     /**
@@ -49,7 +49,7 @@ public class MsgBufferMap {
      * @return
      */
     public Set<Map.Entry<String, MsgBuffer>> entrySet() {
-        return this.map.entrySet();
+        return map.entrySet();
     }
 
     /**
@@ -59,6 +59,6 @@ public class MsgBufferMap {
      * @return
      */
     public MsgBuffer get(String topic) {
-        return this.map.get(topic);
+        return map.get(topic);
     }
 }

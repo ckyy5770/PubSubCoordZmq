@@ -47,18 +47,18 @@ public class DataReceiver {
 
     public void start() throws Exception {
         // connect to the sender address
-        this.recSocket.connect("tcp://" + this.address);
+        recSocket.connect("tcp://" + address);
         // subscribe topic
-        this.recSocket.subscribe(this.topic.getBytes());
+        recSocket.subscribe(topic.getBytes());
         // register message buffer for this topic
-        this.msgBuffer = this.msgBufferMap.register(this.topic);
-        if (this.msgBuffer == null) {
-            throw new IllegalStateException("message buffer with the topic name " + this.topic + " already exist!");
+        msgBuffer = msgBufferMap.register(topic);
+        if (msgBuffer == null) {
+            throw new IllegalStateException("message buffer with the topic name " + topic + " already exist!");
         }
         // register this subscriber to zookeeper
-        this.subID = this.zkConnect.registerSub(this.topic, this.ip);
+        subID = zkConnect.registerSub(topic, ip);
         // execute receiver thread for this topic
-        this.future = executor.submit(() -> {
+        future = executor.submit(() -> {
             {
                 //debug
                 System.out.println("new receiver thread created: " + topic);
@@ -75,24 +75,24 @@ public class DataReceiver {
             System.out.println("stopping receiver: " + topic);
         }
         // unregister itself from zookeeper server
-        this.zkConnect.unregisterSub(this.topic, this.subID);
+        zkConnect.unregisterSub(topic, subID);
         // stop the receiver thread
-        this.future.cancel(false);
+        future.cancel(false);
         // shutdown zmq socket and context
-        this.recSocket.close();
-        this.recContext.term();
+        recSocket.close();
+        recContext.term();
         {
             //debug
             System.out.println("receiver stopped: " + topic);
         }
         // unregister the message buffer, the return value is the old buffer, which may have some old message left
         // return them to subscriber for properly handling.
-        return this.msgBufferMap.unregister(this.topic);
+        return msgBufferMap.unregister(topic);
     }
 
     public void receiver() {
-        ZMsg receivedMsg = ZMsg.recvMsg(this.recSocket);
-        this.msgBuffer.add(receivedMsg);
+        ZMsg receivedMsg = ZMsg.recvMsg(recSocket);
+        msgBuffer.add(receivedMsg);
         {
             //debug
             System.out.println("Message Received:");

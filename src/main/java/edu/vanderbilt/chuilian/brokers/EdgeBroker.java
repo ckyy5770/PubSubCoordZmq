@@ -34,37 +34,37 @@ public class EdgeBroker {
      */
     public void start() throws Exception {
         // start zookeeper client
-        this.zkConnect.connect("127.0.0.1:2181");
+        zkConnect.connect("127.0.0.1:2181");
         // clear the data tree
-        this.zkConnect.resetServer();
+        zkConnect.resetServer();
         // create and start main channel
         MainChannel mainChannel = new MainChannel("", this.portList, this.channelExecutor, this.zkConnect, this.channelMap);
-        this.channelMap.setMain(mainChannel);
+        channelMap.setMain(mainChannel);
         mainChannel.start();
     }
 
     /**
-     * stop the server
+     * stop the broker
      *
      * @throws Exception
      */
     public void stop() throws Exception {
         // close every message channel, including default channel
         // stop default channel first
-        this.channelMap.getMain().stop();
+        channelMap.getMain().stop();
         // close any other channel
         // iterate through the map, shutdown every single sender.
-        for (Map.Entry<String, MsgChannel> entry : this.channelMap.entrySet()) {
+        for (Map.Entry<String, MsgChannel> entry : channelMap.entrySet()) {
             entry.getValue().stop();
         }
         // create a new map, discard the old one
-        this.channelMap = new ChannelMap();
+        channelMap = new ChannelMap();
         // clear the data tree
-        this.zkConnect.resetServer();
+        zkConnect.resetServer();
         // turn off executor
-        this.channelExecutor.shutdownNow();
+        channelExecutor.shutdownNow();
         // close zookeeper client
-        this.zkConnect.close();
+        zkConnect.close();
     }
 
 

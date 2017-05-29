@@ -77,43 +77,43 @@ public class MsgChannel {
      */
     public void start() throws Exception {
         // start listening to receiver port
-        this.recSocket.bind("tcp://*:" + this.recPort);
+        recSocket.bind("tcp://*:" + recPort);
         // subscribe topic
-        this.recSocket.subscribe(this.topic.getBytes());
+        recSocket.subscribe(topic.getBytes());
         // start connecting to sending port
-        this.sendSocket.bind("tcp://*:" + this.sendPort);
+        sendSocket.bind("tcp://*:" + sendPort);
         // register itself to zookeeper service
-        this.zkConnect.registerChannel(this.topic, this.ip + ":" + Integer.toString(this.recPort), this.ip + ":" + Integer.toString(this.sendPort));
+        zkConnect.registerChannel(topic, ip + ":" + Integer.toString(recPort), ip + ":" + Integer.toString(sendPort));
         {
             // debug
-            System.out.println("Channel Started, topic: " + this.topic);
+            System.out.println("Channel Started, topic: " + topic);
         }
         // begin receiving and sending messages
-        this.workerFuture = this.executor.submit(() -> {
+        workerFuture = executor.submit(() -> {
             {
                 // debug
-                System.out.println("Channel Worker Thread Started, topic: " + this.topic);
+                System.out.println("Channel Worker Thread Started, topic: " + topic);
             }
             while (true) {
                 worker();
             }
         });
         // terminator will periodically check if there is still a publisher or subscriber alive on this topic
-        this.terminatorFuture = this.executor.submit(() -> {
+        terminatorFuture = executor.submit(() -> {
             {
                 // debug
-                System.out.println("Channel Terminator Thread Started, topic: " + this.topic);
+                System.out.println("Channel Terminator Thread Started, topic: " + topic);
             }
             try {
                 while (true) {
                     Thread.sleep(5000);
-                    if (!this.zkConnect.anyPublisher(this.topic) && !this.zkConnect.anySubsciber(this.topic)) {
+                    if (!zkConnect.anyPublisher(topic) && !zkConnect.anySubsciber(topic)) {
                         {
                             // debug
-                            System.out.println("Detected no pub/sub alive on topic: " + this.topic);
+                            System.out.println("Detected no pub/sub alive on topic: " + topic);
                             System.out.println("Closing channel");
                         }
-                        this.stop();
+                        stop();
                         return;
                     }
                 }
@@ -128,19 +128,19 @@ public class MsgChannel {
             System.out.println("shutting down channel: " + topic);
         }
         // unregister itself from zookeeper server
-        this.zkConnect.unregisterChannel(this.topic);
+        zkConnect.unregisterChannel(topic);
         // stop worker thread
-        this.workerFuture.cancel(false);
+        workerFuture.cancel(false);
         // shutdown zmq socket and context
-        this.recSocket.close();
-        this.recContext.term();
-        this.sendSocket.close();
-        this.sendContext.term();
+        recSocket.close();
+        recContext.term();
+        sendSocket.close();
+        sendContext.term();
         // return used port to port list
-        this.portList.put(this.recPort);
-        this.portList.put(this.sendPort);
+        portList.put(recPort);
+        portList.put(sendPort);
         // unregister itself from Channel Map
-        this.channelMap.unregister(this.topic);
+        channelMap.unregister(topic);
         {
             //debug
             System.out.println("channel closed" + topic);
@@ -149,19 +149,19 @@ public class MsgChannel {
 
     public void worker() throws Exception {
         // just keep receiving and sending messages
-        ZMsg receivedMsg = ZMsg.recvMsg(this.recSocket);
+        ZMsg receivedMsg = ZMsg.recvMsg(recSocket);
         {
             // debug
-            System.out.println("Message Received from Port " + this.recPort);
+            System.out.println("Message Received from Port " + recPort);
             System.out.println(new String(receivedMsg.getFirst().getData()));
             //System.out.println(DataSampleHelper.deserialize(receivedMsg.getLast().getData()).sampleId());
             System.out.println(new String(receivedMsg.getLast().getData()));
         }
-        this.sendSocket.sendMore(receivedMsg.getFirst().getData());
-        this.sendSocket.send(receivedMsg.getLast().getData());
+        sendSocket.sendMore(receivedMsg.getFirst().getData());
+        sendSocket.send(receivedMsg.getLast().getData());
         {
             // debug
-            System.out.println("Message Sent to Port " + this.sendPort);
+            System.out.println("Message Sent to Port " + sendPort);
             System.out.println(new String(receivedMsg.getFirst().getData()));
             //System.out.println(DataSampleHelper.deserialize(receivedMsg.getLast().getData()).sampleId());
             System.out.println(new String(receivedMsg.getLast().getData()));

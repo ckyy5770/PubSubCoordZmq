@@ -36,10 +36,10 @@ public class ChannelMap {
      * @return null if the topic already existed
      */
     public MsgChannel register(String topic, PortList portList, ExecutorService executor, ZkConnect zkConnect, ChannelMap channelMap) {
-        if(this.map.containsKey(topic)) return null;
+        if (map.containsKey(topic)) return null;
         else{
             MsgChannel newChannel = new MsgChannel(topic, portList, executor, zkConnect, channelMap);
-            this.map.put(topic, newChannel);
+            map.put(topic, newChannel);
             return newChannel;
         }
     }
@@ -50,7 +50,7 @@ public class ChannelMap {
      * @return the previous Channel ref associated with topic, or null if there was no mapping for topic
      */
     public MsgChannel unregister(String topic){
-        return this.map.remove(topic);
+        return map.remove(topic);
     }
 
     /**
@@ -59,7 +59,7 @@ public class ChannelMap {
      * @return null if topic not existed
      */
     public MsgChannel get(String topic){
-        return this.map.get(topic);
+        return map.get(topic);
     }
 
     /**
@@ -77,7 +77,7 @@ public class ChannelMap {
      * @return
      */
     public Set<Map.Entry<String, MsgChannel>> entrySet() {
-        return this.map.entrySet();
+        return map.entrySet();
     }
 
 }

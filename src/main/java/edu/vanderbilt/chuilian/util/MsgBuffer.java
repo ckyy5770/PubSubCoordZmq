@@ -19,7 +19,7 @@ public class MsgBuffer {
     }
 
     public void add(ZMsg message) {
-        this.buff.add(message);
+        buff.add(message);
     }
 
     public void swap(MsgBuffer that) {
@@ -29,10 +29,10 @@ public class MsgBuffer {
     }
 
     public boolean isEmpty() {
-        return this.buff.isEmpty();
+        return buff.isEmpty();
     }
 
     public Iterator<ZMsg> iterator() {
-        return this.buff.iterator();
+        return buff.iterator();
     }
 }

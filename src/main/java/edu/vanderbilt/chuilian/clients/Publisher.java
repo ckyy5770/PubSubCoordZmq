@@ -23,7 +23,7 @@ public class Publisher {
 
 	public void start() throws Exception {
 		// start zookeeper client
-		this.zkConnect.connect("127.0.0.1:2181");
+		zkConnect.connect("127.0.0.1:2181");
 		// initialize a default data sender
 		// try to get default address, if fail, wait 2 seconds and do it again.
 		String defaultAddress;
@@ -35,8 +35,8 @@ public class Publisher {
 			}
 		}
 		// here we get the default receiving address, make a default sender for it, and initialize topic sender map
-		this.topicSenderMap = new TopicSenderMap(new DefaultSender(defaultAddress, this.msgBufferMap, this.executor, this.zkConnect));
-		this.topicSenderMap.getDefault().start();
+		topicSenderMap = new TopicSenderMap(new DefaultSender(defaultAddress, this.msgBufferMap, this.executor, this.zkConnect));
+		topicSenderMap.getDefault().start();
 	}
 
 	public void send(String topic, String message) throws Exception {
@@ -57,7 +57,7 @@ public class Publisher {
 			} else {
 				// successfully get the sender from zookeeper
 				// create new sender
-				sender = this.topicSenderMap.register(topic, address, this.msgBufferMap, this.executor, this.zkConnect);
+				sender = topicSenderMap.register(topic, address, this.msgBufferMap, this.executor, this.zkConnect);
 				sender.start();
 				sender.send(message);
 				return;
@@ -75,11 +75,11 @@ public class Publisher {
 	 * @param topic
 	 */
 	public void stop(String topic) throws Exception {
-		DataSender sender = this.topicSenderMap.get(topic);
+		DataSender sender = topicSenderMap.get(topic);
 		if (sender != null) {
 			sender.stop();
 		}
-		this.topicSenderMap.unregister(topic);
+		topicSenderMap.unregister(topic);
 	}
 
 	/**
@@ -87,17 +87,17 @@ public class Publisher {
 	 */
 	public void close() throws Exception {
 		// shutdown default sender first, so that no more new sender will be created
-		this.topicSenderMap.getDefault().stop();
+		topicSenderMap.getDefault().stop();
 		// iterate through the map, shutdown every single sender.
-		for (Map.Entry<String, DataSender> entry : this.topicSenderMap.entrySet()) {
-			this.stop(entry.getKey());
+		for (Map.Entry<String, DataSender> entry : topicSenderMap.entrySet()) {
+			stop(entry.getKey());
 		}
 		// reset topicSenderMap
-		this.topicSenderMap = null;
+		topicSenderMap = null;
 		// turn off executor
-		this.executor.shutdownNow();
+		executor.shutdownNow();
 		// shutdown zookeeper client
-		this.zkConnect.close();
+		zkConnect.close();
 	}
 
 	/**

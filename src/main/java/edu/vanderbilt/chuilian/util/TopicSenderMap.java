@@ -29,7 +29,7 @@ public class TopicSenderMap {
      * @return null if no such data sender exist
      */
     public DataSender get(String topic) {
-        return this.map.get(topic);
+        return map.get(topic);
     }
 
     /**
@@ -39,10 +39,10 @@ public class TopicSenderMap {
      * @return return newly created sender, if the sender for the topic already exist, return null
      */
     public DataSender register(String topic, String address, MsgBufferMap msgBufferMap, ExecutorService executor, ZkConnect zkConnect) {
-        if (this.map.containsKey(topic)) return null;
+        if (map.containsKey(topic)) return null;
         else {
             DataSender newSender = new DataSender(topic, address, msgBufferMap, executor, zkConnect);
-            this.map.put(topic, newSender);
+            map.put(topic, newSender);
             return newSender;
         }
     }
@@ -72,7 +72,7 @@ public class TopicSenderMap {
      * @return
      */
     public Set<Map.Entry<String, DataSender>> entrySet() {
-        return this.map.entrySet();
+        return map.entrySet();
     }
 
 }

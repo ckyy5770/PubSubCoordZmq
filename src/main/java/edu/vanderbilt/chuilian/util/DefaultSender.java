@@ -16,16 +16,16 @@ public class DefaultSender extends DataSender {
     // default sender will not register itself to any topics on zookeeper
     public void start() throws Exception {
         // connect to the receiver address
-        this.sendSocket.connect("tcp://" + this.address);
+        sendSocket.connect("tcp://" + address);
         // register message buffer for this topic
-        this.msgBuffer = this.msgBufferMap.register(this.topic);
-        if (this.msgBuffer == null) {
-            throw new IllegalStateException("message buffer with the topic name " + this.topic + " already exist!");
+        msgBuffer = msgBufferMap.register(topic);
+        if (msgBuffer == null) {
+            throw new IllegalStateException("message buffer with the topic name " + topic + " already exist!");
         }
         // execute sender thread for this topic
-        this.future = executor.submit(() -> {
+        future = executor.submit(() -> {
             while (true) {
-                this.sender();
+                sender();
             }
         });
     }
@@ -38,17 +38,17 @@ public class DefaultSender extends DataSender {
         }
         // stop the sender thread first,
         // otherwise there could be interruption between who ever invoked this method and the sender thread.
-        this.future.cancel(false);
+        future.cancel(false);
         // stop logic should be different than receivers, since here in sender, we should make sure every messages
         // in the old sending buffer are sent before we shut down the sender.
         // unregister the message buffer, the return value is the old buffer, which may have some old message left
         // return them to publisher for properly handling.
-        MsgBuffer oldBuffer = this.msgBufferMap.unregister(this.topic);
+        MsgBuffer oldBuffer = msgBufferMap.unregister(topic);
         // send messages in old buffer
-        this.processBuffer(oldBuffer);
+        processBuffer(oldBuffer);
         // shutdown zmq socket and context
-        this.sendSocket.close();
-        this.sendContext.term();
+        sendSocket.close();
+        sendContext.term();
         // default sender will not unregister itself from zookeeper since it never registered
         {
             //debug
@@ -62,7 +62,7 @@ public class DefaultSender extends DataSender {
         ZMsg newMsg = ZMsg.newStringMsg();
         newMsg.addFirst(topic.getBytes());
         newMsg.addLast(message.getBytes());
-        this.msgBuffer.add(newMsg);
+        msgBuffer.add(newMsg);
     }
 
     @Override

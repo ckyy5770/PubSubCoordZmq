@@ -23,22 +23,22 @@ public class MainChannel extends MsgChannel {
     @Override
     public void start() throws Exception {
         // start listening to receiver port
-        this.recSocket.bind("tcp://*:" + this.recPort);
+        recSocket.bind("tcp://*:" + recPort);
         // subscribe topic
-        this.recSocket.subscribe(topic.getBytes());
+        recSocket.subscribe(topic.getBytes());
         // start connecting to sending port
-        this.sendSocket.bind("tcp://*:" + this.sendPort);
+        sendSocket.bind("tcp://*:" + sendPort);
         // register itself to zookeeper service
-        this.zkConnect.registerDefaultChannel(this.ip + ":" + Integer.toString(this.recPort), this.ip + ":" + Integer.toString(this.sendPort));
+        zkConnect.registerDefaultChannel(ip + ":" + Integer.toString(recPort), ip + ":" + Integer.toString(sendPort));
         {
             // debug
-            System.out.println("Main Channel Started, topic: " + this.topic);
+            System.out.println("Main Channel Started, topic: " + topic);
         }
         // start receiving and sending messages
-        this.workerFuture = this.executor.submit(() -> {
+        workerFuture = executor.submit(() -> {
             {
                 // debug
-                System.out.println("Main Channel Thread Started, topic: " + this.topic);
+                System.out.println("Main Channel Thread Started, topic: " + topic);
             }
             while (true) {
                 worker();
@@ -56,19 +56,19 @@ public class MainChannel extends MsgChannel {
                 System.out.println("shutting down main channel: ");
             }
             // unregister itself from zookeeper server
-            this.zkConnect.unregisterDefaultChannel();
+            zkConnect.unregisterDefaultChannel();
             // stop worker thread
-            this.workerFuture.cancel(false);
+            workerFuture.cancel(false);
             // shutdown zmq socket and context
-            this.recSocket.close();
-            this.recContext.term();
-            this.sendSocket.close();
-            this.sendContext.term();
+            recSocket.close();
+            recContext.term();
+            sendSocket.close();
+            sendContext.term();
             // return used port to port list
-            this.portList.put(this.recPort);
-            this.portList.put(this.sendPort);
+            portList.put(recPort);
+            portList.put(sendPort);
             // unregister itself from Channel Map since never registered
-            this.channelMap.setMain(null);
+            channelMap.setMain(null);
             {
                 //debug
                 System.out.println("main channel closed: ");
@@ -79,10 +79,10 @@ public class MainChannel extends MsgChannel {
     @Override
     public void worker() throws Exception {
         // just keep receiving and sending messages
-        ZMsg receivedMsg = ZMsg.recvMsg(this.recSocket);
+        ZMsg receivedMsg = ZMsg.recvMsg(recSocket);
         {
             // debug
-            System.out.println("Message Received (From Main Channel) from Port " + this.recPort);
+            System.out.println("Message Received (From Main Channel) from Port " + recPort);
             System.out.println(new String(receivedMsg.getFirst().getData()));
             //System.out.println(DataSampleHelper.deserialize(receivedMsg.getLast().getData()).sampleId());
             System.out.println(new String(receivedMsg.getLast().getData()));
@@ -97,11 +97,11 @@ public class MainChannel extends MsgChannel {
             MsgChannel newChannel = channelMap.register(msgTopic, this.portList, this.executor, this.zkConnect, this.channelMap);
             if (newChannel != null) newChannel.start();
         }
-        this.sendSocket.sendMore(receivedMsg.getFirst().getData());
-        this.sendSocket.send(receivedMsg.getLast().getData());
+        sendSocket.sendMore(receivedMsg.getFirst().getData());
+        sendSocket.send(receivedMsg.getLast().getData());
         {
             // debug
-            System.out.println("Message Sent (From Main Channel) to Port " + this.sendPort);
+            System.out.println("Message Sent (From Main Channel) to Port " + sendPort);
             System.out.println(new String(receivedMsg.getFirst().getData()));
             //System.out.println(DataSampleHelper.deserialize(receivedMsg.getLast().getData()).sampleId());
             System.out.println(new String(receivedMsg.getLast().getData()));
