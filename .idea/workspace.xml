@@ -116,8 +116,8 @@
         <entry file="file://$PROJECT_DIR$/README.md">
           <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
             <state split_layout="SPLIT">
-              <first_editor relative-caret-position="287">
-                <caret line="140" column="63" lean-forward="false" selection-start-line="140" selection-start-column="63" selection-end-line="140" selection-end-column="63" />
+              <first_editor relative-caret-position="-500">
+                <caret line="26" column="78" lean-forward="false" selection-start-line="26" selection-start-column="78" selection-end-line="26" selection-end-column="78" />
                 <folding />
               </first_editor>
               <second_editor />
@@ -891,7 +891,7 @@
       <workItem from="1495742394984" duration="30157000" />
       <workItem from="1496075172717" duration="151000" />
       <workItem from="1496076837731" duration="1151000" />
-      <workItem from="1496156020066" duration="8940000" />
+      <workItem from="1496156020066" duration="9301000" />
     </task>
     <task id="LOCAL-00001" summary="update readme and some comments">
       <created>1495643793918</created>
@@ -991,11 +991,18 @@
       <option name="project" value="LOCAL" />
       <updated>1496179813642</updated>
     </task>
-    <option name="localTasksCounter" value="15" />
+    <task id="LOCAL-00015" summary="update readme">
+      <created>1496180065586</created>
+      <option name="number" value="00015" />
+      <option name="presentableId" value="LOCAL-00015" />
+      <option name="project" value="LOCAL" />
+      <updated>1496180065586</updated>
+    </task>
+    <option name="localTasksCounter" value="16" />
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="106404000" />
+    <option name="totallyTimeSpent" value="106765000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="0" y="23" width="1280" height="707" extended-state="6" />
@@ -1080,9 +1087,9 @@
     <MESSAGE value="finished pub/sub unregister logic, tested. next: shutdown channel, optimize concurrency mechanism, enforce priority and load balancing." />
     <MESSAGE value="finished automatically shutdown channel, tested. Discovery service all finished. next: optimize concurrency mechanism, enforce priority and load balancing." />
     <MESSAGE value="clean up code." />
-    <MESSAGE value="update readme" />
     <MESSAGE value="clean up code" />
-    <option name="LAST_COMMIT_MESSAGE" value="clean up code" />
+    <MESSAGE value="update readme" />
+    <option name="LAST_COMMIT_MESSAGE" value="update readme" />
     <option name="OPTIMIZE_IMPORTS_BEFORE_PROJECT_COMMIT" value="true" />
     <option name="REFORMAT_BEFORE_PROJECT_COMMIT" value="true" />
   </component>
@@ -1522,8 +1529,8 @@
     <entry file="file://$PROJECT_DIR$/README.md">
       <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
         <state split_layout="SPLIT">
-          <first_editor relative-caret-position="287">
-            <caret line="140" column="63" lean-forward="false" selection-start-line="140" selection-start-column="63" selection-end-line="140" selection-end-column="63" />
+          <first_editor relative-caret-position="-500">
+            <caret line="26" column="78" lean-forward="false" selection-start-line="26" selection-start-column="78" selection-end-line="26" selection-end-column="78" />
             <folding />
           </first_editor>
           <second_editor />

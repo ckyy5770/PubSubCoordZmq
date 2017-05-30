@@ -24,7 +24,7 @@ Then it will start two threads, one for receiving/sending messages, the other fo
 
 ## Default Channel (Main Channel)
 
-Default channel is a message channel that is used for transferring messages with new topics.
+Default channel is a message channel that is used for transferring messages of new topics.
 
 ### Work flow
 
