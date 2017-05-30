@@ -36,7 +36,7 @@ public class DataSender {
     }
 
 
-    public DataSender(String topic, String address, MsgBufferMap msgBufferMap, ExecutorService executor, ZkConnect zkConnect) {
+    DataSender(String topic, String address, MsgBufferMap msgBufferMap, ExecutorService executor, ZkConnect zkConnect) {
         this.topic = topic;
         this.address = address;
         this.sendContext = ZMQ.context(1);
@@ -100,7 +100,7 @@ public class DataSender {
         }
     }
 
-    public void sender() {
+    void sender() {
         // checking message buffer and send message.
         // create a new empty buffer for this topic
         MsgBuffer buff = new MsgBuffer(topic);
@@ -111,7 +111,7 @@ public class DataSender {
         processBuffer(buff);
     }
 
-    protected void processBuffer(MsgBuffer buff) {
+    void processBuffer(MsgBuffer buff) {
         if (buff == null) return;
         Iterator<ZMsg> iter = buff.iterator();
         while (iter.hasNext()) {
@@ -119,7 +119,7 @@ public class DataSender {
         }
     }
 
-    protected void processMsg(ZMsg msg) {
+    void processMsg(ZMsg msg) {
         sendSocket.sendMore(new String(msg.getFirst().getData()));
         sendSocket.send(new String(msg.getLast().getData()));
 

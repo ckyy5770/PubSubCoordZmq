@@ -30,7 +30,7 @@ public class DataReceiver {
     protected DataReceiver() {
     }
 
-    public DataReceiver(String topic, String address, MsgBufferMap msgBufferMap, ExecutorService executor, ZkConnect zkConnect) {
+    DataReceiver(String topic, String address, MsgBufferMap msgBufferMap, ExecutorService executor, ZkConnect zkConnect) {
         this.topic = topic;
         this.address = address;
         this.msgBufferMap = msgBufferMap;
