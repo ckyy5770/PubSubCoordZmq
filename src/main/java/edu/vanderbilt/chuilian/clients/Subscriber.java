@@ -58,8 +58,11 @@ public class Subscriber {
 		}
 		// if the topic is already subscribed, do nothing
         if (topicReceiverMap.get(topic) != null) return;
-        // try to get the broker sender address for this topic, if not found, throw a topic not found exception
+		// subscribe it for the default receiver
+		topicReceiverMap.getDefault().subscribe(topic);
+		// try to get the broker sender address for this topic, if not found, throw a topic not found exception
 		String address;
+		// TODO: 5/30/17 this exception should be properly handled
 		if ((address = getAddress(topic)) == null) throw new RuntimeException("topic not found");
 		// here we successfully get the broker sender address for this topic, create a data receiver for it.
         DataReceiver newReceiver = topicReceiverMap.register(topic, address, this.msgBufferMap, this.executor, this.zkConnect);
@@ -71,6 +74,8 @@ public class Subscriber {
 			// debug
 			System.out.println("Unsubscribe topic: " + topic);
 		}
+		// unsubscribe it for the default receiver
+		topicReceiverMap.getDefault().unsubscribe(topic);
 		// stop the receiver thread, get unprocessed messages
         MsgBuffer unprocessedMsg = topicReceiverMap.get(topic).stop();
         processBuffer(unprocessedMsg);

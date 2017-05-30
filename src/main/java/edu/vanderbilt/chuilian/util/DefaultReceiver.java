@@ -17,8 +17,8 @@ public class DefaultReceiver extends DataReceiver {
     public void start() throws Exception {
         // connect to the sender address
         recSocket.connect("tcp://" + address);
-        // subscribe topic
-        recSocket.subscribe(topic.getBytes());
+        // subscribe topic, by default, the default receiver will subscribe nothing.
+        // recSocket.subscribe(topic.getBytes());
         // register message buffer for this topic
         msgBuffer = msgBufferMap.register(topic);
         if (msgBuffer == null) {
@@ -69,5 +69,15 @@ public class DefaultReceiver extends DataReceiver {
         // unregister the message buffer, the return value is the old buffer, which may have some old message left
         // return them to subscriber for properly handling.
         return msgBufferMap.unregister(topic);
+    }
+
+    public void subscribe(String topic) throws Exception {
+        // subscribe topic
+        recSocket.subscribe(topic.getBytes());
+    }
+
+    public void unsubscribe(String topic) throws Exception {
+        // unsubscribe topic
+        recSocket.unsubscribe(topic.getBytes());
     }
 }
