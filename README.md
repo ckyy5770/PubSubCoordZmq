@@ -131,3 +131,11 @@ data storing at "/topics/sometopic" must be "null"
 data storing at "/topics/sometopic/pub" or "/topics/sometopic/sub" must be:
 
 "IP_ADDRESS:PORT_NUMBER" which indicates where publisher/subscriber should connect to.
+
+## Test
+
+* config zookeeper server
+
+* compile EdgeBroker, Publisher, Subscriber.(need libzmq and zookeeper library)
+
+* run EdgeBroker first, wait for system started (about 2 secs), run Publisher, wait for channel registered (about 2 secs), run Subscriber.
