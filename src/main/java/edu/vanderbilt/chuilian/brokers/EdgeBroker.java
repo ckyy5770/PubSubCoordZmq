@@ -1,6 +1,8 @@
 package edu.vanderbilt.chuilian.brokers;
 
 import edu.vanderbilt.chuilian.util.*;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
@@ -12,6 +14,7 @@ public class EdgeBroker {
     // the executor for channel threads
     private final ExecutorService channelExecutor;
     private final ZkConnect zkConnect;
+    private static final Logger logger = LogManager.getLogger(EdgeBroker.class.getName());
 
     /**
      * Constructor will NOT immediately create socket and bind any port,
@@ -33,6 +36,8 @@ public class EdgeBroker {
      * start the broker
      */
     public void start() throws Exception {
+        logger.traceEntry();
+        logger.info("Hello, World!");
         // start zookeeper client
         zkConnect.connect("127.0.0.1:2181");
         // clear the data tree
@@ -41,6 +46,7 @@ public class EdgeBroker {
         MainChannel mainChannel = new MainChannel("", this.portList, this.channelExecutor, this.zkConnect, this.channelMap);
         channelMap.setMain(mainChannel);
         mainChannel.start();
+        logger.traceExit();
     }
 
     /**
