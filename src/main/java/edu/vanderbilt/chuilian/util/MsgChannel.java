@@ -139,10 +139,10 @@ public class MsgChannel {
         ZMsg receivedMsg = ZMsg.recvMsg(recSocket);
         String msgTopic = new String(receivedMsg.getFirst().getData());
         String msgContent = new String(receivedMsg.getLast().getData());
-        logger.info("Message Received at Channel for topic: {} Topic: {} Content: {}", topic, msgTopic, msgContent);
+        logger.info("Message Received at Channel ({}) Topic: {} Content: {}", topic, msgTopic, msgContent);
         sendSocket.sendMore(msgTopic);
         sendSocket.send(msgContent);
-        logger.info("Message Sent from Channel for topic: {} Topic: {} Content: {}", topic, msgTopic, msgContent);
+        logger.info("Message Sent from Channel ({}) Topic: {} Content: {}", topic, msgTopic, msgContent);
     }
 
 

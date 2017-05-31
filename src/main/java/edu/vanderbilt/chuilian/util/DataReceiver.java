@@ -1,5 +1,7 @@
 package edu.vanderbilt.chuilian.util;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.zeromq.ZMQ;
 import org.zeromq.ZMsg;
 
@@ -26,6 +28,8 @@ public class DataReceiver {
     // unique sub ID assigned by zookeeper
     String subID;
 
+    private static final Logger logger = LogManager.getLogger(DataReceiver.class.getName());
+
     //default constructor simply do nothing
     protected DataReceiver() {
     }
@@ -39,10 +43,7 @@ public class DataReceiver {
         this.executor = executor;
         this.zkConnect = zkConnect;
         this.subID = null;
-        {
-            //debug
-            System.out.println("new receiver object created: " + topic);
-        }
+        logger.info("New receiver object created, topic: {} source: {}", topic, address);
     }
 
     public void start() throws Exception {
@@ -59,10 +60,7 @@ public class DataReceiver {
         subID = zkConnect.registerSub(topic, ip);
         // execute receiver thread for this topic
         future = executor.submit(() -> {
-            {
-                //debug
-                System.out.println("new receiver thread created: " + topic);
-            }
+            logger.info("New receiver thread started, topic: {}", topic);
             while (true) {
                 this.receiver();
             }
@@ -70,10 +68,7 @@ public class DataReceiver {
     }
 
     public MsgBuffer stop() throws Exception {
-        {
-            //debug
-            System.out.println("stopping receiver: " + topic);
-        }
+        logger.info("Stopping receiver, topic: {}", topic);
         // unregister itself from zookeeper server
         zkConnect.unregisterSub(topic, subID);
         // stop the receiver thread
@@ -81,10 +76,7 @@ public class DataReceiver {
         // shutdown zmq socket and context
         recSocket.close();
         recContext.term();
-        {
-            //debug
-            System.out.println("receiver stopped: " + topic);
-        }
+        logger.info("Receiver stopped, topic: {}", topic);
         // unregister the message buffer, the return value is the old buffer, which may have some old message left
         // return them to subscriber for properly handling.
         return msgBufferMap.unregister(topic);
@@ -92,13 +84,9 @@ public class DataReceiver {
 
     public void receiver() {
         ZMsg receivedMsg = ZMsg.recvMsg(recSocket);
+        String msgTopic = new String(receivedMsg.getFirst().getData());
+        String msgContent = new String(receivedMsg.getLast().getData());
+        logger.info("Message Received at Receiver ({}) Topic: {} Content: {}", topic, msgTopic, msgContent);
         msgBuffer.add(receivedMsg);
-        {
-            //debug
-            System.out.println("Message Received:");
-            System.out.println(new String(receivedMsg.getFirst().getData()));
-            //System.out.println(DataSampleHelper.deserialize(receivedMsg.getLast().getData()).sampleId());
-            System.out.println(new String(receivedMsg.getLast().getData()));
-        }
     }
 }

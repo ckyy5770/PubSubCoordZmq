@@ -1,5 +1,7 @@
 package edu.vanderbilt.chuilian.util;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.zeromq.ZMsg;
 
 import java.util.concurrent.ExecutorService;
@@ -8,6 +10,7 @@ import java.util.concurrent.ExecutorService;
  * Created by Killian on 5/24/17.
  */
 public class DefaultSender extends DataSender {
+    private static final Logger logger = LogManager.getLogger(DefaultSender.class.getName());
     public DefaultSender(String address, MsgBufferMap msgBufferMap, ExecutorService executor, ZkConnect zkConnect) {
         super("", address, msgBufferMap, executor, zkConnect);
     }
@@ -24,7 +27,10 @@ public class DefaultSender extends DataSender {
         }
         // execute sender thread for this topic
         future = executor.submit(() -> {
+            logger.info("New default sender thread created.");
             while (true) {
+                // checking message buffer and send message every 0.1 secs
+                Thread.sleep(100);
                 sender();
             }
         });
@@ -32,10 +38,7 @@ public class DefaultSender extends DataSender {
 
     @Override
     public void stop() throws Exception {
-        {
-            //debug
-            System.out.println("stopping default sender: " + topic);
-        }
+        logger.info("Stopping default sender.");
         // stop the sender thread first,
         // otherwise there could be interruption between who ever invoked this method and the sender thread.
         future.cancel(false);
@@ -50,10 +53,7 @@ public class DefaultSender extends DataSender {
         sendSocket.close();
         sendContext.term();
         // default sender will not unregister itself from zookeeper since it never registered
-        {
-            //debug
-            System.out.println("default sender stopped: " + topic);
-        }
+        logger.info("Default sender stopped.");
     }
 
     // user should send messages only through this method
@@ -63,6 +63,7 @@ public class DefaultSender extends DataSender {
         newMsg.addFirst(topic.getBytes());
         newMsg.addLast(message.getBytes());
         msgBuffer.add(newMsg);
+        logger.info("Message stored at buffer for default sender. Topic: {} Content: {}", topic, message);
     }
 
     @Override

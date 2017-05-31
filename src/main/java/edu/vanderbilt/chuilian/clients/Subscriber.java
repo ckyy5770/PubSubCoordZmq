@@ -1,6 +1,8 @@
 package edu.vanderbilt.chuilian.clients;
 
 import edu.vanderbilt.chuilian.util.*;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.zeromq.ZMsg;
 
 import java.util.Iterator;
@@ -18,6 +20,7 @@ public class Subscriber {
 	private final ExecutorService executor;
 	private final ZkConnect zkConnect;
 	private Future<?> processorFuture;
+	private static final Logger logger = LogManager.getLogger(Subscriber.class.getName());
 
 	public Subscriber() {
 		this.topicReceiverMap = null;
@@ -52,10 +55,7 @@ public class Subscriber {
 	}
 
 	public void subscribe(String topic) throws Exception {
-		{
-			// debug
-			System.out.println("Subscribe topic: " + topic);
-		}
+		logger.info("Subscribe topic: {}", topic);
 		// if the topic is already subscribed, do nothing
         if (topicReceiverMap.get(topic) != null) return;
 		// subscribe it for the default receiver
@@ -70,10 +70,7 @@ public class Subscriber {
 	}
 
 	public void unsubscribe(String topic) throws Exception {
-		{
-			// debug
-			System.out.println("Unsubscribe topic: " + topic);
-		}
+		logger.info("Unsubscribe topic: {}", topic);
 		// unsubscribe it for the default receiver
 		topicReceiverMap.getDefault().unsubscribe(topic);
 		// stop the receiver thread, get unprocessed messages
@@ -128,10 +125,9 @@ public class Subscriber {
 	}
 
 	private void processMsg(ZMsg msg) {
-		System.out.println("Processed Message:");
-		System.out.println(new String(msg.getFirst().getData()));
-		//System.out.println(DataSampleHelper.deserialize(receivedMsg.getLast().getData()).sampleId());
-		System.out.println(new String(msg.getLast().getData()));
+		String msgTopic = new String(msg.getFirst().getData());
+		String msgContent = new String(msg.getLast().getData());
+		logger.info("Message Processed by subscriber. Topic: {} Content: {}", msgTopic, msgContent);
 	}
 
 	/**

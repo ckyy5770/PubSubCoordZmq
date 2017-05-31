@@ -1,5 +1,7 @@
 package edu.vanderbilt.chuilian.util;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.zeromq.ZMQ;
 import org.zeromq.ZMsg;
 
@@ -31,6 +33,8 @@ public class DataSender {
     // unique pub ID assigned by zookeeper
     String pubID;
 
+    private static final Logger logger = LogManager.getLogger(DataSender.class.getName());
+
     //default constructor simply do nothing
     protected DataSender() {
     }
@@ -44,10 +48,7 @@ public class DataSender {
         this.executor = executor;
         this.msgBufferMap = msgBufferMap;
         this.zkConnect = zkConnect;
-        {
-            //debug
-            System.out.println("new sender object created: " + topic);
-        }
+        logger.info("New sender object created, topic: {} destination: {} ", topic, address);
     }
 
     public void start() throws Exception {
@@ -62,10 +63,7 @@ public class DataSender {
         pubID = zkConnect.registerPub(topic, ip);
         // execute sender thread for this topic
         future = executor.submit(() -> {
-            {
-                //debug
-                System.out.println("new sender thread created: " + topic);
-            }
+            logger.info("New sender thread created, topic: {}", topic);
             while (true) {
                 // checking message buffer and send message every 0.1 secs
                 Thread.sleep(100);
@@ -75,10 +73,7 @@ public class DataSender {
     }
 
     public void stop() throws Exception {
-        {
-            //debug
-            System.out.println("stopping sender: " + topic);
-        }
+        logger.info("Stopping sender, topic: {}", topic);
         // stop the sender thread first,
         // otherwise there could be interruption between who ever invoked this method and the sender thread.
         future.cancel(false);
@@ -94,10 +89,7 @@ public class DataSender {
         sendContext.term();
         // unregister itself from zookeeper server
         zkConnect.unregisterPub(topic, pubID);
-        {
-            //debug
-            System.out.println("sender stopped: " + topic);
-        }
+        logger.info("Sender stopped, topic: {}", topic);
     }
 
     void sender() {
@@ -120,16 +112,11 @@ public class DataSender {
     }
 
     void processMsg(ZMsg msg) {
-        sendSocket.sendMore(new String(msg.getFirst().getData()));
-        sendSocket.send(new String(msg.getLast().getData()));
-
-        {
-            //debug
-            System.out.println("Sent Message from sender: (" + topic + ")" + " to address: " + address);
-            System.out.println(new String(msg.getFirst().getData()));
-            //System.out.println(DataSampleHelper.deserialize(receivedMsg.getLast().getData()).sampleId());
-            System.out.println(new String(msg.getLast().getData()));
-        }
+        String msgTopic = new String(msg.getFirst().getData());
+        String msgContent = new String(msg.getLast().getData());
+        sendSocket.sendMore(msgTopic);
+        sendSocket.send(msgContent);
+        logger.info("Message Sent from Sender ({}) Topic: {} Content: {}", topic, msgTopic, msgContent);
     }
 
     // user should send messages only through this method
@@ -139,5 +126,6 @@ public class DataSender {
         newMsg.addFirst(topic.getBytes());
         newMsg.addLast(message.getBytes());
         msgBuffer.add(newMsg);
+        logger.info("Message stored at buffer ({}) Content: {}", topic, message);
     }
 }

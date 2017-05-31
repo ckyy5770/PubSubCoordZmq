@@ -36,7 +36,6 @@ public class EdgeBroker {
      * start the broker
      */
     public void start() throws Exception {
-        logger.debug("Starting broker");
         // start zookeeper client
         zkConnect.connect("127.0.0.1:2181");
         // clear the data tree

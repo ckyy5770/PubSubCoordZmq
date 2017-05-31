@@ -1,5 +1,7 @@
 package edu.vanderbilt.chuilian.util;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.zeromq.ZMsg;
 
 import java.util.concurrent.ExecutorService;
@@ -8,6 +10,7 @@ import java.util.concurrent.ExecutorService;
  * Created by Killian on 5/24/17.
  */
 public class DefaultReceiver extends DataReceiver {
+    private static final Logger logger = LogManager.getLogger(DefaultReceiver.class.getName());
     public DefaultReceiver(String address, MsgBufferMap msgBufferMap, ExecutorService executor, ZkConnect zkConnect) {
         super("", address, msgBufferMap, executor, zkConnect);
     }
@@ -26,10 +29,7 @@ public class DefaultReceiver extends DataReceiver {
         }
         // execute receiver thread for this topic
         future = executor.submit(() -> {
-            {
-                //debug
-                System.out.println("default receiver thread created: " + topic);
-            }
+            logger.info("New default receiver thread started.");
             while (true) {
                 receiver();
             }
@@ -40,32 +40,22 @@ public class DefaultReceiver extends DataReceiver {
     // all message received by default receiver are stored in topic "", may need to change in the future
     public void receiver() {
         ZMsg receivedMsg = ZMsg.recvMsg(recSocket);
+        String msgTopic = new String(receivedMsg.getFirst().getData());
+        String msgContent = new String(receivedMsg.getLast().getData());
         msgBuffer.add(receivedMsg);
-        {
-            //debug
-            System.out.println("Message Received (from default receiver):");
-            System.out.println(new String(receivedMsg.getFirst().getData()));
-            //System.out.println(DataSampleHelper.deserialize(receivedMsg.getLast().getData()).sampleId());
-            System.out.println(new String(receivedMsg.getLast().getData()));
-        }
+        logger.info("Message Received at Default Receiver. Topic: {} Content: {}", msgTopic, msgContent);
     }
 
     @Override
     // will not unregister itself from zookeeper server since it never does
     public MsgBuffer stop() throws Exception {
-        {
-            //debug
-            System.out.println("stopping default receiver: " + topic);
-        }
+        logger.info("Stopping default receiver.");
         // stop the receiver thread
         future.cancel(false);
         // shutdown zmq socket and context
         recSocket.close();
         recContext.term();
-        {
-            //debug
-            System.out.println("default receiver stopped: " + topic);
-        }
+        logger.info("Default receiver stopped.");
         // unregister the message buffer, the return value is the old buffer, which may have some old message left
         // return them to subscriber for properly handling.
         return msgBufferMap.unregister(topic);
@@ -74,10 +64,12 @@ public class DefaultReceiver extends DataReceiver {
     public void subscribe(String topic) throws Exception {
         // subscribe topic
         recSocket.subscribe(topic.getBytes());
+        logger.info("Subscribe topic {} at default receiver.", topic);
     }
 
     public void unsubscribe(String topic) throws Exception {
         // unsubscribe topic
         recSocket.unsubscribe(topic.getBytes());
+        logger.info("Unsubscribe topic {} at default receiver.", topic);
     }
 }
