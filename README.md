@@ -90,21 +90,39 @@ Every publisher born with a default receiver, which directly connects to the def
 
 ### Znode data tree structure
 
-root: 
+```
+          root
+          / 
+       topics
+       /    \
+   topic_A topic_B
+     / \     / \
+   pub sub  pub sub
+   / \
+pub1 pub2 ... 
 
-* topics --> storing default channel address, including receiver port and sender port, first line in the data file is receiver address and the second line is sender address.
+```
+
+
+root: 
+* data: nothing
+* children: topics 
 
 topics: 
-
-* topic_A --> storing nothing
-
-* topic_B --> storing nothing
+* data: default channel address, including receiver port and sender port, first line in the data file is receiver address and the second line is sender address.
+* children: topic_A, topic_B, ...
 
 topic_A:
+* data: must always be "null"
+* children: always has two children, pub, sub.
 
-* pub --> storing specific channel receiver address of topic_A
+topic_A/pub:
+* data: must always be valid channel receiver address of topic_A
+* children: pub1, pub2, pub3...
 
-* sub --> storing specific channel sender address of topic_A
+topic_A/pub/pub1:
+* data: must always be valid ip address of pub1.
+* children: none.
 
 ### WorkFlow
 
@@ -131,6 +149,21 @@ data storing at "/topics/sometopic" must be "null"
 data storing at "/topics/sometopic/pub" or "/topics/sometopic/sub" must be:
 
 "IP_ADDRESS:PORT_NUMBER" which indicates where publisher/subscriber should connect to.
+
+## Serialization/Deserialization
+using [flatbuffer](https://google.github.io/flatbuffers/index.html)
+
+### Data sample schema
+```
+table DataSample {
+  sampleId:int;
+  regionId:int;
+  runId:int;
+  priority:int;
+  tsMilisec:ulong;
+  payload:[int];
+}
+```
 
 ## Test
 
