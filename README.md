@@ -73,6 +73,12 @@ When the subscriber starts, it will create a default receiver that connects to t
 
 By default, the default receiver will subscribe nothing when it starts. To receive messages, we need use method subscribe(topic). subscribe method will first subscribe this topic in the default receiver so that the default receiver can receive the messages that relevant to this topic from default channel. Then it will try to get the topic channel address from zookeeper, if the channel not found, it throw an exception. (Here may need to change the logic, for now, all calls to subscribe method will fail if topic channel not found on the zookeeper server) If found, create a new receiver for it.
 
+Note: updated subscriber logic:
+
+the default receiver will subscribe nothing when it starts. When calling subscribe(topic) method from subscriber, it will first check if this topic on the topic-receiver map, if so, just return. If not, it will then check if this topic on the topic-waiter map, if so, do nothing but return. 
+
+If not, the subscriber will first, subscribe the topic at default receiver, then try to get the channel address for this topic, then create a receiver using this address. if it cannot get the channel address, it will create a waiter object which will then create a thread that periodically check if the server opened a channel for this topic. Once it detected the channel is opened, it will create a receiver for this topic.
+
 ## Data Receiver
 Data receiver is a object that receives messages of one topic, and it should connect to the specific channel in broker for that topic.
 

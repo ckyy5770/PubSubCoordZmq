@@ -20,16 +20,22 @@ public class Subscriber {
 	// TODO: 5/25/17 hard coded ip 
 	private final String ip = "127.0.0.1";
 	private TopicReceiverMap topicReceiverMap;
+	private TopicWaiterMap topicWaiterMap;
 	private final MsgBufferMap msgBufferMap;
-	private final ExecutorService executor;
+	private final ExecutorService receiverExecutor;
+	private final ExecutorService waiterExecutor;
+	private final ExecutorService processorExecutor;
 	private final ZkConnect zkConnect;
 	private Future<?> processorFuture;
 	private static final Logger logger = LogManager.getLogger(Subscriber.class.getName());
 
 	public Subscriber() {
 		this.topicReceiverMap = null;
+		this.topicWaiterMap = new TopicWaiterMap();
 		this.msgBufferMap = new MsgBufferMap();
-		this.executor = Executors.newFixedThreadPool(100);
+		this.receiverExecutor = Executors.newFixedThreadPool(100);
+		this.waiterExecutor = Executors.newFixedThreadPool(100);
+		this.processorExecutor = Executors.newFixedThreadPool(1);
 		this.zkConnect = new ZkConnect();
 	}
 
@@ -47,11 +53,11 @@ public class Subscriber {
 			}
 		}
 		// here we get the default sending address, make a default receiver for it, and initialize topic receiver map
-        topicReceiverMap = new TopicReceiverMap(new DefaultReceiver(defaultAddress, this.msgBufferMap, this.executor, this.zkConnect));
-        topicReceiverMap.getDefault().start();
+		topicReceiverMap = new TopicReceiverMap(new DefaultReceiver(defaultAddress, this.msgBufferMap, this.receiverExecutor, this.zkConnect));
+		topicReceiverMap.getDefault().start();
         // this thread will constantly (3s) check MsgBuffer and process msgs
-        processorFuture = executor.submit(() -> {
-            while (true) {
+		processorFuture = processorExecutor.submit(() -> {
+			while (true) {
 				Thread.sleep(3000);
 				processor();
 			}
@@ -61,28 +67,43 @@ public class Subscriber {
 	public void subscribe(String topic) throws Exception {
 		logger.info("Subscribe topic: {}", topic);
 		// if the topic is already subscribed, do nothing
-        if (topicReceiverMap.get(topic) != null) return;
+		if (topicReceiverMap.get(topic) != null || topicWaiterMap.get(topic) != null) return;
 		// subscribe it for the default receiver
 		topicReceiverMap.getDefault().subscribe(topic);
-		// try to get the broker sender address for this topic, if not found, throw a topic not found exception
+		// try to get the broker sender address for this topic, if not found, create a waiter to waiting for channel to be created
 		String address;
-		// TODO: 5/30/17 this exception should be properly handled
-		if ((address = getAddress(topic)) == null) throw new RuntimeException("topic not found");
+		if ((address = getAddress(topic)) == null) {
+			logger.info("Fail to get message channel for topic {}, creating a waiter for this topic.", topic);
+			Waiter newWaiter = topicWaiterMap.register(topic, this.msgBufferMap, this.waiterExecutor, this.receiverExecutor, this.topicReceiverMap, this.zkConnect);
+			newWaiter.start();
+			return;
+		}
 		// here we successfully get the broker sender address for this topic, create a data receiver for it.
-        DataReceiver newReceiver = topicReceiverMap.register(topic, address, this.msgBufferMap, this.executor, this.zkConnect);
-        newReceiver.start();
+		DataReceiver newReceiver = topicReceiverMap.register(topic, address, this.msgBufferMap, this.receiverExecutor, this.zkConnect);
+		newReceiver.start();
 	}
 
 	public void unsubscribe(String topic) throws Exception {
 		logger.info("Unsubscribe topic: {}", topic);
 		// unsubscribe it for the default receiver
 		topicReceiverMap.getDefault().unsubscribe(topic);
-		// stop the receiver thread, get unprocessed messages
-        MsgBuffer unprocessedMsg = topicReceiverMap.get(topic).stop();
-        processBuffer(unprocessedMsg);
-        // unregister from topic receiver map
-        topicReceiverMap.unregister(topic);
-    }
+		// check if the topic is on receiver map
+		DataReceiver receiver = topicReceiverMap.get(topic);
+		if (receiver != null) {
+			// stop the receiver thread, get unprocessed messages
+			MsgBuffer unprocessedMsg = topicReceiverMap.get(topic).stop();
+			processBuffer(unprocessedMsg);
+			// unregister from topic receiver map
+			topicReceiverMap.unregister(topic);
+		} else {
+			// check if it is on waiter map
+			Waiter waiter = topicWaiterMap.get(topic);
+			if (waiter != null) {
+				// stop the waiter thread, waiter will automatically unregister itself from topic-waiter map.
+				waiter.stop();
+			}
+		}
+	}
 
 	/**
 	 * shutdown all data receiver including default sender.
@@ -96,11 +117,18 @@ public class Subscriber {
         for (Map.Entry<String, DataReceiver> entry : topicReceiverMap.entrySet()) {
             unsubscribe(entry.getKey());
         }
-		// reset topicReceiverMap
-        topicReceiverMap = null;
-        // turn off executor
-        executor.shutdownNow();
-        // shutdown zookeeper client
+		// iterate through the map, shutdown every single waiter.
+		for (Map.Entry<String, Waiter> entry : topicWaiterMap.entrySet()) {
+			entry.getValue().stop();
+		}
+		// reset topicReceiverMap and topicWaiterMap
+		topicReceiverMap = null;
+		topicWaiterMap = null;
+		// turn off executor
+		waiterExecutor.shutdownNow();
+		receiverExecutor.shutdownNow();
+		processorExecutor.shutdownNow();
+		// shutdown zookeeper client
         zkConnect.close();
     }
 
@@ -165,8 +193,10 @@ public class Subscriber {
 		sub.subscribe("topic1");
 		sub.subscribe("topic2");
 		sub.subscribe("topic3");
-		Thread.sleep(10000);
+		Thread.sleep(20000);
 		sub.unsubscribe("topic1");
+		Thread.sleep(10000);
+		sub.subscribe("topic4");
 		Thread.sleep(10000);
 		sub.close();
 		/*
