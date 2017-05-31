@@ -1,5 +1,7 @@
 package edu.vanderbilt.chuilian.util;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.zeromq.ZMQ;
 import org.zeromq.ZMsg;
 
@@ -44,6 +46,8 @@ public class MsgChannel {
     // terminator will periodically check if there is still a publisher or subscriber alive on this topic
     Future<?> terminatorFuture;
 
+    private static final Logger logger = LogManager.getLogger(MsgChannel.class.getName());
+
     //default constructor simply do nothing
     protected MsgChannel() {
     }
@@ -84,35 +88,24 @@ public class MsgChannel {
         sendSocket.bind("tcp://*:" + sendPort);
         // register itself to zookeeper service
         zkConnect.registerChannel(topic, ip + ":" + Integer.toString(recPort), ip + ":" + Integer.toString(sendPort));
-        {
-            // debug
-            System.out.println("Channel Started, topic: " + topic);
-        }
+
+        logger.info("Channel Started. topic: {} ip: {} recPort: {} sendPort: {}", topic, ip, recPort, sendPort);
+
         // begin receiving and sending messages
         workerFuture = executor.submit(() -> {
-            {
-                // debug
-                System.out.println("Channel Worker Thread Started, topic: " + topic);
-            }
+            logger.info("Channel Worker Thread Started. topic: {} ", topic);
             while (true) {
                 worker();
             }
         });
         // terminator will periodically check if there is still a publisher or subscriber alive on this topic
         terminatorFuture = executor.submit(() -> {
-            {
-                // debug
-                System.out.println("Channel Terminator Thread Started, topic: " + topic);
-            }
+            logger.info("Channel Terminator Thread Started. topic: {} ", topic);
             try {
                 while (true) {
                     Thread.sleep(5000);
                     if (!zkConnect.anyPublisher(topic) && !zkConnect.anySubsciber(topic)) {
-                        {
-                            // debug
-                            System.out.println("Detected no pub/sub alive on topic: " + topic);
-                            System.out.println("Closing channel");
-                        }
+                        logger.info("Terminator Thread ({}): Detected no pub/sub connected to this channel. Closing channel...", topic);
                         stop();
                         return;
                     }
@@ -123,10 +116,7 @@ public class MsgChannel {
     }
 
     public void stop() throws Exception {
-        //debug
-        {
-            System.out.println("shutting down channel: " + topic);
-        }
+        logger.info("Closing channel. topic: {}", topic);
         // unregister itself from zookeeper server
         zkConnect.unregisterChannel(topic);
         // stop worker thread
@@ -141,31 +131,18 @@ public class MsgChannel {
         portList.put(sendPort);
         // unregister itself from Channel Map
         channelMap.unregister(topic);
-        {
-            //debug
-            System.out.println("channel closed" + topic);
-        }
+        logger.info("Channel Closed. topic: {}", topic);
     }
 
     public void worker() throws Exception {
         // just keep receiving and sending messages
         ZMsg receivedMsg = ZMsg.recvMsg(recSocket);
-        {
-            // debug
-            System.out.println("Message Received from Port " + recPort);
-            System.out.println(new String(receivedMsg.getFirst().getData()));
-            //System.out.println(DataSampleHelper.deserialize(receivedMsg.getLast().getData()).sampleId());
-            System.out.println(new String(receivedMsg.getLast().getData()));
-        }
-        sendSocket.sendMore(receivedMsg.getFirst().getData());
-        sendSocket.send(receivedMsg.getLast().getData());
-        {
-            // debug
-            System.out.println("Message Sent to Port " + sendPort);
-            System.out.println(new String(receivedMsg.getFirst().getData()));
-            //System.out.println(DataSampleHelper.deserialize(receivedMsg.getLast().getData()).sampleId());
-            System.out.println(new String(receivedMsg.getLast().getData()));
-        }
+        String msgTopic = new String(receivedMsg.getFirst().getData());
+        String msgContent = new String(receivedMsg.getLast().getData());
+        logger.info("Message Received at Channel for topic: {} Topic: {} Content: {}", topic, msgTopic, msgContent);
+        sendSocket.sendMore(msgTopic);
+        sendSocket.send(msgContent);
+        logger.info("Message Sent from Channel for topic: {} Topic: {} Content: {}", topic, msgTopic, msgContent);
     }
 
 

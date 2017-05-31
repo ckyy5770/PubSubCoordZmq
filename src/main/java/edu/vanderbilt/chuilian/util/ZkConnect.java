@@ -4,6 +4,8 @@ package edu.vanderbilt.chuilian.util;
  * Created by Killian on 5/25/17.
  */
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.WatchedEvent;
 import org.apache.zookeeper.Watcher;
@@ -19,8 +21,10 @@ import java.util.concurrent.CountDownLatch;
 public class ZkConnect {
     private ZooKeeper zk;
     private CountDownLatch connSignal = new CountDownLatch(0);
+    private static final Logger logger = LogManager.getLogger(ZkConnect.class.getName());
 
     public ZooKeeper connect(String host) throws Exception {
+        logger.debug("Connecting host: " + host);
         //host should be 127.0.0.1:2187
         zk = new ZooKeeper(host, 3000, new Watcher() {
             public void process(WatchedEvent event) {
@@ -30,6 +34,7 @@ public class ZkConnect {
             }
         });
         connSignal.await();
+        logger.debug("Connected host: " + host);
         return zk;
     }
 

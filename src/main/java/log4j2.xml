@@ -2,7 +2,7 @@
 <Configuration status="error">
     <Appenders>
         <Console name="Console" target="SYSTEM_OUT">
-            <ThresholdFilter level="ERROR" onMatch="ACCEPT" onMismatch="DENY"/>
+            <!--ThresholdFilter level="ERROR" onMatch="ACCEPT" onMismatch="DENY"-->
             <!-- Flow tracing is most useful with a pattern that shows location.
                  Below pattern outputs class, line number and method name. -->
             <PatternLayout pattern="%d{HH:mm:ss.SSS} %-5level %class{36} %L %M - %msg%xEx%n"/>
@@ -12,8 +12,11 @@
         </File>
     </Appenders>
     <Loggers>
-        <Root level="trace">
-            <AppenderRef ref="log"/>
+        <Logger name="edu.vanderbilt.chuilian" level="info" additivity="false">
+            <AppenderRef ref="Console"/>
+        </Logger>
+        <Root level="error">
+            <AppenderRef ref="Console"/>
         </Root>
     </Loggers>
 </Configuration>

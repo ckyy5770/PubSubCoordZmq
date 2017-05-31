@@ -1,5 +1,7 @@
 package edu.vanderbilt.chuilian.util;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.zeromq.ZMsg;
 
 import java.util.concurrent.ExecutorService;
@@ -13,7 +15,7 @@ import java.util.concurrent.ExecutorService;
  * note main channel will still behave like a normal message channel: sending messages directly to subscribers
  */
 public class MainChannel extends MsgChannel {
-
+    private static final Logger logger = LogManager.getLogger(MainChannel.class.getName());
     public MainChannel(String topic, PortList portList, ExecutorService executor, ZkConnect zkConnect, ChannelMap channelMap) {
         super(topic, portList, executor, zkConnect, channelMap);
         // channel map is used to create new channel
@@ -30,16 +32,12 @@ public class MainChannel extends MsgChannel {
         sendSocket.bind("tcp://*:" + sendPort);
         // register itself to zookeeper service
         zkConnect.registerDefaultChannel(ip + ":" + Integer.toString(recPort), ip + ":" + Integer.toString(sendPort));
-        {
-            // debug
-            System.out.println("Main Channel Started, topic: " + topic);
-        }
+
+        logger.info("Main Channel Started. ip {} recPort {} sendPort {}", ip, recPort, sendPort);
+
         // start receiving and sending messages
         workerFuture = executor.submit(() -> {
-            {
-                // debug
-                System.out.println("Main Channel Thread Started, topic: " + topic);
-            }
+            logger.info("Main Channel Worker Thread Started. ");
             while (true) {
                 worker();
             }
@@ -51,10 +49,7 @@ public class MainChannel extends MsgChannel {
     // main channel will never stop automatically unless being stopped explicitly by broker
     public void stop() throws Exception {
         {
-            //debug
-            {
-                System.out.println("shutting down main channel: ");
-            }
+            logger.info("Closing main channel.");
             // unregister itself from zookeeper server
             zkConnect.unregisterDefaultChannel();
             // stop worker thread
@@ -69,10 +64,7 @@ public class MainChannel extends MsgChannel {
             portList.put(sendPort);
             // unregister itself from Channel Map since never registered
             channelMap.setMain(null);
-            {
-                //debug
-                System.out.println("main channel closed: ");
-            }
+            logger.info("Main channel closed.");
         }
     }
 
@@ -80,32 +72,18 @@ public class MainChannel extends MsgChannel {
     public void worker() throws Exception {
         // just keep receiving and sending messages
         ZMsg receivedMsg = ZMsg.recvMsg(recSocket);
-        {
-            // debug
-            System.out.println("Message Received (From Main Channel) from Port " + recPort);
-            System.out.println(new String(receivedMsg.getFirst().getData()));
-            //System.out.println(DataSampleHelper.deserialize(receivedMsg.getLast().getData()).sampleId());
-            System.out.println(new String(receivedMsg.getLast().getData()));
-        }
         String msgTopic = new String(receivedMsg.getFirst().getData());
+        String msgContent = new String(receivedMsg.getLast().getData());
+        logger.info("Message Received at Main Channel: Topic: {} Content: {}", msgTopic, msgContent);
         // if this topic is new, create a new channel for it
         if (channelMap.get(topic) == null) {
-            {
-                // debug
-                System.out.println("This is a new topic, building a new Channel for it...");
-            }
+            logger.info("New topic detected, creating a new channel for it. topic: {}", msgTopic);
             MsgChannel newChannel = channelMap.register(msgTopic, this.portList, this.executor, this.zkConnect, this.channelMap);
             if (newChannel != null) newChannel.start();
         }
         sendSocket.sendMore(receivedMsg.getFirst().getData());
         sendSocket.send(receivedMsg.getLast().getData());
-        {
-            // debug
-            System.out.println("Message Sent (From Main Channel) to Port " + sendPort);
-            System.out.println(new String(receivedMsg.getFirst().getData()));
-            //System.out.println(DataSampleHelper.deserialize(receivedMsg.getLast().getData()).sampleId());
-            System.out.println(new String(receivedMsg.getLast().getData()));
-        }
+        logger.info("Messaged Sent from Main Channel: Topic: {} Content: {}", msgTopic, msgContent);
     }
 
 }
