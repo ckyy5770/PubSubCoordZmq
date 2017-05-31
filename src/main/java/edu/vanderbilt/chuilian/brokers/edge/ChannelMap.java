@@ -1,8 +1,11 @@
-package edu.vanderbilt.chuilian.util;
+package edu.vanderbilt.chuilian.brokers.edge;
 
 /**
  * Created by Killian on 5/23/17.
  */
+
+import edu.vanderbilt.chuilian.util.PortList;
+import edu.vanderbilt.chuilian.util.ZkConnect;
 
 import java.util.Map;
 import java.util.Set;

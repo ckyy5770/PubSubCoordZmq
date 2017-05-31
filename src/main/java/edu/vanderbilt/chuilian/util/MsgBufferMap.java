@@ -9,7 +9,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * Subscriber only: data receiver will store messages into the buffer of a specific topic
+ * data receiver/sender will store messages into the buffer of a specific topic
  */
 public class MsgBufferMap {
     private ConcurrentHashMap<String, MsgBuffer> map;

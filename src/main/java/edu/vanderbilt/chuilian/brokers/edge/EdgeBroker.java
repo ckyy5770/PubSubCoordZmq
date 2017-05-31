@@ -1,6 +1,7 @@
-package edu.vanderbilt.chuilian.brokers;
+package edu.vanderbilt.chuilian.brokers.edge;
 
-import edu.vanderbilt.chuilian.util.*;
+import edu.vanderbilt.chuilian.util.PortList;
+import edu.vanderbilt.chuilian.util.ZkConnect;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 

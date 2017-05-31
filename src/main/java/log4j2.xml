@@ -7,16 +7,38 @@
                  Below pattern outputs class, line number and method name. -->
             <PatternLayout pattern="%d{HH:mm:ss.SSS} %-5level %class{36} %L %M - %msg%xEx%n"/>
         </Console>
-        <File name="log" fileName="target/test.log" append="false">
+        <File name="all" fileName="logs/all.log" append="false">
+            <PatternLayout pattern="%d{HH:mm:ss.SSS} %-5level %class{36} %L %M - %msg%xEx%n"/>
+        </File>
+        <File name="broker" fileName="logs/broker.log" append="false">
+            <PatternLayout pattern="%d{HH:mm:ss.SSS} %-5level %class{36} %L %M - %msg%xEx%n"/>
+        </File>
+        <File name="subscriber" fileName="logs/subscriber.log" append="false">
+            <PatternLayout pattern="%d{HH:mm:ss.SSS} %-5level %class{36} %L %M - %msg%xEx%n"/>
+        </File>
+        <File name="publisher" fileName="logs/publisher.log" append="false">
             <PatternLayout pattern="%d{HH:mm:ss.SSS} %-5level %class{36} %L %M - %msg%xEx%n"/>
         </File>
     </Appenders>
     <Loggers>
-        <Logger name="edu.vanderbilt.chuilian" level="info" additivity="false">
+        <Logger name="edu.vanderbilt.chuilian.brokers.edge" level="info" additivity="false">
             <AppenderRef ref="Console"/>
+            <AppenderRef ref="all"/>
+            <AppenderRef ref="broker"/>
+        </Logger>
+        <Logger name="edu.vanderbilt.chuilian.clients.publisher" level="info" additivity="false">
+            <AppenderRef ref="Console"/>
+            <AppenderRef ref="all"/>
+            <AppenderRef ref="publisher"/>
+        </Logger>
+        <Logger name="edu.vanderbilt.chuilian.clients.subscriber" level="info" additivity="false">
+            <AppenderRef ref="Console"/>
+            <AppenderRef ref="all"/>
+            <AppenderRef ref="subscriber"/>
         </Logger>
         <Root level="error">
             <AppenderRef ref="Console"/>
+            <AppenderRef ref="all"/>
         </Root>
     </Loggers>
 </Configuration>
