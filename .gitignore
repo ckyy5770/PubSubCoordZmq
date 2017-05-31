@@ -22,7 +22,9 @@
 hs_err_pid*
 
 
-# libraries
+# other
 lib/
 zookeeper*/
 production/
+dataSchema/edu/
+dataSchema/flatc

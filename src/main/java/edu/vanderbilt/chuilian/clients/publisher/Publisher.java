@@ -1,5 +1,6 @@
 package edu.vanderbilt.chuilian.clients.publisher;
 
+import edu.vanderbilt.chuilian.types.DataSampleHelper;
 import edu.vanderbilt.chuilian.util.MsgBufferMap;
 import edu.vanderbilt.chuilian.util.ZkConnect;
 
@@ -40,7 +41,7 @@ public class Publisher {
 		topicSenderMap.getDefault().start();
 	}
 
-	public void send(String topic, String message) throws Exception {
+	public void send(String topic, byte[] message) throws Exception {
 		// try to get data sender for this topic
 		DataSender sender = topicSenderMap.get(topic);
 		if (sender == null) {
@@ -127,19 +128,19 @@ public class Publisher {
 
 
 	public static void main(String args[]) throws Exception {
-		int counter = 10;
+		int counter = 0;
 		Publisher pub = new Publisher();
 		pub.start();
 		for (int i = 0; i < 40; i++) {
-			pub.send("topic1", Integer.toString(i));
-			pub.send("topic2", Integer.toString(i));
-			pub.send("topic3", Integer.toString(i));
+			pub.send("topic1", DataSampleHelper.serialize(counter++, 1, 1, 0, 11111, 10));
+			pub.send("topic2", DataSampleHelper.serialize(counter++, 1, 1, 0, 11111, 10));
+			pub.send("topic3", DataSampleHelper.serialize(counter++, 1, 1, 0, 11111, 10));
 			Thread.sleep(500);
 		}
 		pub.stop("topic1");
 		for (int i = 0; i < 40; i++) {
-			pub.send("topic2", Integer.toString(i));
-			pub.send("topic3", Integer.toString(i));
+			pub.send("topic2", DataSampleHelper.serialize(counter++, 1, 1, 0, 11111, 10));
+			pub.send("topic3", DataSampleHelper.serialize(counter++, 1, 1, 0, 11111, 10));
 			Thread.sleep(500);
 		}
 		pub.close();

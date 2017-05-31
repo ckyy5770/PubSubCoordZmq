@@ -1,5 +1,6 @@
 package edu.vanderbilt.chuilian.brokers.edge;
 
+import edu.vanderbilt.chuilian.types.DataSampleHelper;
 import edu.vanderbilt.chuilian.util.PortList;
 import edu.vanderbilt.chuilian.util.ZkConnect;
 import org.apache.logging.log4j.LogManager;
@@ -75,8 +76,8 @@ public class MainChannel extends MsgChannel {
         // just keep receiving and sending messages
         ZMsg receivedMsg = ZMsg.recvMsg(recSocket);
         String msgTopic = new String(receivedMsg.getFirst().getData());
-        String msgContent = new String(receivedMsg.getLast().getData());
-        logger.info("Message Received at Main Channel: Topic: {} Content: {}", msgTopic, msgContent);
+        byte[] msgContent = receivedMsg.getLast().getData();
+        logger.debug("Message Received at Main Channel: Topic: {} ID: {}", msgTopic, DataSampleHelper.deserialize(msgContent).sampleId());
         // if this topic is new, create a new channel for it
         if (channelMap.get(topic) == null) {
             logger.info("New topic detected, creating a new channel for it. topic: {}", msgTopic);
@@ -85,7 +86,7 @@ public class MainChannel extends MsgChannel {
         }
         sendSocket.sendMore(receivedMsg.getFirst().getData());
         sendSocket.send(receivedMsg.getLast().getData());
-        logger.info("Messaged Sent from Main Channel: Topic: {} Content: {}", msgTopic, msgContent);
+        logger.info("Messaged Sent from Main Channel: Topic: {} ID: {}", msgTopic, DataSampleHelper.deserialize(msgContent).sampleId());
     }
 
 }

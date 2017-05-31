@@ -1,5 +1,6 @@
 package edu.vanderbilt.chuilian.clients.publisher;
 
+import edu.vanderbilt.chuilian.types.DataSampleHelper;
 import edu.vanderbilt.chuilian.util.MsgBuffer;
 import edu.vanderbilt.chuilian.util.MsgBufferMap;
 import edu.vanderbilt.chuilian.util.ZkConnect;
@@ -60,17 +61,17 @@ public class DefaultSender extends DataSender {
     }
 
     // user should send messages only through this method
-    public void send(String topic, String message) {
+    public void send(String topic, byte[] message) {
         // wrap the message to ZMsg and push it to the message buffer, waiting to be sent
         ZMsg newMsg = ZMsg.newStringMsg();
         newMsg.addFirst(topic.getBytes());
-        newMsg.addLast(message.getBytes());
+        newMsg.addLast(message);
         msgBuffer.add(newMsg);
-        logger.info("Message stored at buffer for default sender. Topic: {} Content: {}", topic, message);
+        logger.debug("Message stored at buffer for default sender. Topic: {} ID: {}", topic, DataSampleHelper.deserialize(message).sampleId());
     }
 
     @Override
-    public void send(String message) {
+    public void send(byte[] message) {
         throw new UnsupportedOperationException("you must specify message topic when sending message through default data sender!");
     }
 }

@@ -1,5 +1,6 @@
 package edu.vanderbilt.chuilian.clients.publisher;
 
+import edu.vanderbilt.chuilian.types.DataSampleHelper;
 import edu.vanderbilt.chuilian.util.MsgBuffer;
 import edu.vanderbilt.chuilian.util.MsgBufferMap;
 import edu.vanderbilt.chuilian.util.ZkConnect;
@@ -116,19 +117,19 @@ public class DataSender {
 
     void processMsg(ZMsg msg) {
         String msgTopic = new String(msg.getFirst().getData());
-        String msgContent = new String(msg.getLast().getData());
+        byte[] msgContent = msg.getLast().getData();
         sendSocket.sendMore(msgTopic);
         sendSocket.send(msgContent);
-        logger.info("Message Sent from Sender ({}) Topic: {} Content: {}", topic, msgTopic, msgContent);
+        logger.info("Message Sent from Sender ({}) Topic: {} ID: {}", topic, msgTopic, DataSampleHelper.deserialize(msgContent).sampleId());
     }
 
     // user should send messages only through this method
-    public void send(String message) {
+    public void send(byte[] message) {
         // wrap the message to ZMsg and push it to the message buffer, waiting to be sent
         ZMsg newMsg = ZMsg.newStringMsg();
         newMsg.addFirst(topic.getBytes());
-        newMsg.addLast(message.getBytes());
+        newMsg.addLast(message);
         msgBuffer.add(newMsg);
-        logger.info("Message stored at buffer ({}) Content: {}", topic, message);
+        logger.debug("Message stored at buffer ({}) ID: {}", topic, DataSampleHelper.deserialize(message).sampleId());
     }
 }

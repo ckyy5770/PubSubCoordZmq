@@ -1,5 +1,6 @@
 package edu.vanderbilt.chuilian.brokers.edge;
 
+import edu.vanderbilt.chuilian.types.DataSampleHelper;
 import edu.vanderbilt.chuilian.util.PortList;
 import edu.vanderbilt.chuilian.util.ZkConnect;
 import org.apache.logging.log4j.LogManager;
@@ -140,11 +141,11 @@ public class MsgChannel {
         // just keep receiving and sending messages
         ZMsg receivedMsg = ZMsg.recvMsg(recSocket);
         String msgTopic = new String(receivedMsg.getFirst().getData());
-        String msgContent = new String(receivedMsg.getLast().getData());
-        logger.info("Message Received at Channel ({}) Topic: {} Content: {}", topic, msgTopic, msgContent);
+        byte[] msgContent = receivedMsg.getLast().getData();
+        logger.debug("Message Received at Channel ({}) Topic: {} ID: {}", topic, msgTopic, DataSampleHelper.deserialize(msgContent).sampleId());
         sendSocket.sendMore(msgTopic);
         sendSocket.send(msgContent);
-        logger.info("Message Sent from Channel ({}) Topic: {} Content: {}", topic, msgTopic, msgContent);
+        logger.info("Message Sent from Channel ({}) Topic: {} ID: {}", topic, msgTopic, DataSampleHelper.deserialize(msgContent).sampleId());
     }
 
 

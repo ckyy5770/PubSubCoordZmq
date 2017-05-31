@@ -1,5 +1,7 @@
 package edu.vanderbilt.chuilian.clients.subscriber;
 
+import edu.vanderbilt.chuilian.types.DataSample;
+import edu.vanderbilt.chuilian.types.DataSampleHelper;
 import edu.vanderbilt.chuilian.util.MsgBuffer;
 import edu.vanderbilt.chuilian.util.MsgBufferMap;
 import edu.vanderbilt.chuilian.util.ZkConnect;
@@ -128,8 +130,9 @@ public class Subscriber {
 
 	private void processMsg(ZMsg msg) {
 		String msgTopic = new String(msg.getFirst().getData());
-		String msgContent = new String(msg.getLast().getData());
-		logger.info("Message Processed by subscriber. Topic: {} Content: {}", msgTopic, msgContent);
+		byte[] msgContent = msg.getLast().getData();
+		DataSample sample = DataSampleHelper.deserialize(msgContent);
+		logger.debug("Message Processed by subscriber. Topic: {} ID: {}", msgTopic, sample.sampleId());
 	}
 
 	/**

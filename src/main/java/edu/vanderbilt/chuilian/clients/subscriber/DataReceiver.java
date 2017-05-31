@@ -1,5 +1,6 @@
 package edu.vanderbilt.chuilian.clients.subscriber;
 
+import edu.vanderbilt.chuilian.types.DataSampleHelper;
 import edu.vanderbilt.chuilian.util.MsgBuffer;
 import edu.vanderbilt.chuilian.util.MsgBufferMap;
 import edu.vanderbilt.chuilian.util.ZkConnect;
@@ -88,8 +89,8 @@ public class DataReceiver {
     public void receiver() {
         ZMsg receivedMsg = ZMsg.recvMsg(recSocket);
         String msgTopic = new String(receivedMsg.getFirst().getData());
-        String msgContent = new String(receivedMsg.getLast().getData());
-        logger.info("Message Received at Receiver ({}) Topic: {} Content: {}", topic, msgTopic, msgContent);
+        byte[] msgContent = receivedMsg.getLast().getData();
+        logger.info("Message Received at Receiver ({}) Topic: {} ID: {}", topic, msgTopic, DataSampleHelper.deserialize(msgContent).sampleId());
         msgBuffer.add(receivedMsg);
     }
 }

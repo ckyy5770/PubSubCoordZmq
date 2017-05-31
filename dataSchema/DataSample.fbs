@@ -1,4 +1,4 @@
-namespace edu.vanderbilt.kharesp.types;
+namespace edu.vanderbilt.chuilian.types;
 
 table DataSample {
   sampleId:int;
