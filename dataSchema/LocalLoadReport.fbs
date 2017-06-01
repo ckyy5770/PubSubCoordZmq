@@ -1,0 +1,13 @@
+namespace edu.vanderbilt.chuilian.types;
+
+table ReportEntry {
+  topic:string;
+  numIOBytes:long;
+  numIOMsgs:long;
+}
+
+table LoadReport{
+  channelReports:[ReportEntry];
+}
+
+root_type LoadReport;
