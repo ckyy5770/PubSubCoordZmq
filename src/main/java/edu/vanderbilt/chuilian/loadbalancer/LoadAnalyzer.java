@@ -50,11 +50,11 @@ public class LoadAnalyzer {
             logger.info("Local LoadAnalyzer thread started.");
             // try to get balancer address
             try {
-                String address = zkConnect.getBalancerRecAddress();
-                while (address == null) {
+                this.balancerAddress = zkConnect.getBalancerRecAddress();
+                while (balancerAddress == null) {
                     // if cannot get it, keep trying, every 5 secs
                     Thread.sleep(5000);
-                    address = zkConnect.getBalancerRecAddress();
+                    balancerAddress = zkConnect.getBalancerRecAddress();
                 }
             } catch (Exception e) {
                 return;
