@@ -183,7 +183,7 @@ public class Subscriber {
 		String data = zkConnect.getNodeData("/topics");
 		if (data == null) return null;
 		String[] addresses = data.split("\n");
-		if (addresses[1] == "null") return null;
+		if (addresses[0] == "null") return null;
 		return addresses[1];
 	}
 

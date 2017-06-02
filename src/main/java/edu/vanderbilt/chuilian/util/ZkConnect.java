@@ -243,6 +243,61 @@ public class ZkConnect {
     }
 
     /**
+     * register Balancer
+     *
+     * @param recAddress
+     * @param sendAddress
+     * @throws Exception
+     */
+    public void registerBalancer(String recAddress, String sendAddress) throws Exception {
+        // if /balancer exists, delete it
+        if (existsNode("/balancer")) recursiveDelete("/balancer");
+        String data = recAddress + "\n" + sendAddress;
+        // make a new /balancer with this information
+        createNode("/balancer", data.getBytes());
+    }
+
+    /**
+     * unregister balancer
+     *
+     * @throws Exception
+     */
+    public void unregisterBalancer() throws Exception {
+        // if there is no /balancer yet, throw a exception, this will never happen in a well-designed system
+        if (!existsNode("/balancer")) throw new IllegalStateException("/balancer node does not exist");
+        // here we delete default channel by updating /topics to "null"
+        updateNode("/balancer", "null".getBytes());
+    }
+
+    /**
+     * get balancer's receiver address
+     *
+     * @return
+     * @throws Exception
+     */
+    public String getBalancerRecAddress() throws Exception {
+        String data = getNodeData("/balancer");
+        if (data == null) return null;
+        String[] addresses = data.split("\n");
+        if (addresses[0] == "null") return null;
+        return addresses[0];
+    }
+
+    /**
+     * get balancer's sender address
+     *
+     * @return
+     * @throws Exception
+     */
+    public String getBalancerSendAddress() throws Exception {
+        String data = getNodeData("/balancer");
+        if (data == null) return null;
+        String[] addresses = data.split("\n");
+        if (addresses[0] == "null") return null;
+        return addresses[1];
+    }
+
+    /**
      * recursively delete all nodes under a path
      */
     public void recursiveDelete(String path) throws Exception {

@@ -10,71 +10,82 @@ import java.nio.ByteOrder;
 
 @SuppressWarnings("unused")
 public final class LoadReport extends Table {
-    public static LoadReport getRootAsLoadReport(ByteBuffer _bb) {
-        return getRootAsLoadReport(_bb, new LoadReport());
-    }
+  public static LoadReport getRootAsLoadReport(ByteBuffer _bb) {
+    return getRootAsLoadReport(_bb, new LoadReport());
+  }
 
-    public static LoadReport getRootAsLoadReport(ByteBuffer _bb, LoadReport obj) {
-        _bb.order(ByteOrder.LITTLE_ENDIAN);
-        return (obj.__assign(_bb.getInt(_bb.position()) + _bb.position(), _bb));
-    }
+  public static LoadReport getRootAsLoadReport(ByteBuffer _bb, LoadReport obj) {
+    _bb.order(ByteOrder.LITTLE_ENDIAN);
+    return (obj.__assign(_bb.getInt(_bb.position()) + _bb.position(), _bb));
+  }
 
-    public void __init(int _i, ByteBuffer _bb) {
-        bb_pos = _i;
-        bb = _bb;
-    }
+  public void __init(int _i, ByteBuffer _bb) {
+    bb_pos = _i;
+    bb = _bb;
+  }
 
-    public LoadReport __assign(int _i, ByteBuffer _bb) {
-        __init(_i, _bb);
-        return this;
-    }
+  public LoadReport __assign(int _i, ByteBuffer _bb) {
+    __init(_i, _bb);
+    return this;
+  }
 
-    public ReportEntry channelReports(int j) {
-        return channelReports(new ReportEntry(), j);
-    }
+  public long timeTag() {
+    int o = __offset(4);
+    return o != 0 ? bb.getLong(o + bb_pos) : 0L;
+  }
 
-    public ReportEntry channelReports(ReportEntry obj, int j) {
-        int o = __offset(4);
-        return o != 0 ? obj.__assign(__indirect(__vector(o) + j * 4), bb) : null;
-    }
+  public ReportEntry channelReports(int j) {
+    return channelReports(new ReportEntry(), j);
+  }
 
-    public int channelReportsLength() {
-        int o = __offset(4);
-        return o != 0 ? __vector_len(o) : 0;
-    }
+  public ReportEntry channelReports(ReportEntry obj, int j) {
+    int o = __offset(6);
+    return o != 0 ? obj.__assign(__indirect(__vector(o) + j * 4), bb) : null;
+  }
 
-    public static int createLoadReport(FlatBufferBuilder builder,
-                                       int channelReportsOffset) {
-        builder.startObject(1);
-        LoadReport.addChannelReports(builder, channelReportsOffset);
-        return LoadReport.endLoadReport(builder);
-    }
+  public int channelReportsLength() {
+    int o = __offset(6);
+    return o != 0 ? __vector_len(o) : 0;
+  }
 
-    public static void startLoadReport(FlatBufferBuilder builder) {
-        builder.startObject(1);
-    }
+  public static int createLoadReport(FlatBufferBuilder builder,
+                                     long timeTag,
+                                     int channelReportsOffset) {
+    builder.startObject(2);
+    LoadReport.addTimeTag(builder, timeTag);
+    LoadReport.addChannelReports(builder, channelReportsOffset);
+    return LoadReport.endLoadReport(builder);
+  }
 
-    public static void addChannelReports(FlatBufferBuilder builder, int channelReportsOffset) {
-        builder.addOffset(0, channelReportsOffset, 0);
-    }
+  public static void startLoadReport(FlatBufferBuilder builder) {
+    builder.startObject(2);
+  }
 
-    public static int createChannelReportsVector(FlatBufferBuilder builder, int[] data) {
-        builder.startVector(4, data.length, 4);
-        for (int i = data.length - 1; i >= 0; i--) builder.addOffset(data[i]);
-        return builder.endVector();
-    }
+  public static void addTimeTag(FlatBufferBuilder builder, long timeTag) {
+    builder.addLong(0, timeTag, 0L);
+  }
 
-    public static void startChannelReportsVector(FlatBufferBuilder builder, int numElems) {
-        builder.startVector(4, numElems, 4);
-    }
+  public static void addChannelReports(FlatBufferBuilder builder, int channelReportsOffset) {
+    builder.addOffset(1, channelReportsOffset, 0);
+  }
 
-    public static int endLoadReport(FlatBufferBuilder builder) {
-        int o = builder.endObject();
-        return o;
-    }
+  public static int createChannelReportsVector(FlatBufferBuilder builder, int[] data) {
+    builder.startVector(4, data.length, 4);
+    for (int i = data.length - 1; i >= 0; i--) builder.addOffset(data[i]);
+    return builder.endVector();
+  }
 
-    public static void finishLoadReportBuffer(FlatBufferBuilder builder, int offset) {
-        builder.finish(offset);
-    }
+  public static void startChannelReportsVector(FlatBufferBuilder builder, int numElems) {
+    builder.startVector(4, numElems, 4);
+  }
+
+  public static int endLoadReport(FlatBufferBuilder builder) {
+    int o = builder.endObject();
+    return o;
+  }
+
+  public static void finishLoadReportBuffer(FlatBufferBuilder builder, int offset) {
+    builder.finish(offset);
+  }
 }
 

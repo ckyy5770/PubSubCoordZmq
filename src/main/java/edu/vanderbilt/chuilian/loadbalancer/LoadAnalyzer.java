@@ -5,6 +5,9 @@ package edu.vanderbilt.chuilian.loadbalancer;
  */
 
 import edu.vanderbilt.chuilian.types.LoadReportHelper;
+import edu.vanderbilt.chuilian.util.ZkConnect;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.zeromq.ZMQ;
 
 import java.util.concurrent.ExecutorService;
@@ -28,19 +31,37 @@ public class LoadAnalyzer {
     private ZMQ.Socket sendSocket;
     private Future<?> future;
     private ReportMap reportMap;
+    private ZkConnect zkConnect;
 
-    public LoadAnalyzer(String balancerAddress, String brokerID, ExecutorService executor) {
+    private static final Logger logger = LogManager.getLogger(LoadAnalyzer.class.getName());
+
+    public LoadAnalyzer(String brokerID, ExecutorService executor, ZkConnect zkConnect) {
         this.brokerID = brokerID;
-        this.balancerAddress = balancerAddress;
+        this.balancerAddress = null;
         this.executor = executor;
+        this.zkConnect = zkConnect;
         this.sendContext = ZMQ.context(1);
         this.sendSocket = sendContext.socket(ZMQ.PUB);
         this.reportMap = new ReportMap();
     }
 
-    void start() {
-        sendSocket.connect(balancerAddress);
+    void start() throws Exception {
         future = executor.submit(() -> {
+            logger.info("Local LoadAnalyzer thread started.");
+            // try to get balancer address
+            try {
+                String address = zkConnect.getBalancerRecAddress();
+                while (address == null) {
+                    // if cannot get it, keep trying, every 5 secs
+                    Thread.sleep(5000);
+                    address = zkConnect.getBalancerRecAddress();
+                }
+            } catch (Exception e) {
+                return;
+            }
+            // here we get a non-null address, connect it
+            sendSocket.connect(balancerAddress);
+
             while (true) {
                 try {
                     Thread.sleep(1000);
@@ -54,14 +75,16 @@ public class LoadAnalyzer {
     }
 
     void stop() {
+        logger.info("Closing Local LoadAnalyzer.");
         future.cancel(false);
         sendSocket.close();
         sendContext.term();
+        logger.info("Local load analyzer closed.");
     }
 
     void report() {
         sendSocket.sendMore(brokerID);
-        sendSocket.send(LoadReportHelper.serialize(reportMap));
+        sendSocket.send(LoadReportHelper.serialize(reportMap, System.currentTimeMillis()));
     }
 
     void reset() {

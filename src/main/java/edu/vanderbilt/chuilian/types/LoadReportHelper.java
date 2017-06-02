@@ -8,7 +8,7 @@ import java.util.Map;
 
 public class LoadReportHelper {
 
-    public static byte[] serialize(ReportMap reportMap) {
+    public static byte[] serialize(ReportMap reportMap, long timeTag) {
         FlatBufferBuilder builder = new FlatBufferBuilder(1024);
         int[] channelRepts = new int[reportMap.size()];
         int counter = 0;
@@ -19,6 +19,7 @@ public class LoadReportHelper {
         int channelReports = LoadReport.createChannelReportsVector(builder, channelRepts);
         LoadReport.startLoadReport(builder);
         LoadReport.addChannelReports(builder, channelReports);
+        LoadReport.addTimeTag(builder, timeTag);
         int report = LoadReport.endLoadReport(builder);
         builder.finish(report);
         java.nio.ByteBuffer buf = builder.dataBuffer();
