@@ -97,9 +97,9 @@ Every publisher born with a default receiver, which directly connects to the def
 ### Znode data tree structure
 
 ```
-          root
-          / 
-       topics
+           root
+          /    \
+       topics  balancer
        /    \
    topic_A topic_B
      / \     / \
@@ -108,7 +108,6 @@ Every publisher born with a default receiver, which directly connects to the def
 pub1 pub2 ... 
 
 ```
-
 
 root: 
 * data: nothing
@@ -130,6 +129,10 @@ topic_A/pub/pub1:
 * data: must always be valid ip address of pub1.
 * children: none.
 
+balancer:
+* data: balancer address, including receiver port and sender port, first line in the data file is receiver address and the second line is sender address. 
+* children: none.
+
 ### WorkFlow
 
 When the broker starts, it will initialize a default channel with a receiver port and a sender port associate with it. Then it will go to zookeeper server, wipe out all data in the /topics node alone with all sub-nodes if needed, then rewrite its current sender and receiver address to it. Then it claims the broker started.
@@ -141,6 +144,14 @@ When a new topic comes into the default channel, the main channel thread will fi
 Subscriber will have similar logic as the publisher.
 
 When the broker stops, it should delete all topics and data under /topics, and all data in /topics.
+
+## Load Balancing
+
+The load balancing system is inspired by [Dynamoth](http://ieeexplore.ieee.org/document/7164934/).
+
+### System Overview
+
+Each edge broker will be equipped with a Local Load Analyzer(LLA) and a Dispatcher(D). LLA will send a local load report of the broker every 1 secs, to the Load Balancer(LB). Then Load Balancer will gather all current load information for each edge broker, then decide whether it should change the Load Plan. If a new plan is generated, it will be sent to dispatchers residing in each edge broker.
 
 ### Data format
 
@@ -159,7 +170,7 @@ data storing at "/topics/sometopic/pub" or "/topics/sometopic/sub" must be:
 ## Serialization/Deserialization
 using [flatbuffer](https://google.github.io/flatbuffers/index.html)
 
-### Data sample schema
+### DataSample schema
 ```
 table DataSample {
   sampleId:int;
@@ -170,6 +181,12 @@ table DataSample {
   payload:[int];
 }
 ```
+
+### LoadReport schema
+TBD
+
+### BalancerPlan schema
+TBD
 
 ## Test
 
