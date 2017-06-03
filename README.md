@@ -145,14 +145,6 @@ Subscriber will have similar logic as the publisher.
 
 When the broker stops, it should delete all topics and data under /topics, and all data in /topics.
 
-## Load Balancing
-
-The load balancing system is inspired by [Dynamoth](http://ieeexplore.ieee.org/document/7164934/).
-
-### System Overview
-
-Each edge broker will be equipped with a Local Load Analyzer(LLA) and a Dispatcher(D). LLA will send a local load report of the broker every 1 secs, to the Load Balancer(LB). Then Load Balancer will gather all current load information for each edge broker, then decide whether it should change the Load Plan. If a new plan is generated, it will be sent to dispatchers residing in each edge broker.
-
 ### Data format
 
 data storing at "/topics" should follow following format:
@@ -166,6 +158,14 @@ data storing at "/topics/sometopic" must be "null"
 data storing at "/topics/sometopic/pub" or "/topics/sometopic/sub" must be:
 
 "IP_ADDRESS:PORT_NUMBER" which indicates where publisher/subscriber should connect to.
+
+## Load Balancing
+
+The load balancing system is inspired by [Dynamoth](http://ieeexplore.ieee.org/document/7164934/).
+
+### System Overview
+
+Each edge broker will be equipped with a Local Load Analyzer(LLA) and a Dispatcher(D). LLA will send a local load report of the broker every 1 secs, to the Load Balancer(LB). Then Load Balancer will gather all current load information for each edge broker, then decide whether it should change the Load Plan. If a new plan is generated, it will be sent to dispatchers residing in each edge broker.
 
 ## Serialization/Deserialization
 using [flatbuffer](https://google.github.io/flatbuffers/index.html)
