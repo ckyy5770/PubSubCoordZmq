@@ -205,7 +205,7 @@ table DataSample {
 ```
 
 ### LoadReport schema
-TBD
+TBD 
 
 ### BalancerPlan schema
 TBD

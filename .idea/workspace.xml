@@ -1,11 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="f202785a-66ab-4a4f-8349-54840d16190e" name="Default" comment="update readme">
+    <list default="true" id="f202785a-66ab-4a4f-8349-54840d16190e" name="Default" comment="">
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/README.md" afterPath="$PROJECT_DIR$/README.md" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/edu/vanderbilt/chuilian/brokers/edge/MainChannel.java" afterPath="$PROJECT_DIR$/src/main/java/edu/vanderbilt/chuilian/brokers/edge/MainChannel.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/edu/vanderbilt/chuilian/loadbalancer/LoadBalancer.java" afterPath="$PROJECT_DIR$/src/main/java/edu/vanderbilt/chuilian/loadbalancer/LoadBalancer.java" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -64,12 +62,12 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="README.md" pinned="false" current-in-tab="false">
+      <file leaf-file-name="README.md" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/README.md">
           <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
             <state split_layout="FIRST">
-              <first_editor relative-caret-position="411">
-                <caret line="52" column="0" lean-forward="true" selection-start-line="52" selection-start-column="0" selection-end-line="52" selection-end-column="0" />
+              <first_editor relative-caret-position="332">
+                <caret line="207" column="4" lean-forward="false" selection-start-line="207" selection-start-column="4" selection-end-line="207" selection-end-column="4" />
                 <folding />
               </first_editor>
               <second_editor />
@@ -77,11 +75,11 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="ZkConnect.java" pinned="false" current-in-tab="true">
+      <file leaf-file-name="ZkConnect.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main/java/edu/vanderbilt/chuilian/util/ZkConnect.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="248">
-              <caret line="275" column="24" lean-forward="true" selection-start-line="275" selection-start-column="24" selection-end-line="275" selection-end-column="24" />
+            <state relative-caret-position="285">
+              <caret line="31" column="20" lean-forward="false" selection-start-line="31" selection-start-column="20" selection-end-line="31" selection-end-column="20" />
               <folding />
             </state>
           </provider>
@@ -993,7 +991,7 @@
       <workItem from="1496511825552" duration="3248000" />
       <workItem from="1496523210230" duration="36000" />
       <workItem from="1496523311763" duration="297000" />
-      <workItem from="1496673844992" duration="6446000" />
+      <workItem from="1496673844992" duration="7011000" />
     </task>
     <task id="LOCAL-00001" summary="update readme and some comments">
       <created>1495643793918</created>
@@ -1191,11 +1189,18 @@
       <option name="project" value="LOCAL" />
       <updated>1496523400711</updated>
     </task>
-    <option name="localTasksCounter" value="29" />
+    <task id="LOCAL-00029" summary="update readme">
+      <created>1496684384699</created>
+      <option name="number" value="00029" />
+      <option name="presentableId" value="LOCAL-00029" />
+      <option name="project" value="LOCAL" />
+      <updated>1496684384699</updated>
+    </task>
+    <option name="localTasksCounter" value="30" />
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="167255000" />
+    <option name="totallyTimeSpent" value="167820000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="0" y="23" width="1280" height="707" extended-state="6" />
@@ -1681,22 +1686,22 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/README.md">
-      <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
-        <state split_layout="FIRST">
-          <first_editor relative-caret-position="411">
-            <caret line="52" column="0" lean-forward="true" selection-start-line="52" selection-start-column="0" selection-end-line="52" selection-end-column="0" />
-            <folding />
-          </first_editor>
-          <second_editor />
+    <entry file="file://$PROJECT_DIR$/src/main/java/edu/vanderbilt/chuilian/util/ZkConnect.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="285">
+          <caret line="31" column="20" lean-forward="false" selection-start-line="31" selection-start-column="20" selection-end-line="31" selection-end-column="20" />
+          <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/edu/vanderbilt/chuilian/util/ZkConnect.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="248">
-          <caret line="275" column="24" lean-forward="true" selection-start-line="275" selection-start-column="24" selection-end-line="275" selection-end-column="24" />
-          <folding />
+    <entry file="file://$PROJECT_DIR$/README.md">
+      <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
+        <state split_layout="FIRST">
+          <first_editor relative-caret-position="332">
+            <caret line="207" column="4" lean-forward="false" selection-start-line="207" selection-start-column="4" selection-end-line="207" selection-end-column="4" />
+            <folding />
+          </first_editor>
+          <second_editor />
         </state>
       </provider>
     </entry>
