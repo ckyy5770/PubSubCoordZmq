@@ -28,3 +28,4 @@ zookeeper*/
 production/
 dataSchema/edu/
 dataSchema/flatc
+sync.sh
