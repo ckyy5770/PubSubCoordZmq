@@ -36,7 +36,7 @@ public class MainChannel extends MsgChannel {
         // register itself to zookeeper service
         zkConnect.registerDefaultChannel(ip + ":" + Integer.toString(recPort), ip + ":" + Integer.toString(sendPort));
 
-        logger.info("Main Channel Started. ip {} recPort {} sendPort {}", ip, recPort, sendPort);
+        logger.info("Main Channel Started. ip {} recPort {} sendPort {} priority {}", ip, recPort, sendPort, Thread.currentThread().getPriority());
 
         // start receiving and sending messages
         workerFuture = executor.submit(() -> {

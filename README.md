@@ -163,9 +163,31 @@ data storing at "/topics/sometopic/pub" or "/topics/sometopic/sub" must be:
 
 The load balancing system is inspired by [Dynamoth](http://ieeexplore.ieee.org/document/7164934/).
 
-### System Overview
+### Load Balancing Overview
 
 Each edge broker will be equipped with a Local Load Analyzer(LLA) and a Dispatcher(D). LLA will send a local load report of the broker every 1 secs, to the Load Balancer(LB). Then Load Balancer will gather all current load information for each edge broker, then decide whether it should change the Load Plan. If a new plan is generated, it will be sent to dispatchers residing in each edge broker.
+
+### Plan
+
+plan is a data structure that encapsulates all information needed to instruct to which address a given publication or subscription should be sent to. It's like a lookup table where the keys are channels(topics), and the values are the list of servers that should be used for each channel.
+
+### Channel level rebalancing:
+
+Channel replication strategies:
+
+* All-subscribers replication: used for situations when given channel has a very large number of subscribers. In this case, subscribers for this topic, should connect to all channels in the broker, and publishers could pick one of them to send their publications (of that topic) to.
+ 
+* All-publishers replication: used for situations when given channel has a very large number of publishers. In this case, publishers should send the publication of this topic to all channels in the broker, and subscribers could pick one of them to connect.
+
+Default strategy:
+
+* consistent hashing: TBD
+
+### System level rebalancing:
+
+* High-load rebalancing: If there is a pub/sub server with a load ratio that exceeds a given threshold, then a new high-load plan must be generated so that the new plan ensures that the load returns below a safe threshold for all servers. Basically, what new plan does is to migrate some channels from the overload channel, to the least busiest channel.
+
+* Low-load rebalancing:
 
 ## Serialization/Deserialization
 using [flatbuffer](https://google.github.io/flatbuffers/index.html)

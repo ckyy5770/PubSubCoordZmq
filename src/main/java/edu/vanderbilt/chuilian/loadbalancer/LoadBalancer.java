@@ -24,6 +24,7 @@ import java.util.concurrent.Future;
  * Load balancer will collect load reports from every single broker and analyze them, decide whether it should generate a new plan
  */
 public class LoadBalancer {
+    Plan currentPlan;
     BrokerReportMap brokerReportMap;
     private final ExecutorService executor;
     private final ZkConnect zkConnect;
@@ -127,10 +128,12 @@ public class LoadBalancer {
             }
         }
         // TODO: 6/2/17 need to add processing logic and plan generation logic
-        Plan plan = null;
-        if (plan != null) {
+
+
+        Plan newPlan = null;
+        if (newPlan != null) {
             sendSocket.sendMore("plan");
-            sendSocket.send(BalancerPlanHelper.serialize(plan, System.currentTimeMillis()));
+            sendSocket.send(BalancerPlanHelper.serialize(newPlan, System.currentTimeMillis()));
             logger.info("New plan sent.");
         }
     }
