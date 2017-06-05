@@ -8,10 +8,7 @@ import java.util.Set;
  */
 
 public class ChannelPlan {
-    public enum Strategy {
-        HASH, ALL_SUB, ALL_PUB
-    }
-
+    private boolean isNew = true;
     private String topic;
     private Set<String> availableBroker;
     private Strategy strategy;
@@ -37,6 +34,10 @@ public class ChannelPlan {
         availableBroker.add(brokerID);
     }
 
+    public void setAvailableBroker(Set<String> availableBroker) {
+        this.availableBroker = availableBroker;
+    }
+
     public void setStrategy(Strategy strategy) {
         this.strategy = strategy;
     }
@@ -51,5 +52,13 @@ public class ChannelPlan {
 
     public Set<String> getAvailableBroker() {
         return this.availableBroker;
+    }
+
+    public int getNumBrokers() {
+        return availableBroker.size();
+    }
+
+    public void turnOld() {
+        this.isNew = false;
     }
 }
