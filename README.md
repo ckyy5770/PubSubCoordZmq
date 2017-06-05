@@ -187,7 +187,46 @@ Default strategy:
 
 * High-load rebalancing: If there is a pub/sub server with a load ratio that exceeds a given threshold, then a new high-load plan must be generated so that the new plan ensures that the load returns below a safe threshold for all servers. Basically, what new plan does is to migrate some channels from the overload channel, to the least busiest channel.
 
-* Low-load rebalancing:
+* Low-load rebalancing: If the global load ratio is below a given threshold, then one or more servers can be freed. Channel from the lowest loaded server are slowly migrated to the other servers as long as the load on the other server stays below a given limit.
+
+### Plan data structure
+
+channel-level plan:
+
+map:
+
+* key: topic
+
+* value: channelPlan
+
+```
+channelPlan{
+    topic: string;
+    availableBroker: [string(brokerID)];
+    strategy:{ALL_SUB, ALL_PUB, HASH};
+}
+```
+
+system-level plan:
+
+```
+systemPlan{
+    highLoadPlans:[highLoadPlan];
+    lowLoadPlans:[lowLoadPlan];
+}
+
+highLoadPlan{
+    from: string(brokerID);
+    to: string(brokerID);
+    channels: string(topic);
+}
+
+lowLoadPlan{
+    from: string(brokerID);
+    to: string(brokerID);
+    channels: string(topic);
+}
+```
 
 ## Serialization/Deserialization
 using [flatbuffer](https://google.github.io/flatbuffers/index.html)

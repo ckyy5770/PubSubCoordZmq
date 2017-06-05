@@ -4,6 +4,7 @@ package edu.vanderbilt.chuilian.loadbalancer;
  * Created by Killian on 6/2/17.
  */
 
+import edu.vanderbilt.chuilian.loadbalancer.plan.Plan;
 import edu.vanderbilt.chuilian.types.BalancerPlanHelper;
 import edu.vanderbilt.chuilian.types.LoadReport;
 import edu.vanderbilt.chuilian.types.LoadReportHelper;

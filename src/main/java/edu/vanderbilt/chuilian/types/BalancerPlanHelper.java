@@ -1,7 +1,7 @@
 package edu.vanderbilt.chuilian.types;
 
 import com.google.flatbuffers.FlatBufferBuilder;
-import edu.vanderbilt.chuilian.loadbalancer.Plan;
+import edu.vanderbilt.chuilian.loadbalancer.plan.Plan;
 
 /**
  * Created by Killian on 6/2/17.
