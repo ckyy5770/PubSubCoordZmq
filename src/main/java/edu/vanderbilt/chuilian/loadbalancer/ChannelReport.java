@@ -1,9 +1,11 @@
 package edu.vanderbilt.chuilian.loadbalancer;
 
+import edu.vanderbilt.chuilian.types.TypesChannelReport;
+
 /**
  * Created by Killian on 6/1/17.
  */
-// TODO: 6/5/17 need change.
+
 public class ChannelReport {
     String topic;
     // metrics
@@ -14,6 +16,14 @@ public class ChannelReport {
 
     ChannelReport(String topic) {
         this.topic = topic;
+    }
+
+    ChannelReport(TypesChannelReport typesChannelReport) {
+        this.topic = typesChannelReport.topic();
+        this.numIOBytes = typesChannelReport.numIOBytes();
+        this.numIOMsgs = typesChannelReport.numIOMsgs();
+        this.numSubscribers = typesChannelReport.numSubscribers();
+        this.numPublications = typesChannelReport.numPublications();
     }
 
     public long getNumIOBytes() {

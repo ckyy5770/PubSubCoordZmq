@@ -1,16 +1,15 @@
 package edu.vanderbilt.chuilian.loadbalancer.plan;
 
+import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Set;
 
 /**
  * Created by Killian on 6/2/17.
  */
 public class Plan {
     HashMap<String, ChannelPlan> channelPlans = null;
-    Set<HighLoadPlan> highLoadPlans = null;
-    Set<LowLoadPlan> lowLoadPlans = null;
+    ArrayList<HighLoadPlan> highLoadPlans = null;
+    ArrayList<LowLoadPlan> lowLoadPlans = null;
 
     public Plan() {
     }
@@ -26,12 +25,12 @@ public class Plan {
     }
 
     public void addHighLoadPlan(HighLoadPlan highLoadPlan) {
-        if (highLoadPlans == null) highLoadPlans = new HashSet<>();
+        if (highLoadPlans == null) highLoadPlans = new ArrayList<>();
         this.highLoadPlans.add(highLoadPlan);
     }
 
     public void addLowLoadPlan(LowLoadPlan lowLoadPlan) {
-        if (lowLoadPlans == null) lowLoadPlans = new HashSet<>();
+        if (lowLoadPlans == null) lowLoadPlans = new ArrayList<>();
         this.lowLoadPlans.add(lowLoadPlan);
     }
 
@@ -43,11 +42,11 @@ public class Plan {
         return channelPlans;
     }
 
-    public Set<HighLoadPlan> getHighLoadPlans() {
+    public ArrayList<HighLoadPlan> getHighLoadPlans() {
         return highLoadPlans;
     }
 
-    public Set<LowLoadPlan> getLowLoadPlans() {
+    public ArrayList<LowLoadPlan> getLowLoadPlans() {
         return lowLoadPlans;
     }
 

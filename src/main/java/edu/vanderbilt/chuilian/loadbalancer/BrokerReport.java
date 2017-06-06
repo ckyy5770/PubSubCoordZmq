@@ -1,5 +1,7 @@
 package edu.vanderbilt.chuilian.loadbalancer;
 
+import edu.vanderbilt.chuilian.types.TypesBrokerReport;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -8,18 +10,39 @@ import java.util.Set;
  * Created by Killian on 6/1/17.
  */
 
-public class ReportMap {
+/**
+ * channel reports for one broker.
+ */
+public class BrokerReport {
+    // topic, channelReport
     HashMap<String, ChannelReport> map;
     String brokerID;
+    double loadRatio;
+    double bandWidthBytes;
 
-
-    public ReportMap(String brokerID) {
+    public BrokerReport(String brokerID) {
         this.map = new HashMap<>();
         this.brokerID = brokerID;
     }
 
+    public BrokerReport(TypesBrokerReport typesBrokerReport) {
+        this.brokerID = typesBrokerReport.brokerID();
+        this.loadRatio = typesBrokerReport.loadRatio();
+        this.bandWidthBytes = typesBrokerReport.bandWidthBytes();
+        this.map = new HashMap<>();
+        // typesBrokerReport -> brokerReport
+        for (int i = 0; i < typesBrokerReport.channelReportsLength(); i++) {
+            // TypesChannelReport -> channelReport
+            this.addChannelReport(new ChannelReport(typesBrokerReport.channelReports(i)));
+        }
+    }
+
     public String getBrokerID() {
         return brokerID;
+    }
+
+    public double getBandWidthBytes() {
+        return bandWidthBytes;
     }
 
     public void updateBytes(String topic, long bytes) {
@@ -50,6 +73,14 @@ public class ReportMap {
         map.get(topic).numSubscribers += subscribers;
     }
 
+    public void addChannelReport(ChannelReport channelReport) {
+        map.put(channelReport.getTopic(), channelReport);
+    }
+
+    public void removeChannelReport(ChannelReport channelReport) {
+        map.remove(channelReport.getTopic());
+    }
+
     public Set<Map.Entry<String, ChannelReport>> entrySet() {
         return map.entrySet();
     }
@@ -62,6 +93,7 @@ public class ReportMap {
         this.map = new HashMap<>();
     }
 
+    // calculations
     public double getLoadRatio() {
         long cumulativeIOBytes = 0;
         for (Map.Entry<String, ChannelReport> entry : map.entrySet()) {
@@ -69,6 +101,17 @@ public class ReportMap {
         }
         return (double) cumulativeIOBytes / LoadAnalyzer.getBandWidthBytes();
     }
+
+    public ChannelReport getMostBusyChannel() {
+        ChannelReport res = null;
+        for (Map.Entry<String, ChannelReport> entry : map.entrySet()) {
+            if (res == null || entry.getValue().getNumIOBytes() > res.getNumIOBytes()) {
+                res = entry.getValue();
+            }
+        }
+        return res;
+    }
+
 
 }
 

@@ -6,8 +6,8 @@ package edu.vanderbilt.chuilian.loadbalancer;
 
 import edu.vanderbilt.chuilian.loadbalancer.plan.Plan;
 import edu.vanderbilt.chuilian.types.BalancerPlanHelper;
-import edu.vanderbilt.chuilian.types.LoadReport;
-import edu.vanderbilt.chuilian.types.LoadReportHelper;
+import edu.vanderbilt.chuilian.types.TypesBrokerReport;
+import edu.vanderbilt.chuilian.types.TypesBrokerReportHelper;
 import edu.vanderbilt.chuilian.util.ZkConnect;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -24,7 +24,7 @@ import java.util.concurrent.Future;
  */
 public class LoadBalancer {
     Plan currentPlan;
-    BrokerReportMap brokerReportMap;
+    BrokerLoadReportBuffer brokerLoadReportBuffer;
     private final ExecutorService executor;
     private final ZkConnect zkConnect;
     /**
@@ -47,7 +47,7 @@ public class LoadBalancer {
     private static final Logger logger = LogManager.getLogger(LoadBalancer.class.getName());
 
     public LoadBalancer() {
-        this.brokerReportMap = new BrokerReportMap();
+        this.brokerLoadReportBuffer = new BrokerLoadReportBuffer();
         this.executor = Executors.newFixedThreadPool(3);
         this.zkConnect = new ZkConnect();
         // initialize socket
@@ -110,16 +110,16 @@ public class LoadBalancer {
         ZMsg receivedMsg = ZMsg.recvMsg(recSocket);
         String brokerID = new String(receivedMsg.getFirst().getData());
         byte[] msgContent = receivedMsg.getLast().getData();
-        LoadReport report = LoadReportHelper.deserialize(msgContent);
+        TypesBrokerReport report = TypesBrokerReportHelper.deserialize(msgContent);
         logger.info("Report Received at LoadBalancer. brokerID: {} timeTag: {}", brokerID, report.timeTag());
-        brokerReportMap.update(brokerID, report);
+        brokerLoadReportBuffer.update(brokerID, report);
     }
 
     /**
      * process reports and generate new plan, send new plan to dispatchers
      */
     private void processor() {
-        BrokerReportMap reports = brokerReportMap.snapShot();
+        BrokerLoadReportBuffer reports = brokerLoadReportBuffer.snapShot();
         // TODO: 6/2/17 need to add processing logic and plan generation logic
 
 

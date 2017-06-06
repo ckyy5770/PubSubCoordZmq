@@ -1,32 +1,28 @@
 package edu.vanderbilt.chuilian.loadbalancer.plan;
 
-import java.util.HashSet;
-import java.util.Set;
-
 /**
  * Created by Killian on 6/5/17.
  */
 public class SystemPlan {
     String from;
     String to;
-    Set<String> channels;
+    String channel;
 
-    public SystemPlan(String from, String to) {
+    public SystemPlan(String from, String to, String channel) {
         this.from = from;
         this.to = to;
+        this.channel = channel;
     }
 
     public SystemPlan() {
         this.from = null;
         this.to = null;
-        this.channels = null;
+        this.channel = null;
     }
 
-    public void addChannel(String channel) {
-        if (channels == null) channels = new HashSet<String>();
-        this.channels.add(channel);
+    public void setChannel(String channel) {
+        this.channel = channel;
     }
-
     public void setFrom(String from) {
         this.from = from;
     }
@@ -35,8 +31,8 @@ public class SystemPlan {
         this.to = to;
     }
 
-    public Set<String> getChannels() {
-        return channels;
+    public String getChannel() {
+        return channel;
     }
 
     public String getFrom() {

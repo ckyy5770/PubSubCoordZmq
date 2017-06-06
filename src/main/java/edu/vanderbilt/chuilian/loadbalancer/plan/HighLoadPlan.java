@@ -5,8 +5,8 @@ package edu.vanderbilt.chuilian.loadbalancer.plan;
  */
 
 public class HighLoadPlan extends SystemPlan {
-    public HighLoadPlan(String from, String to) {
-        super(from, to);
+    public HighLoadPlan(String from, String to, String channel) {
+        super(from, to, channel);
     }
 
     public HighLoadPlan() {

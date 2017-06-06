@@ -1,6 +1,6 @@
 namespace edu.vanderbilt.chuilian.types;
 
-table ReportEntry {
+table LoadReportEntry {
   topic:string;
   numIOBytes:long;
   numIOMsgs:long;
@@ -12,7 +12,8 @@ table LoadReport{
   brokerID:string;
   timeTag:long;
   loadRatio:double;
-  channelReports:[ReportEntry];
+  bandWidthBytes:double;
+  channelReports:[LoadReportEntry];
 }
 
 root_type LoadReport;

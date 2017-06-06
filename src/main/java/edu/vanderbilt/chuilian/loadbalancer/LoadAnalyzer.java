@@ -4,7 +4,7 @@ package edu.vanderbilt.chuilian.loadbalancer;
  * Created by Killian on 6/1/17.
  */
 
-import edu.vanderbilt.chuilian.types.LoadReportHelper;
+import edu.vanderbilt.chuilian.types.TypesBrokerReportHelper;
 import edu.vanderbilt.chuilian.util.ZkConnect;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -30,7 +30,7 @@ public class LoadAnalyzer {
     private ZMQ.Context sendContext;
     private ZMQ.Socket sendSocket;
     private Future<?> future;
-    private ReportMap reportMap;
+    private BrokerReport brokerReport;
     private ZkConnect zkConnect;
 
     private static final Logger logger = LogManager.getLogger(LoadAnalyzer.class.getName());
@@ -42,7 +42,7 @@ public class LoadAnalyzer {
         this.zkConnect = zkConnect;
         this.sendContext = ZMQ.context(1);
         this.sendSocket = sendContext.socket(ZMQ.PUB);
-        this.reportMap = new ReportMap(brokerID);
+        this.brokerReport = new BrokerReport(brokerID);
     }
 
     public static double getBandWidthBytes() {
@@ -88,11 +88,11 @@ public class LoadAnalyzer {
 
     void report() {
         sendSocket.sendMore(brokerID);
-        sendSocket.send(LoadReportHelper.serialize(reportMap, System.currentTimeMillis()));
+        sendSocket.send(TypesBrokerReportHelper.serialize(brokerReport, System.currentTimeMillis()));
     }
 
     void reset() {
-        reportMap.reset();
+        brokerReport.reset();
     }
 
 }
