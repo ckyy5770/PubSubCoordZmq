@@ -42,7 +42,11 @@ public class LoadAnalyzer {
         this.zkConnect = zkConnect;
         this.sendContext = ZMQ.context(1);
         this.sendSocket = sendContext.socket(ZMQ.PUB);
-        this.reportMap = new ReportMap();
+        this.reportMap = new ReportMap(brokerID);
+    }
+
+    public static double getBandWidthBytes() {
+        return 1e10;
     }
 
     void start() throws Exception {

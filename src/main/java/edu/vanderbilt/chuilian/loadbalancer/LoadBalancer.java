@@ -14,8 +14,6 @@ import org.apache.logging.log4j.Logger;
 import org.zeromq.ZMQ;
 import org.zeromq.ZMsg;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -121,13 +119,7 @@ public class LoadBalancer {
      * process reports and generate new plan, send new plan to dispatchers
      */
     private void processor() {
-        HashMap<String, LoadReport> reports = brokerReportMap.snapShot();
-        for (Map.Entry<String, LoadReport> entry : reports.entrySet()) {
-            int length = entry.getValue().channelReportsLength();
-            for (int i = 0; i < length; i++) {
-                logger.info("Report entry processed. brokerID: {} topic: {}", entry.getKey(), entry.getValue().channelReports(i).topic());
-            }
-        }
+        BrokerReportMap reports = brokerReportMap.snapShot();
         // TODO: 6/2/17 need to add processing logic and plan generation logic
 
 

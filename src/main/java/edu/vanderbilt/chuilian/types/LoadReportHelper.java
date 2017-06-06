@@ -14,12 +14,15 @@ public class LoadReportHelper {
         int counter = 0;
         for (Map.Entry<String, ChannelReport> entry : reportMap.entrySet()) {
             int topic = builder.createString(entry.getValue().getTopic());
-            channelRepts[counter++] = ReportEntry.createReportEntry(builder, topic, entry.getValue().getNumIOBytes(), entry.getValue().getNumIOMsgs());
+            channelRepts[counter++] = ReportEntry.createReportEntry(builder, topic, entry.getValue().getNumIOBytes(), entry.getValue().getNumIOMsgs(), entry.getValue().getNumPublications(), entry.getValue().getNumSubscribers());
         }
         int channelReports = LoadReport.createChannelReportsVector(builder, channelRepts);
+        int brokerID = builder.createString(reportMap.getBrokerID());
         LoadReport.startLoadReport(builder);
         LoadReport.addChannelReports(builder, channelReports);
+        LoadReport.addBrokerID(builder, brokerID);
         LoadReport.addTimeTag(builder, timeTag);
+        LoadReport.addLoadRatio(builder, reportMap.getLoadRatio());
         int report = LoadReport.endLoadReport(builder);
         builder.finish(report);
         java.nio.ByteBuffer buf = builder.dataBuffer();

@@ -4,10 +4,14 @@ table ReportEntry {
   topic:string;
   numIOBytes:long;
   numIOMsgs:long;
+  numPublications:long;
+  numSubscribers:long;
 }
 
 table LoadReport{
+  brokerID:string;
   timeTag:long;
+  loadRatio:double;
   channelReports:[ReportEntry];
 }
 

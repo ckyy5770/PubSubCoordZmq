@@ -29,9 +29,23 @@ public final class LoadReport extends Table {
     return this;
   }
 
-  public long timeTag() {
+  public String brokerID() {
     int o = __offset(4);
+    return o != 0 ? __string(o + bb_pos) : null;
+  }
+
+  public ByteBuffer brokerIDAsByteBuffer() {
+    return __vector_as_bytebuffer(4, 1);
+  }
+
+  public long timeTag() {
+    int o = __offset(6);
     return o != 0 ? bb.getLong(o + bb_pos) : 0L;
+  }
+
+  public double loadRatio() {
+    int o = __offset(8);
+    return o != 0 ? bb.getDouble(o + bb_pos) : 0.0;
   }
 
   public ReportEntry channelReports(int j) {
@@ -39,34 +53,46 @@ public final class LoadReport extends Table {
   }
 
   public ReportEntry channelReports(ReportEntry obj, int j) {
-    int o = __offset(6);
+    int o = __offset(10);
     return o != 0 ? obj.__assign(__indirect(__vector(o) + j * 4), bb) : null;
   }
 
   public int channelReportsLength() {
-    int o = __offset(6);
+    int o = __offset(10);
     return o != 0 ? __vector_len(o) : 0;
   }
 
   public static int createLoadReport(FlatBufferBuilder builder,
+                                     int brokerIDOffset,
                                      long timeTag,
+                                     double loadRatio,
                                      int channelReportsOffset) {
-    builder.startObject(2);
+    builder.startObject(4);
+    LoadReport.addLoadRatio(builder, loadRatio);
     LoadReport.addTimeTag(builder, timeTag);
     LoadReport.addChannelReports(builder, channelReportsOffset);
+    LoadReport.addBrokerID(builder, brokerIDOffset);
     return LoadReport.endLoadReport(builder);
   }
 
   public static void startLoadReport(FlatBufferBuilder builder) {
-    builder.startObject(2);
+    builder.startObject(4);
+  }
+
+  public static void addBrokerID(FlatBufferBuilder builder, int brokerIDOffset) {
+    builder.addOffset(0, brokerIDOffset, 0);
   }
 
   public static void addTimeTag(FlatBufferBuilder builder, long timeTag) {
-    builder.addLong(0, timeTag, 0L);
+    builder.addLong(1, timeTag, 0L);
+  }
+
+  public static void addLoadRatio(FlatBufferBuilder builder, double loadRatio) {
+    builder.addDouble(2, loadRatio, 0.0);
   }
 
   public static void addChannelReports(FlatBufferBuilder builder, int channelReportsOffset) {
-    builder.addOffset(1, channelReportsOffset, 0);
+    builder.addOffset(3, channelReportsOffset, 0);
   }
 
   public static int createChannelReportsVector(FlatBufferBuilder builder, int[] data) {
@@ -78,7 +104,6 @@ public final class LoadReport extends Table {
   public static void startChannelReportsVector(FlatBufferBuilder builder, int numElems) {
     builder.startVector(4, numElems, 4);
   }
-
   public static int endLoadReport(FlatBufferBuilder builder) {
     int o = builder.endObject();
     return o;
