@@ -1,57 +1,38 @@
 package edu.vanderbilt.chuilian.loadbalancer.plan;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 
 /**
  * Created by Killian on 6/2/17.
  */
 public class Plan {
-    HashMap<String, ChannelPlan> channelPlans = null;
-    ArrayList<HighLoadPlan> highLoadPlans = null;
-    ArrayList<LowLoadPlan> lowLoadPlans = null;
+    // version
+    long version = 0;
+    // executable plan --> channel mapping
+    ChannelMapping channelMapping = new ChannelMapping();
 
     public Plan() {
     }
 
-    /**
-     * modifiers: addChannelPlan, addHighLoadPlan, addLowLoadPlan
-     */
-
-
-    public void addChannelPlan(ChannelPlan channelPlan) {
-        if (channelPlans == null) channelPlans = new HashMap<>();
-        this.channelPlans.put(channelPlan.getTopic(), channelPlan);
+    public ChannelMapping getChannelMapping() {
+        return channelMapping;
     }
 
-    public void addHighLoadPlan(HighLoadPlan highLoadPlan) {
-        if (highLoadPlans == null) highLoadPlans = new ArrayList<>();
-        this.highLoadPlans.add(highLoadPlan);
-    }
-
-    public void addLowLoadPlan(LowLoadPlan lowLoadPlan) {
-        if (lowLoadPlans == null) lowLoadPlans = new ArrayList<>();
-        this.lowLoadPlans.add(lowLoadPlan);
-    }
-
-    /**
-     * lookup methods: getChannelPlan, getHighLoadPlans, getLowLoadPlans, getOneChannelPlan
-     */
-
-    public HashMap<String, ChannelPlan> getChannelPlans() {
-        return channelPlans;
-    }
-
-    public ArrayList<HighLoadPlan> getHighLoadPlans() {
-        return highLoadPlans;
-    }
-
-    public ArrayList<LowLoadPlan> getLowLoadPlans() {
-        return lowLoadPlans;
-    }
-
-    public ChannelPlan getOneChannelPlan(String topic) {
-        return channelPlans.get(topic);
+    public void applyNewPlan(ArrayList<ChannelPlan> channelPlans, ArrayList<HighLoadPlan> highLoadPlans, ArrayList<LowLoadPlan> lowLoadPlans) {
+        boolean isChanged = false;
+        if (channelPlans != null && channelPlans.size() != 0) {
+            isChanged = true;
+            channelMapping.replaceChannelPlans(channelPlans);
+        }
+        if (highLoadPlans != null && highLoadPlans.size() != 0) {
+            isChanged = true;
+            channelMapping.migrateChannels(highLoadPlans);
+        }
+        if (lowLoadPlans != null && lowLoadPlans.size() != 0) {
+            isChanged = true;
+            channelMapping.migrateChannels(lowLoadPlans);
+        }
+        if (isChanged) version++;
     }
 
 }

@@ -15,7 +15,7 @@ public class ChannelPlan {
 
     public ChannelPlan() {
         this.topic = null;
-        this.strategy = null;
+        this.strategy = Strategy.HASH;
         this.availableBroker = null;
     }
 
@@ -25,6 +25,12 @@ public class ChannelPlan {
         this.strategy = strategy;
     }
 
+    public ChannelPlan(ChannelPlan that) {
+        this.topic = that.topic;
+        this.availableBroker = that.availableBroker;
+        this.strategy = that.strategy;
+    }
+
     public void setTopic(String topic) {
         this.topic = topic;
     }
@@ -32,6 +38,10 @@ public class ChannelPlan {
     public void addAvailableBroker(String brokerID) {
         if (availableBroker == null) availableBroker = new HashSet<String>();
         availableBroker.add(brokerID);
+    }
+
+    public void removeAvailableBroker(String brokerID) {
+        this.availableBroker.remove(brokerID);
     }
 
     public void setAvailableBroker(Set<String> availableBroker) {
@@ -58,7 +68,5 @@ public class ChannelPlan {
         return availableBroker.size();
     }
 
-    public void turnOld() {
-        this.isNew = false;
-    }
+
 }

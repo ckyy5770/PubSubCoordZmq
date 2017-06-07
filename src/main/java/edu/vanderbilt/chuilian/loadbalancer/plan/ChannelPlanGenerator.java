@@ -7,6 +7,11 @@ package edu.vanderbilt.chuilian.loadbalancer.plan;
 import edu.vanderbilt.chuilian.loadbalancer.BrokerReportAnalyzer;
 import edu.vanderbilt.chuilian.loadbalancer.ChannelReport;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+
 /**
  * channel plan generator provide some algorithm to generate new channel plan, all method are static, and this class cannot be instantiate
  */
@@ -14,7 +19,23 @@ public class ChannelPlanGenerator {
     private ChannelPlanGenerator() {
     }
 
-    public static ChannelPlan defualt(ChannelReport report, ChannelPlan oldPlan, BrokerReportAnalyzer brokerReportAnalyzer) {
+    public static ArrayList<ChannelPlan> generatePlans(Plan oldPlan, BrokerReportAnalyzer brokerReportAnalyzer) {
+        ArrayList<ChannelPlan> res = new ArrayList<>();
+        HashMap<String, ChannelReport> mergedChannelReports = brokerReportAnalyzer.getMergedChannelReports();
+        for (Map.Entry<String, ChannelReport> entry : mergedChannelReports.entrySet()) {
+            String topic = entry.getKey();
+            ChannelReport mergedChannelReport = entry.getValue();
+            ChannelPlan oldChannelPlan = oldPlan.getChannelMapping().getChannelPlan(topic);
+            ChannelPlan newChannelPlan = generateOnePlan(mergedChannelReport, oldChannelPlan, brokerReportAnalyzer);
+            if (newChannelPlan != oldChannelPlan) {
+                res.add(newChannelPlan);
+                brokerReportAnalyzer.applyChannelPlan(newChannelPlan, mergedChannelReport);
+            }
+        }
+        return res;
+    }
+
+    private static ChannelPlan generateOnePlan(ChannelReport report, ChannelPlan oldChannelPlan, BrokerReportAnalyzer brokerReportAnalyzer) {
         double ALL_SUB_THRESHOLD = 0;
         double ALL_PUB_THRESHOLD = 0;
         long PUBLICATION_THRESHOLD = 10;
@@ -27,30 +48,21 @@ public class ChannelPlanGenerator {
         if (numPublications > PUBLICATION_THRESHOLD && numSubscribers > SUBSCRIBER_THRESHOLD) {
             // corner case: both publication and subscriber number are large, use ALL_SUB
             int numBrokers = (int) Math.floor(p / ALL_SUB_THRESHOLD);
-            if (oldPlan.getStrategy() == Strategy.ALL_SUB && oldPlan.getNumBrokers() == numBrokers) {
-                oldPlan.turnOld(); // a way to tell outside world that this channel plan doesn't change from the old version
-                return oldPlan;
-            }
+            if (oldChannelPlan.getStrategy() == Strategy.ALL_SUB && oldChannelPlan.getNumBrokers() == numBrokers)
+                return oldChannelPlan;
             return replicate(Strategy.ALL_SUB, numBrokers, report.getTopic(), brokerReportAnalyzer);
         } else if (p > ALL_SUB_THRESHOLD && numPublications > PUBLICATION_THRESHOLD) {
             int numBrokers = (int) Math.floor(p / ALL_SUB_THRESHOLD);
-            if (oldPlan.getStrategy() == Strategy.ALL_SUB && oldPlan.getNumBrokers() == numBrokers) {
-                oldPlan.turnOld();
-                return oldPlan;
-            }
+            if (oldChannelPlan.getStrategy() == Strategy.ALL_SUB && oldChannelPlan.getNumBrokers() == numBrokers)
+                return oldChannelPlan;
             return replicate(Strategy.ALL_SUB, numBrokers, report.getTopic(), brokerReportAnalyzer);
         } else if (s > ALL_PUB_THRESHOLD && numSubscribers > SUBSCRIBER_THRESHOLD) {
             int numBrokers = (int) Math.floor(s / ALL_PUB_THRESHOLD);
-            if (oldPlan.getStrategy() == Strategy.ALL_PUB && oldPlan.getNumBrokers() == numBrokers) {
-                oldPlan.turnOld();
-                return oldPlan;
-            }
+            if (oldChannelPlan.getStrategy() == Strategy.ALL_PUB && oldChannelPlan.getNumBrokers() == numBrokers)
+                return oldChannelPlan;
             return replicate(Strategy.ALL_PUB, numBrokers, report.getTopic(), brokerReportAnalyzer);
         } else {
-            if (oldPlan.getStrategy() == Strategy.HASH) {
-                oldPlan.turnOld();
-                return oldPlan;
-            }
+            if (oldChannelPlan.getStrategy() == Strategy.HASH) return oldChannelPlan;
             return replicate(Strategy.HASH, 0, report.getTopic(), brokerReportAnalyzer);
         }
     }
@@ -67,8 +79,14 @@ public class ChannelPlanGenerator {
                 newPlan.setAvailableBroker(brokerReportAnalyzer.getLeastBusyBrokers(numBrokers));
             case HASH:
                 newPlan.setStrategy(Strategy.HASH);
+                newPlan.setAvailableBroker(consistentHashing());
         }
         return newPlan;
+    }
+
+    // TODO: 6/7/17 need to add consistent hashing logic
+    public static Set<String> consistentHashing() {
+        return null;
     }
 
 }

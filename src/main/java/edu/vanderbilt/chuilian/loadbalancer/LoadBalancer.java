@@ -4,7 +4,7 @@ package edu.vanderbilt.chuilian.loadbalancer;
  * Created by Killian on 6/2/17.
  */
 
-import edu.vanderbilt.chuilian.loadbalancer.plan.Plan;
+import edu.vanderbilt.chuilian.loadbalancer.plan.*;
 import edu.vanderbilt.chuilian.types.BalancerPlanHelper;
 import edu.vanderbilt.chuilian.types.TypesBrokerReport;
 import edu.vanderbilt.chuilian.types.TypesBrokerReportHelper;
@@ -14,6 +14,7 @@ import org.apache.logging.log4j.Logger;
 import org.zeromq.ZMQ;
 import org.zeromq.ZMsg;
 
+import java.util.ArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -55,6 +56,8 @@ public class LoadBalancer {
         this.recSocket = this.recContext.socket(ZMQ.SUB);
         this.sendContext = ZMQ.context(1);
         this.sendSocket = this.sendContext.socket(ZMQ.PUB);
+        // initialize plan
+        this.currentPlan = new Plan();
     }
 
     public void start() throws Exception {
@@ -120,15 +123,21 @@ public class LoadBalancer {
      */
     private void processor() {
         BrokerLoadReportBuffer reports = brokerLoadReportBuffer.snapShot();
-        // TODO: 6/2/17 need to add processing logic and plan generation logic
+        // TODO: 6/7/17 not support Low load plan now. the generator for low load plan always returns null.
+        // initialize a report analyzer
+        BrokerReportAnalyzer analyzer = new BrokerReportAnalyzer(reports);
+        // generate channel plan first
+        ArrayList<ChannelPlan> channelPlans = ChannelPlanGenerator.generatePlans(currentPlan, analyzer);
+        // then system plans
+        ArrayList<HighLoadPlan> highLoadPlans = SystemPlanGenerator.highLoadPlanGenerator(analyzer);
+        ArrayList<LowLoadPlan> lowLoadPlans = SystemPlanGenerator.lowLoadPlanGenerator(analyzer);
+        // apply plan --> generate channel mapping
+        currentPlan.applyNewPlan(channelPlans, highLoadPlans, lowLoadPlans);
 
-
-        Plan newPlan = null;
-        if (newPlan != null) {
-            sendSocket.sendMore("plan");
-            sendSocket.send(BalancerPlanHelper.serialize(newPlan, System.currentTimeMillis()));
-            logger.info("New plan sent.");
-        }
+        // TODO: 6/7/17 plan serialization
+        sendSocket.sendMore("plan");
+        sendSocket.send(BalancerPlanHelper.serialize(currentPlan, System.currentTimeMillis()));
+        logger.info("current plan sent.");
     }
 
 }

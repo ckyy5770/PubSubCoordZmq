@@ -45,6 +45,15 @@ public class BrokerReport {
         return bandWidthBytes;
     }
 
+    private void setLoadRatio(double loadRatio) {
+        this.loadRatio = loadRatio;
+    }
+
+    // bytes can be positive and negative
+    private void changeLoadRatioByBytes(double bytes) {
+        this.setLoadRatio((loadRatio * bandWidthBytes + bytes) / bandWidthBytes);
+    }
+
     public void updateBytes(String topic, long bytes) {
         if (!map.containsKey(topic)) {
             map.put(topic, new ChannelReport(topic));
@@ -73,13 +82,6 @@ public class BrokerReport {
         map.get(topic).numSubscribers += subscribers;
     }
 
-    public void addChannelReport(ChannelReport channelReport) {
-        map.put(channelReport.getTopic(), channelReport);
-    }
-
-    public void removeChannelReport(ChannelReport channelReport) {
-        map.remove(channelReport.getTopic());
-    }
 
     public Set<Map.Entry<String, ChannelReport>> entrySet() {
         return map.entrySet();
@@ -110,6 +112,17 @@ public class BrokerReport {
             }
         }
         return res;
+    }
+
+    public void addChannelReport(ChannelReport channelReport) {
+        map.put(channelReport.getTopic(), channelReport);
+        changeLoadRatioByBytes(-channelReport.getNumIOBytes());
+    }
+
+    public void removeChannelReport(String topic) {
+        if (!map.containsKey(topic)) return;
+        changeLoadRatioByBytes(-(map.get(topic).getNumIOBytes()));
+        map.remove(topic);
     }
 
 

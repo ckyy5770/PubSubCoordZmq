@@ -10,7 +10,7 @@ import java.util.HashMap;
  * processing-friendly version of BrokerLoadReportBuffer
  */
 public class LoadReport {
-    // brokerID, channelReportMap
+    // brokerID, BrokerReport
     private HashMap<String, BrokerReport> map;
 
     public LoadReport() {

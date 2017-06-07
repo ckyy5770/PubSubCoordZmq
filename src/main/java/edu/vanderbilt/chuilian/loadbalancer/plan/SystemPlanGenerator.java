@@ -21,7 +21,7 @@ public class SystemPlanGenerator {
 
     public static ArrayList<HighLoadPlan> highLoadPlanGenerator(BrokerReportAnalyzer brokerReportAnalyzer) {
         double LR_THRESHOLD = 0.95;
-        ArrayList<HighLoadPlan> plans = null;
+        ArrayList<HighLoadPlan> plans = new ArrayList<>();
         while (true) {
             BrokerReport maxReport = brokerReportAnalyzer.getMostBusyBroker();
             double maxLR = maxReport.getLoadRatio();
@@ -38,6 +38,10 @@ public class SystemPlanGenerator {
             // here we change the internal state of broker report analyzer, the new plan only applied to the analyzer, it will then affect the decision making process of Channel Plan Generator (see NOTE above).
             brokerReportAnalyzer.applyHighLoadPlan(maxReport, minReport, maxChannel);
         }
+    }
+
+    public static ArrayList<LowLoadPlan> lowLoadPlanGenerator(BrokerReportAnalyzer brokerReportAnalyzer) {
+        return null;
     }
 
 }
