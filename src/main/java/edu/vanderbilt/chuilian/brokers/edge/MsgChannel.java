@@ -8,7 +8,6 @@ import org.apache.logging.log4j.Logger;
 import org.zeromq.ZMQ;
 import org.zeromq.ZMsg;
 
-import java.util.Queue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 
@@ -25,8 +24,8 @@ import java.util.concurrent.Future;
 public class MsgChannel {
     // the topic of all messages in this channel.
     String topic;
-    // a message queue for storing message, not used for now
-    Queue<ZMsg> msgList = null;
+    // a message queue for storing message
+    MessageQueue messageQueue = new MessageQueue();
     // Channel map
     ChannelMap channelMap;
     // ref to available port list
@@ -46,6 +45,7 @@ public class MsgChannel {
     ZkConnect zkConnect;
     // worker future is a reference of the worker thread, it can be used to stop the thread.
     Future<?> workerFuture;
+    Future<?> senderFuture;
     // terminator will periodically check if there is still a publisher or subscriber alive on this topic
     Future<?> terminatorFuture;
 
@@ -94,13 +94,15 @@ public class MsgChannel {
 
         logger.info("Channel Started. topic: {} ip: {} recPort: {} sendPort: {}", topic, ip, recPort, sendPort);
 
-        // begin receiving and sending messages
+        // begin receiving messages
         workerFuture = executor.submit(() -> {
             logger.info("Channel Worker Thread Started. topic: {} ", topic);
             while (true) {
-                worker();
+                receiver();
+                sender();
             }
         });
+
         // terminator will periodically check if there is still a publisher or subscriber alive on this topic
         terminatorFuture = executor.submit(() -> {
             logger.info("Channel Terminator Thread Started. topic: {} ", topic);
@@ -124,6 +126,7 @@ public class MsgChannel {
         zkConnect.unregisterChannel(topic);
         // stop worker thread
         workerFuture.cancel(false);
+        senderFuture.cancel(false);
         // shutdown zmq socket and context
         recSocket.close();
         recContext.term();
@@ -137,43 +140,24 @@ public class MsgChannel {
         logger.info("Channel Closed. topic: {}", topic);
     }
 
-    public void worker() throws Exception {
+    public void receiver() throws Exception {
         // just keep receiving and sending messages
         ZMsg receivedMsg = ZMsg.recvMsg(recSocket);
         String msgTopic = new String(receivedMsg.getFirst().getData());
         byte[] msgContent = receivedMsg.getLast().getData();
+        messageQueue.add(receivedMsg);
         logger.debug("Message Received at Channel ({}) Topic: {} ID: {}", topic, msgTopic, DataSampleHelper.deserialize(msgContent).sampleId());
+    }
+
+    public void sender() throws Exception {
+        // get a message from messageQueue
+        ZMsg sendingMsg = messageQueue.getNextMsg();
+        if (sendingMsg == null) return;
+        String msgTopic = new String(sendingMsg.getFirst().getData());
+        byte[] msgContent = sendingMsg.getLast().getData();
         sendSocket.sendMore(msgTopic);
         sendSocket.send(msgContent);
         logger.info("Message Sent from Channel ({}) Topic: {} ID: {}", topic, msgTopic, DataSampleHelper.deserialize(msgContent).sampleId());
-    }
-
-
-    /**
-     * add a message to the end of the queue
-     *
-     * @param msg
-     */
-    private void add(ZMsg msg) {
-        msgList.add(msg);
-    }
-
-    /**
-     * get and remove the first message from the queue
-     *
-     * @return the first message, if the queue is empty, return null.
-     */
-    private ZMsg poll() {
-        return msgList.poll();
-    }
-
-    /**
-     * is empty
-     *
-     * @return
-     */
-    protected boolean isEmpty() {
-        return msgList.isEmpty();
     }
 
 

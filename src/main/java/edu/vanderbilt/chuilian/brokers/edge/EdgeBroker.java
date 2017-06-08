@@ -28,7 +28,7 @@ public class EdgeBroker {
         // init port list
         this.portList = new PortList();
         // init executors
-        this.channelExecutor = Executors.newFixedThreadPool(10);
+        this.channelExecutor = Executors.newFixedThreadPool(20);
         // make a new zookeeper connector
         this.zkConnect = new ZkConnect();
     }

@@ -19,6 +19,7 @@ import java.util.concurrent.ExecutorService;
  */
 public class MainChannel extends MsgChannel {
     private static final Logger logger = LogManager.getLogger(MainChannel.class.getName());
+
     public MainChannel(String topic, PortList portList, ExecutorService executor, ZkConnect zkConnect, ChannelMap channelMap) {
         super(topic, portList, executor, zkConnect, channelMap);
         // channel map is used to create new channel
@@ -38,55 +39,67 @@ public class MainChannel extends MsgChannel {
 
         logger.info("Main Channel Started. ip {} recPort {} sendPort {} priority {}", ip, recPort, sendPort, Thread.currentThread().getPriority());
 
-        // start receiving and sending messages
+        // start receiving messages
         workerFuture = executor.submit(() -> {
             logger.info("Main Channel Worker Thread Started. ");
             while (true) {
-                worker();
+                receiver();
+                sender();
             }
         });
+
+
         // main channel won't have a terminator, it should be terminated explicitly by the broker
     }
 
     @Override
     // main channel will never stop automatically unless being stopped explicitly by broker
     public void stop() throws Exception {
-        {
-            logger.info("Closing main channel.");
-            // unregister itself from zookeeper server
-            zkConnect.unregisterDefaultChannel();
-            // stop worker thread
-            workerFuture.cancel(false);
-            // shutdown zmq socket and context
-            recSocket.close();
-            recContext.term();
-            sendSocket.close();
-            sendContext.term();
-            // return used port to port list
-            portList.put(recPort);
-            portList.put(sendPort);
-            // unregister itself from Channel Map since never registered
-            channelMap.setMain(null);
-            logger.info("Main channel closed.");
-        }
+        logger.info("Closing main channel.");
+        // unregister itself from zookeeper server
+        zkConnect.unregisterDefaultChannel();
+        // stop worker thread
+        workerFuture.cancel(false);
+        senderFuture.cancel(false);
+        // shutdown zmq socket and context
+        recSocket.close();
+        recContext.term();
+        sendSocket.close();
+        sendContext.term();
+        // return used port to port list
+        portList.put(recPort);
+        portList.put(sendPort);
+        // unregister itself from Channel Map since never registered
+        channelMap.setMain(null);
+        logger.info("Main channel closed.");
     }
 
     @Override
-    public void worker() throws Exception {
+    public void receiver() throws Exception {
         // just keep receiving and sending messages
         ZMsg receivedMsg = ZMsg.recvMsg(recSocket);
         String msgTopic = new String(receivedMsg.getFirst().getData());
         byte[] msgContent = receivedMsg.getLast().getData();
-        logger.debug("Message Received at Main Channel: Topic: {} ID: {}", msgTopic, DataSampleHelper.deserialize(msgContent).sampleId());
+        messageQueue.add(receivedMsg);
+        logger.info("Message Received at Main Channel: Topic: {} ID: {}", msgTopic, DataSampleHelper.deserialize(msgContent).sampleId());
         // if this topic is new, create a new channel for it
         if (channelMap.get(topic) == null) {
             logger.info("New topic detected, creating a new channel for it. topic: {}", msgTopic);
             MsgChannel newChannel = channelMap.register(msgTopic, this.portList, this.executor, this.zkConnect, this.channelMap);
             if (newChannel != null) newChannel.start();
         }
-        sendSocket.sendMore(receivedMsg.getFirst().getData());
-        sendSocket.send(receivedMsg.getLast().getData());
-        logger.info("Messaged Sent from Main Channel: Topic: {} ID: {}", msgTopic, DataSampleHelper.deserialize(msgContent).sampleId());
+    }
+
+    @Override
+    public void sender() throws Exception {
+        // get a message from messageQueue
+        ZMsg sendingMsg = messageQueue.getNextMsg();
+        if (sendingMsg == null) return;
+        String msgTopic = new String(sendingMsg.getFirst().getData());
+        byte[] msgContent = sendingMsg.getLast().getData();
+        sendSocket.sendMore(msgTopic);
+        sendSocket.send(msgContent);
+        logger.info("Message Sent from Main Channel: Topic: {} ID: {}", topic, msgTopic, DataSampleHelper.deserialize(msgContent).sampleId());
     }
 
 }
