@@ -126,7 +126,6 @@ public class MsgChannel {
         zkConnect.unregisterChannel(topic);
         // stop worker thread
         workerFuture.cancel(false);
-        senderFuture.cancel(false);
         // shutdown zmq socket and context
         recSocket.close();
         recContext.term();
