@@ -181,7 +181,7 @@ Channel replication strategies:
 
 Default strategy:
 
-* consistent hashing: TBD
+* consistent hashing: each new coming broker should first register itself on zookeeper and load balancer. Load balancer will then assign it a ID number to be used for consistent hashing. (Note this ID is different from the brokerID, this ID is only used for consistent hashing) If the load balancer didn't receive message from one broker for a certain amount of time, it will determine that the broker is down, then it will unregister the broker.
 
 ### System level rebalancing:
 

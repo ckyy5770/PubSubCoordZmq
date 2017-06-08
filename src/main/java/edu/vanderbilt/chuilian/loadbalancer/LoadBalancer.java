@@ -4,6 +4,7 @@ package edu.vanderbilt.chuilian.loadbalancer;
  * Created by Killian on 6/2/17.
  */
 
+import edu.vanderbilt.chuilian.loadbalancer.consistenthashing.ConsistentHashingMap;
 import edu.vanderbilt.chuilian.loadbalancer.plan.*;
 import edu.vanderbilt.chuilian.types.BalancerPlanHelper;
 import edu.vanderbilt.chuilian.types.TypesBrokerReport;
@@ -25,6 +26,7 @@ import java.util.concurrent.Future;
  */
 public class LoadBalancer {
     Plan currentPlan;
+    ConsistentHashingMap consistentHashingMap;
     BrokerLoadReportBuffer brokerLoadReportBuffer;
     private final ExecutorService executor;
     private final ZkConnect zkConnect;

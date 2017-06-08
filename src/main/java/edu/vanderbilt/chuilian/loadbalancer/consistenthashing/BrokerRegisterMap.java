@@ -1,0 +1,73 @@
+package edu.vanderbilt.chuilian.loadbalancer.consistenthashing;
+
+/**
+ * Created by Killian on 6/8/17.
+ */
+
+import edu.vanderbilt.chuilian.loadbalancer.IdPool;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.TreeMap;
+
+/**
+ * this brokerIdMapping register a ID for a new coming broker, and unregister it if it's down
+ */
+public class BrokerRegisterMap {
+    // TODO: 6/8/17 hard coded number limit
+    private final IdPool idPool = new IdPool(1000);
+    // brokerID, ID -> one to one mapping
+    HashMap<String, Integer> brokerIdMapping = new HashMap<>();
+    HashMap<Integer, String> idBrokerMapping = new HashMap<>();
+    // for fast searching for nearest key
+    TreeMap<Integer, String> idBrokerTreeMap = new TreeMap<>();
+
+    public BrokerRegisterMap() {
+    }
+
+    /**
+     * @param brokerID
+     * @return ID for consistent hashing
+     */
+    public int register(String brokerID) {
+        int newId = idPool.fetchID();
+        brokerIdMapping.put(brokerID, newId);
+        idBrokerMapping.put(newId, brokerID);
+        idBrokerTreeMap.put(newId, brokerID);
+        return newId;
+    }
+
+    public void unregister(String brokerID) {
+        Integer id = getID(brokerID);
+        brokerIdMapping.remove(brokerID);
+        idBrokerMapping.remove(brokerID);
+        idBrokerTreeMap.remove(brokerID);
+    }
+
+    /**
+     * return null if no such brokerID in brokerIdMapping
+     *
+     * @param brokerID
+     * @return
+     */
+    public Integer getID(String brokerID) {
+        return brokerIdMapping.get(brokerID);
+    }
+
+    public String getBroker(Integer id) {
+        return idBrokerMapping.get(id);
+    }
+
+    public int size() {
+        return brokerIdMapping.size();
+    }
+
+    public Map.Entry<Integer, String> getUpperEntry(int id) {
+        return idBrokerTreeMap.higherEntry(id);
+    }
+
+    public Map.Entry<Integer, String> getLowerEntry(int id) {
+        return idBrokerTreeMap.lowerEntry(id);
+    }
+
+}
