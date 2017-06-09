@@ -42,19 +42,19 @@ public class Subscriber {
 	public void start() throws Exception {
 		// start zookeeper client
         zkConnect.connect("127.0.0.1:2181");
-        // initialize a default data receiver
-		// try to get default address, if fail, wait 2 seconds and do it again.
-		String defaultAddress;
-		while ((defaultAddress = getDefaultAddress()) == null) {
+        // initialize a default data receiverFromLB
+        // try to get default address, if fail, wait 2 seconds and do it again.
+        String defaultAddress;
+        while ((defaultAddress = getDefaultAddress()) == null) {
 			try {
 				TimeUnit.SECONDS.sleep(2);
 			} catch (InterruptedException e) {
 				throw new IllegalStateException("I'm sleeping! Why interrupt me?!", e);
 			}
 		}
-		// here we get the default sending address, make a default receiver for it, and initialize topic receiver map
-		topicReceiverMap = new TopicReceiverMap(new DefaultReceiver(defaultAddress, this.msgBufferMap, this.receiverExecutor, this.zkConnect));
-		topicReceiverMap.getDefault().start();
+        // here we get the default sending address, make a default receiverFromLB for it, and initialize topic receiverFromLB map
+        topicReceiverMap = new TopicReceiverMap(new DefaultReceiver(defaultAddress, this.msgBufferMap, this.receiverExecutor, this.zkConnect));
+        topicReceiverMap.getDefault().start();
         // this thread will constantly (3s) check MsgBuffer and process msgs
 		processorFuture = processorExecutor.submit(() -> {
 			while (true) {
@@ -68,35 +68,35 @@ public class Subscriber {
 		logger.info("Subscribe topic: {}", topic);
 		// if the topic is already subscribed, do nothing
 		if (topicReceiverMap.get(topic) != null || topicWaiterMap.get(topic) != null) return;
-		// subscribe it for the default receiver
-		topicReceiverMap.getDefault().subscribe(topic);
-		// try to get the broker sender address for this topic, if not found, create a waiter to waiting for channel to be created
-		String address;
+        // subscribe it for the default receiverFromLB
+        topicReceiverMap.getDefault().subscribe(topic);
+        // try to get the broker sender address for this topic, if not found, create a waiter to waiting for channel to be created
+        String address;
 		if ((address = getAddress(topic)) == null) {
 			logger.info("Fail to get message channel for topic {}, creating a waiter for this topic.", topic);
 			Waiter newWaiter = topicWaiterMap.register(topic, this.msgBufferMap, this.waiterExecutor, this.receiverExecutor, this.topicReceiverMap, this.zkConnect);
 			newWaiter.start();
 			return;
 		}
-		// here we successfully get the broker sender address for this topic, create a data receiver for it.
-		DataReceiver newReceiver = topicReceiverMap.register(topic, address, this.msgBufferMap, this.receiverExecutor, this.zkConnect);
-		newReceiver.start();
-	}
+        // here we successfully get the broker sender address for this topic, create a data receiverFromLB for it.
+        DataReceiver newReceiver = topicReceiverMap.register(topic, address, this.msgBufferMap, this.receiverExecutor, this.zkConnect);
+        newReceiver.start();
+    }
 
 	public void unsubscribe(String topic) throws Exception {
 		logger.info("Unsubscribe topic: {}", topic);
-		// unsubscribe it for the default receiver
-		topicReceiverMap.getDefault().unsubscribe(topic);
-		// check if the topic is on receiver map
-		DataReceiver receiver = topicReceiverMap.get(topic);
-		if (receiver != null) {
-			// stop the receiver thread, get unprocessed messages
-			MsgBuffer unprocessedMsg = topicReceiverMap.get(topic).stop();
-			processBuffer(unprocessedMsg);
-			// unregister from topic receiver map
-			topicReceiverMap.unregister(topic);
-		} else {
-			// check if it is on waiter map
+        // unsubscribe it for the default receiverFromLB
+        topicReceiverMap.getDefault().unsubscribe(topic);
+        // check if the topic is on receiverFromLB map
+        DataReceiver receiver = topicReceiverMap.get(topic);
+        if (receiver != null) {
+            // stop the receiverFromLB thread, get unprocessed messages
+            MsgBuffer unprocessedMsg = topicReceiverMap.get(topic).stop();
+            processBuffer(unprocessedMsg);
+            // unregister from topic receiverFromLB map
+            topicReceiverMap.unregister(topic);
+        } else {
+            // check if it is on waiter map
 			Waiter waiter = topicWaiterMap.get(topic);
 			if (waiter != null) {
 				// stop the waiter thread, waiter will automatically unregister itself from topic-waiter map.
@@ -106,14 +106,14 @@ public class Subscriber {
 	}
 
 	/**
-	 * shutdown all data receiver including default sender.
-	 */
-	public void close() throws Exception {
-		// shutdown processor thread first
+     * shutdown all data receiverFromLB including default sender.
+     */
+    public void close() throws Exception {
+        // shutdown processor thread first
         processorFuture.cancel(false);
-        // shutdown default receiver
+        // shutdown default receiverFromLB
         topicReceiverMap.getDefault().stop();
-        // iterate through the map, shutdown every single receiver.
+        // iterate through the map, shutdown every single receiverFromLB.
         for (Map.Entry<String, DataReceiver> entry : topicReceiverMap.entrySet()) {
             unsubscribe(entry.getKey());
         }
@@ -164,10 +164,10 @@ public class Subscriber {
 	}
 
 	/**
-	 * get the specific receiver address from zookeeper server
-	 *
-	 * @param topic
-	 * @return null if can not get it
+     * get the specific receiverFromLB address from zookeeper server
+     *
+     * @param topic
+     * @return null if can not get it
 	 */
 	private String getAddress(String topic) throws Exception {
 		String address = zkConnect.getNodeData("/topics/" + topic + "/sub");
@@ -175,10 +175,10 @@ public class Subscriber {
 	}
 
 	/**
-	 * get the default receiver address from zookeeper server
-	 *
-	 * @return
-	 */
+     * get the default receiverFromLB address from zookeeper server
+     *
+     * @return
+     */
 	private String getDefaultAddress() throws Exception {
 		String data = zkConnect.getNodeData("/topics");
 		if (data == null) return null;

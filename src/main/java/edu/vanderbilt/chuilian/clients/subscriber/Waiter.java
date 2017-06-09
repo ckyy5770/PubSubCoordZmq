@@ -50,8 +50,8 @@ public class Waiter {
                     return;
                 }
             }
-            logger.info("Waiter ({}): newly opened channel detected, creating a receiver for it", topic);
-            // here we successfully get the broker sender address for this topic, create a data receiver for it.
+            logger.info("Waiter ({}): newly opened channel detected, creating a receiverFromLB for it", topic);
+            // here we successfully get the broker sender address for this topic, create a data receiverFromLB for it.
             DataReceiver newReceiver = topicReceiverMap.register(topic, address, this.msgBufferMap, this.receiverExecutor, this.zkConnect);
             try {
                 newReceiver.start();
@@ -71,7 +71,7 @@ public class Waiter {
     }
 
     /**
-     * get the specific receiver address from zookeeper server
+     * get the specific receiverFromLB address from zookeeper server
      *
      * @param topic
      * @return null if can not get it

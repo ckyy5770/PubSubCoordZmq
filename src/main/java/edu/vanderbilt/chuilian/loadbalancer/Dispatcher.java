@@ -13,6 +13,7 @@ import org.zeromq.ZMQ;
 import org.zeromq.ZMsg;
 
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
 /**
@@ -22,29 +23,35 @@ public class Dispatcher {
     private BalancerPlan plan;
     private String brokerID;
     private ZkConnect zkConnect;
+    // socket connect to LB's sender
     private ZMQ.Context recContext;
     private ZMQ.Socket recSocket;
+    // socket connect to LB's receiver
+    private ZMQ.Context sendContext;
+    private ZMQ.Socket sendSocket;
     private ExecutorService executor;
     private String balancerAddress;
 
-    private Future<?> future;
+    private Future<?> futureReceiverFromLB;
 
     private static final Logger logger = LogManager.getLogger(Dispatcher.class.getName());
 
-    public Dispatcher(String brokerID, ExecutorService executor, ZkConnect zkConnect) {
+    public Dispatcher(String brokerID, ZkConnect zkConnect) {
         this.brokerID = brokerID;
         this.plan = null;
         this.zkConnect = zkConnect;
         this.balancerAddress = null;
-        this.executor = executor;
+        this.executor = Executors.newFixedThreadPool(10);
         this.zkConnect = zkConnect;
         this.recContext = ZMQ.context(1);
         this.recSocket = recContext.socket(ZMQ.SUB);
+        this.sendContext = ZMQ.context(1);
+        this.sendSocket = sendContext.socket(ZMQ.PUB);
     }
 
     public void start() {
-        future = executor.submit(() -> {
-            logger.info("Dispatcher thread started.");
+        futureReceiverFromLB = executor.submit(() -> {
+            logger.info("Starting Dispatcher.");
             // try to get balancer sender address
             try {
                 this.balancerAddress = zkConnect.getBalancerSendAddress();
@@ -60,14 +67,15 @@ public class Dispatcher {
             recSocket.connect(balancerAddress);
             // subscribe "plan" topic see @LoadBalancer
             recSocket.subscribe("plan".getBytes());
+            logger.info("Dispatcher thread started.");
             // keep receiving and updating local plan
             while (true) {
-                receiver();
+                receiverFromLB();
             }
         });
     }
 
-    public void receiver() {
+    public void receiverFromLB() {
         ZMsg receivedMsg = ZMsg.recvMsg(recSocket);
         byte[] msgContent = receivedMsg.getLast().getData();
         BalancerPlan balancerPlan = BalancerPlanHelper.deserialize(msgContent);
@@ -78,9 +86,10 @@ public class Dispatcher {
 
     public void stop() {
         logger.info("Closing Dispatcher.");
-        future.cancel(false);
+        futureReceiverFromLB.cancel(false);
         recSocket.close();
         recContext.term();
+        executor.shutdownNow();
         logger.info("Dispatcher closed.");
     }
 
@@ -88,4 +97,13 @@ public class Dispatcher {
         return this.plan;
     }
 
+
+    public void registerChannelToLB(String topic) {
+        sendMsgToLB("registerChannel", topic);
+    }
+
+    private void sendMsgToLB(String topic, String content) {
+        sendSocket.sendMore(topic);
+        sendSocket.send(content.getBytes());
+    }
 }

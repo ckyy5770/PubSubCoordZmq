@@ -1,5 +1,9 @@
 package edu.vanderbilt.chuilian.loadbalancer.plan;
 
+import edu.vanderbilt.chuilian.loadbalancer.BrokerReportAnalyzer;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import java.util.ArrayList;
 
 /**
@@ -10,6 +14,8 @@ public class Plan {
     long version = 0;
     // executable plan --> channel mapping
     ChannelMapping channelMapping = new ChannelMapping();
+
+    private static final Logger logger = LogManager.getLogger(BrokerReportAnalyzer.class.getName());
 
     public Plan() {
     }
@@ -32,9 +38,15 @@ public class Plan {
             isChanged = true;
             channelMapping.migrateChannels(lowLoadPlans);
         }
-        if (isChanged) version++;
+        if (isChanged) {
+            version++;
+            logger.info("Current Plan Changed. Version: {}", version);
+        }
     }
 
+    public long getVersion() {
+        return version;
+    }
 }
 
 

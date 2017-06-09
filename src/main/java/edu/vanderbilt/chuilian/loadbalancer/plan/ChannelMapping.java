@@ -1,5 +1,7 @@
 package edu.vanderbilt.chuilian.loadbalancer.plan;
 
+import edu.vanderbilt.chuilian.loadbalancer.consistenthashing.ConsistentHashingMap;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -13,8 +15,8 @@ public class ChannelMapping {
         return map.get(topic);
     }
 
-    public void registerNewChannel(String topic) {
-        map.put(topic, new ChannelPlan(topic, ChannelPlanGenerator.consistentHashing(), Strategy.HASH));
+    public void registerNewChannel(String topic, ConsistentHashingMap consistentHashingMap) {
+        map.put(topic, new ChannelPlan(topic, ChannelPlanGenerator.consistentHashing(consistentHashingMap, topic), Strategy.HASH));
     }
 
     public void replaceChannelPlans(ArrayList<ChannelPlan> channelPlans) {

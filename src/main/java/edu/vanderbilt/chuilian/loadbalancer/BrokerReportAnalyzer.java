@@ -5,6 +5,8 @@ package edu.vanderbilt.chuilian.loadbalancer;
  */
 
 import edu.vanderbilt.chuilian.loadbalancer.plan.ChannelPlan;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.*;
 
@@ -17,6 +19,8 @@ public class BrokerReportAnalyzer {
     // merged channel reports combines channel reports of the same topic into one. It only gives basic information needed to perform channel-level rebalancing.
     // it serves like a "channel view" of the original broker reports, and it will not be changed during the decision making process.
     HashMap<String, ChannelReport> mergedChannelReports;
+
+    private static final Logger logger = LogManager.getLogger(BrokerReportAnalyzer.class.getName());
 
     public BrokerReportAnalyzer(BrokerLoadReportBuffer brokerLoadReportBuffer) {
         this.brokerReports = brokerLoadReportBuffer.toList();
@@ -73,6 +77,8 @@ public class BrokerReportAnalyzer {
         minBrokerReportRef.addChannelReport(maxChannelReportRef);
         maxBrokerReportRef.removeChannelReport(maxChannelReportRef.getTopic());
         this.brokerReports.sort((BrokerReport a, BrokerReport b) -> (int) (a.getLoadRatio() - b.getLoadRatio()));
+
+        logger.info("New HighLoad Plan applied: migrate channel {} from broker {} to broker {}", maxChannelReportRef.getTopic(), maxBrokerReportRef.getBrokerID(), minBrokerReportRef.getBrokerID());
     }
 
     public void applyChannelPlan(ChannelPlan newChannelPlan, ChannelReport mergedChannelReport) {
@@ -84,6 +90,8 @@ public class BrokerReportAnalyzer {
         // add new assigned channel (as in the form of fake reports) to the brokers
         addNewReportsToBrokers(reports, newChannelPlan.getAvailableBroker());
         this.brokerReports.sort((BrokerReport a, BrokerReport b) -> (int) (a.getLoadRatio() - b.getLoadRatio()));
+
+        logger.info("New Channel Plan applied. Channel: {}, Strategy: {}", newChannelPlan.getTopic(), newChannelPlan.getStrategy());
     }
 
     private void removeAllReportsOfOneChannel(String topic) {

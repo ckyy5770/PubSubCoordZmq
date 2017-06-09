@@ -3,10 +3,16 @@ package edu.vanderbilt.chuilian.loadbalancer.plan;
 /**
  * Created by Killian on 6/5/17.
  */
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 public class SystemPlan {
     String from;
     String to;
     String channel;
+
+    private static final Logger logger = LogManager.getLogger(SystemPlan.class.getName());
 
     public SystemPlan(String from, String to, String channel) {
         this.from = from;

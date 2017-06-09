@@ -13,23 +13,23 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 
 /**
- * topic --> corresponding data receiver ref
+ * topic --> corresponding data receiverFromLB ref
  */
 public class TopicReceiverMap {
     final DefaultReceiver defaultReceiver;
     ConcurrentHashMap<String, DataReceiver> map;
 
-    // this data structure should only be initialized given a default receiver address
+    // this data structure should only be initialized given a default receiverFromLB address
     public TopicReceiverMap(DefaultReceiver defaultReceiver) {
         this.defaultReceiver = defaultReceiver;
         this.map = new ConcurrentHashMap<>();
     }
 
     /**
-     * get corresponding data receiver for given topic
+     * get corresponding data receiverFromLB for given topic
      *
      * @param topic
-     * @return null if no such data receiver exist
+     * @return null if no such data receiverFromLB exist
      */
     public DataReceiver get(String topic) {
         return map.get(topic);
@@ -39,7 +39,7 @@ public class TopicReceiverMap {
      * register a topic with given sender address, this will register the topic to the TopicReceiverMap and return the reference to newly created DataReceiver
      *
      * @param topic
-     * @return return newly created receiver, if the receiver for the topic already exist, return null
+     * @return return newly created receiverFromLB, if the receiverFromLB for the topic already exist, return null
      */
     public DataReceiver register(String topic, String address, MsgBufferMap msgBufferMap, ExecutorService executor, ZkConnect zkConnect) {
         if (map.containsKey(topic)) return null;
@@ -51,19 +51,19 @@ public class TopicReceiverMap {
     }
 
     /**
-     * delete a topic along with the receiver that corresponding to it, before delete the receiver, stop it first.
+     * delete a topic along with the receiverFromLB that corresponding to it, before delete the receiverFromLB, stop it first.
      *
      * @param topic
-     * @return the previous receiver associated with topic, or null if there was no mapping for topic
+     * @return the previous receiverFromLB associated with topic, or null if there was no mapping for topic
      */
     public DataReceiver unregister(String topic) {
         return map.remove(topic);
     }
 
     /**
-     * get default data receiver
+     * get default data receiverFromLB
      *
-     * @return default data receiver should always exist as long as broker and publisher started properly.
+     * @return default data receiverFromLB should always exist as long as broker and publisher started properly.
      */
     public DefaultReceiver getDefault() {
         return this.defaultReceiver;

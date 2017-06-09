@@ -17,10 +17,13 @@ public class BrokerRegisterMap {
     // TODO: 6/8/17 hard coded number limit
     private final IdPool idPool = new IdPool(1000);
     // brokerID, ID -> one to one mapping
-    HashMap<String, Integer> brokerIdMapping = new HashMap<>();
-    HashMap<Integer, String> idBrokerMapping = new HashMap<>();
+    private final HashMap<String, Integer> brokerIdMapping = new HashMap<>();
+    private final HashMap<Integer, String> idBrokerMapping = new HashMap<>();
     // for fast searching for nearest key
-    TreeMap<Integer, String> idBrokerTreeMap = new TreeMap<>();
+    private final TreeMap<Integer, String> idBrokerTreeMap = new TreeMap<>();
+
+    // max size of this map
+    private int maxSize = 0;
 
     public BrokerRegisterMap() {
     }
@@ -34,6 +37,7 @@ public class BrokerRegisterMap {
         brokerIdMapping.put(brokerID, newId);
         idBrokerMapping.put(newId, brokerID);
         idBrokerTreeMap.put(newId, brokerID);
+        maxSize = Math.max(brokerIdMapping.size(), maxSize);
         return newId;
     }
 
@@ -42,6 +46,7 @@ public class BrokerRegisterMap {
         brokerIdMapping.remove(brokerID);
         idBrokerMapping.remove(brokerID);
         idBrokerTreeMap.remove(brokerID);
+        idPool.returnID(id);
     }
 
     /**
@@ -56,6 +61,10 @@ public class BrokerRegisterMap {
 
     public String getBroker(Integer id) {
         return idBrokerMapping.get(id);
+    }
+
+    public int getMaxSize() {
+        return maxSize;
     }
 
     public int size() {

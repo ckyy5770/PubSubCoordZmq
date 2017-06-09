@@ -25,7 +25,7 @@ public class DataReceiver {
     ZMQ.Context recContext;
     ZMQ.Socket recSocket;
     ExecutorService executor;
-    // future is a reference of the receiver thread, it can be used to stop the thread.
+    // future is a reference of the receiverFromLB thread, it can be used to stop the thread.
     Future<?> future;
     // zookeeper client
     ZkConnect zkConnect;
@@ -47,7 +47,7 @@ public class DataReceiver {
         this.executor = executor;
         this.zkConnect = zkConnect;
         this.subID = null;
-        logger.info("New receiver object created, topic: {} source: {}", topic, address);
+        logger.info("New receiverFromLB object created, topic: {} source: {}", topic, address);
     }
 
     public void start() throws Exception {
@@ -62,9 +62,9 @@ public class DataReceiver {
         }
         // register this subscriber to zookeeper
         subID = zkConnect.registerSub(topic, ip);
-        // execute receiver thread for this topic
+        // execute receiverFromLB thread for this topic
         future = executor.submit(() -> {
-            logger.info("New receiver thread started, topic: {}", topic);
+            logger.info("New receiverFromLB thread started, topic: {}", topic);
             while (true) {
                 this.receiver();
             }
@@ -72,10 +72,10 @@ public class DataReceiver {
     }
 
     public MsgBuffer stop() throws Exception {
-        logger.info("Stopping receiver, topic: {}", topic);
+        logger.info("Stopping receiverFromLB, topic: {}", topic);
         // unregister itself from zookeeper server
         zkConnect.unregisterSub(topic, subID);
-        // stop the receiver thread
+        // stop the receiverFromLB thread
         future.cancel(false);
         // shutdown zmq socket and context
         recSocket.close();

@@ -31,7 +31,8 @@ public class ChannelRegisterMap {
     }
 
     public void unregister(String topic) {
-        map.remove(topic);
+        Integer oldId = map.remove(topic);
+        idPool.returnID(oldId);
     }
 
     /**

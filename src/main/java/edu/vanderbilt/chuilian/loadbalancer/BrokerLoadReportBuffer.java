@@ -26,6 +26,10 @@ public class BrokerLoadReportBuffer {
         this.map = new HashMap<>(that.map);
     }
 
+    public boolean exist(String brokerID) {
+        return map.get(brokerID) != null;
+    }
+
     public void update(String brokerID, TypesBrokerReport report) {
         // if the report already exists, the new one will replace the old one.
         map.put(brokerID, report);

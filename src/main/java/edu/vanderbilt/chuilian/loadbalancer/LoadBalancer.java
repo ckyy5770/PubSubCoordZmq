@@ -31,14 +31,14 @@ public class LoadBalancer {
     private final ExecutorService executor;
     private final ZkConnect zkConnect;
     /**
-     * receiver socket will receive load reports from all local load analyzer, residing in each broker
+     * receiverFromLB socket will receive load reports from all local load analyzer, residing in each broker
      * sender socket will send new plans to all dispatcher, residing in each broker
      */
     private ZMQ.Context sendContext;
     private ZMQ.Socket sendSocket;
     private ZMQ.Context recContext;
     private ZMQ.Socket recSocket;
-    // TODO: 6/2/17 hard coded port, port 25001 is receiver port, port 25002 is sender port
+    // TODO: 6/2/17 hard coded port, port 25001 is receiverFromLB port, port 25002 is sender port
     private int recPort = 25001;
     private int sendPort = 25002;
     // TODO: 5/25/17 hard coded ip for now
@@ -63,7 +63,7 @@ public class LoadBalancer {
     }
 
     public void start() throws Exception {
-        // start listening to receiver port
+        // start listening to receiverFromLB port
         recSocket.bind("tcp://*:" + recPort);
         // subscribe all topic
         recSocket.subscribe("".getBytes());
@@ -76,7 +76,7 @@ public class LoadBalancer {
 
         // start receiving reports and updating channel stats on each broker
         receiverFuture = executor.submit(() -> {
-            logger.info("LoadBalancer receiver Thread Started. ");
+            logger.info("LoadBalancer receiverFromLB Thread Started. ");
             while (true) {
                 receiver();
             }
@@ -113,10 +113,27 @@ public class LoadBalancer {
      */
     private void receiver() {
         ZMsg receivedMsg = ZMsg.recvMsg(recSocket);
-        String brokerID = new String(receivedMsg.getFirst().getData());
+        String msgTopic = new String(receivedMsg.getFirst().getData());
         byte[] msgContent = receivedMsg.getLast().getData();
+        if (msgTopic == "registerChannel") {
+            String channel = new String(msgContent);
+            logger.info("Received Channel Register request. Channel: {}", channel);
+            if (consistentHashingMap.getBroker(channel) != null) {
+                logger.info("Channel Already Exists. Channel: {}", channel);
+            } else {
+                consistentHashingMap.registerChannel(channel);
+                currentPlan.getChannelMapping().registerNewChannel(channel, consistentHashingMap);
+                logger.info("Registered new channel: {}", channel);
+            }
+            return;
+        }
+        String brokerID = msgTopic;
         TypesBrokerReport report = TypesBrokerReportHelper.deserialize(msgContent);
         logger.info("Report Received at LoadBalancer. brokerID: {} timeTag: {}", brokerID, report.timeTag());
+        if (!brokerLoadReportBuffer.exist(brokerID)) {
+            logger.info("New Broker Detected. brokerID: {}", brokerID);
+            consistentHashingMap.registerBroker(brokerID);
+        }
         brokerLoadReportBuffer.update(brokerID, report);
     }
 
@@ -129,7 +146,7 @@ public class LoadBalancer {
         // initialize a report analyzer
         BrokerReportAnalyzer analyzer = new BrokerReportAnalyzer(reports);
         // generate channel plan first
-        ArrayList<ChannelPlan> channelPlans = ChannelPlanGenerator.generatePlans(currentPlan, analyzer);
+        ArrayList<ChannelPlan> channelPlans = ChannelPlanGenerator.generatePlans(currentPlan, analyzer, consistentHashingMap);
         // then system plans
         ArrayList<HighLoadPlan> highLoadPlans = SystemPlanGenerator.highLoadPlanGenerator(analyzer);
         ArrayList<LowLoadPlan> lowLoadPlans = SystemPlanGenerator.lowLoadPlanGenerator(analyzer);
@@ -139,7 +156,14 @@ public class LoadBalancer {
         // TODO: 6/7/17 plan serialization
         sendSocket.sendMore("plan");
         sendSocket.send(BalancerPlanHelper.serialize(currentPlan, System.currentTimeMillis()));
-        logger.info("current plan sent.");
+        logger.info("Current plan sent. plan version: {}", currentPlan.getVersion());
+    }
+
+    public static void main(String args[]) throws Exception {
+        LoadBalancer loadBalancer = new LoadBalancer();
+        loadBalancer.start();
+        Thread.sleep(90000);
+        loadBalancer.stop();
     }
 
 }

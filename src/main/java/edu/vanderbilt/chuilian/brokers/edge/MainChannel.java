@@ -1,5 +1,6 @@
 package edu.vanderbilt.chuilian.brokers.edge;
 
+import edu.vanderbilt.chuilian.loadbalancer.Dispatcher;
 import edu.vanderbilt.chuilian.types.DataSampleHelper;
 import edu.vanderbilt.chuilian.util.PortList;
 import edu.vanderbilt.chuilian.util.ZkConnect;
@@ -20,15 +21,15 @@ import java.util.concurrent.ExecutorService;
 public class MainChannel extends MsgChannel {
     private static final Logger logger = LogManager.getLogger(MainChannel.class.getName());
 
-    public MainChannel(String topic, PortList portList, ExecutorService executor, ZkConnect zkConnect, ChannelMap channelMap) {
-        super(topic, portList, executor, zkConnect, channelMap);
+    public MainChannel(String topic, PortList portList, ExecutorService executor, ZkConnect zkConnect, ChannelMap channelMap, Dispatcher dispatcher) {
+        super(topic, portList, executor, zkConnect, channelMap, dispatcher);
         // channel map is used to create new channel
         this.channelMap = channelMap;
     }
 
     @Override
     public void start() throws Exception {
-        // start listening to receiver port
+        // start listening to receiverFromLB port
         recSocket.bind("tcp://*:" + recPort);
         // subscribe topic
         recSocket.subscribe(topic.getBytes());

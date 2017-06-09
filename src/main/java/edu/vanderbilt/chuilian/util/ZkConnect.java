@@ -96,7 +96,7 @@ public class ZkConnect {
         // here everything is fine, we create a new node with "null" data
         createNode("/topics/" + topic, "null".getBytes());
         // Create two child node under this node: pub and sub
-        // and put receiver address and sender address in them separately
+        // and put receiverFromLB address and sender address in them separately
         createNode("/topics/" + topic + "/pub", recAddress.getBytes());
         createNode("/topics/" + topic + "/sub", sendAddress.getBytes());
     }
@@ -270,7 +270,7 @@ public class ZkConnect {
     }
 
     /**
-     * get balancer's receiver address
+     * get balancer's receiverFromLB address
      *
      * @return
      * @throws Exception

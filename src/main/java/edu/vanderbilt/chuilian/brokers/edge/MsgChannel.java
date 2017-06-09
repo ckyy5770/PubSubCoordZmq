@@ -1,5 +1,6 @@
 package edu.vanderbilt.chuilian.brokers.edge;
 
+import edu.vanderbilt.chuilian.loadbalancer.Dispatcher;
 import edu.vanderbilt.chuilian.types.DataSampleHelper;
 import edu.vanderbilt.chuilian.util.PortList;
 import edu.vanderbilt.chuilian.util.ZkConnect;
@@ -48,6 +49,8 @@ public class MsgChannel {
     Future<?> senderFuture;
     // terminator will periodically check if there is still a publisher or subscriber alive on this topic
     Future<?> terminatorFuture;
+    // broker dispatcher
+    Dispatcher dispatcher;
 
     private static final Logger logger = LogManager.getLogger(MsgChannel.class.getName());
 
@@ -60,7 +63,7 @@ public class MsgChannel {
      * @param portList available port list, there should be only one port list within a broker
      * @param executor executor for worker threads, there should be only one executor within a broker
      */
-    public MsgChannel(String topic, PortList portList, ExecutorService executor, ZkConnect zkConnect, ChannelMap channelMap) {
+    public MsgChannel(String topic, PortList portList, ExecutorService executor, ZkConnect zkConnect, ChannelMap channelMap, Dispatcher dispatcher) {
         // initialize member vars
         this.topic = topic;
         this.portList = portList;
@@ -76,14 +79,16 @@ public class MsgChannel {
         this.recPort = portList.get();
         // channel map
         this.channelMap = channelMap;
+        // broker dispatcher
+        this.dispatcher = dispatcher;
     }
 
     /**
-     * start the channel: activate sender socket and receiver socket
+     * start the channel: activate sender socket and receiverFromLB socket
      * keep receiving and sending messages.
      */
     public void start() throws Exception {
-        // start listening to receiver port
+        // start listening to receiverFromLB port
         recSocket.bind("tcp://*:" + recPort);
         // subscribe topic
         recSocket.subscribe(topic.getBytes());
@@ -103,6 +108,7 @@ public class MsgChannel {
             }
         });
 
+        /* msg channel do not have a terminator anymore
         // terminator will periodically check if there is still a publisher or subscriber alive on this topic
         terminatorFuture = executor.submit(() -> {
             logger.info("Channel Terminator Thread Started. topic: {} ", topic);
@@ -118,6 +124,7 @@ public class MsgChannel {
             } catch (Exception e) {
             }
         });
+        */
     }
 
     public void stop() throws Exception {

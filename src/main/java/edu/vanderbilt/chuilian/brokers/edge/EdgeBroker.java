@@ -1,5 +1,6 @@
 package edu.vanderbilt.chuilian.brokers.edge;
 
+import edu.vanderbilt.chuilian.loadbalancer.Dispatcher;
 import edu.vanderbilt.chuilian.util.PortList;
 import edu.vanderbilt.chuilian.util.ZkConnect;
 import org.apache.logging.log4j.LogManager;
@@ -10,11 +11,15 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class EdgeBroker {
+    private String brokerID;
     private ChannelMap channelMap;
     private final PortList portList;
     // the executor for channel threads
     private final ExecutorService channelExecutor;
     private final ZkConnect zkConnect;
+    // load balancer module: dispatcher
+    private final Dispatcher dispatcher;
+
     private static final Logger logger = LogManager.getLogger(EdgeBroker.class.getName());
 
     /**
@@ -31,6 +36,8 @@ public class EdgeBroker {
         this.channelExecutor = Executors.newFixedThreadPool(20);
         // make a new zookeeper connector
         this.zkConnect = new ZkConnect();
+        // load balancer module: create a dispatcher
+        this.dispatcher = new Dispatcher(brokerID, zkConnect);
     }
 
     /**
@@ -41,8 +48,10 @@ public class EdgeBroker {
         zkConnect.connect("127.0.0.1:2181");
         // clear the data tree
         zkConnect.resetServer();
+        // load balancer module: start dispatcher
+        dispatcher.start();
         // create and start main channel
-        MainChannel mainChannel = new MainChannel("", this.portList, this.channelExecutor, this.zkConnect, this.channelMap);
+        MainChannel mainChannel = new MainChannel("", this.portList, this.channelExecutor, this.zkConnect, this.channelMap, this.dispatcher);
         channelMap.setMain(mainChannel);
         mainChannel.start();
     }

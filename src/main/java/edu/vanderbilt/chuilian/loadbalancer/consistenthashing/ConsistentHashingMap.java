@@ -47,7 +47,7 @@ public class ConsistentHashingMap {
      * @return
      */
     private String consistentHashing(int id) {
-        int numSlot = brokerRegisterMap.size();
+        int numSlot = brokerRegisterMap.getMaxSize();
         int hash = id % numSlot;
         // try to find a broker with exact hashed ID
         String res = brokerRegisterMap.getBroker(hash);

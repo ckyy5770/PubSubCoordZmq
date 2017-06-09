@@ -1,5 +1,8 @@
 package edu.vanderbilt.chuilian.loadbalancer.plan;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import java.util.HashSet;
 import java.util.Set;
 
@@ -12,6 +15,8 @@ public class ChannelPlan {
     private String topic;
     private Set<String> availableBroker;
     private Strategy strategy;
+
+    private static final Logger logger = LogManager.getLogger(ChannelPlan.class.getName());
 
     public ChannelPlan() {
         this.topic = null;
