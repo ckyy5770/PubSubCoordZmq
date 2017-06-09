@@ -1,29 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="f202785a-66ab-4a4f-8349-54840d16190e" name="Default" comment="start adding load balancing module to system">
+    <list default="true" id="f202785a-66ab-4a4f-8349-54840d16190e" name="Default" comment="">
+      <change type="DELETED" beforePath="$PROJECT_DIR$/dataSchema/BalancerPlan.fbs" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/dataSchema/LocalLoadReport.fbs" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/src/main/java/edu/vanderbilt/chuilian/types/BalancerPlan.java" afterPath="" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/src/main/java/edu/vanderbilt/chuilian/types/BalancerPlanHelper.java" afterPath="$PROJECT_DIR$/src/main/java/edu/vanderbilt/chuilian/types/TypesPlanHelper.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/edu/vanderbilt/chuilian/brokers/edge/EdgeBroker.java" afterPath="$PROJECT_DIR$/src/main/java/edu/vanderbilt/chuilian/brokers/edge/EdgeBroker.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/edu/vanderbilt/chuilian/brokers/edge/MainChannel.java" afterPath="$PROJECT_DIR$/src/main/java/edu/vanderbilt/chuilian/brokers/edge/MainChannel.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/edu/vanderbilt/chuilian/brokers/edge/MsgChannel.java" afterPath="$PROJECT_DIR$/src/main/java/edu/vanderbilt/chuilian/brokers/edge/MsgChannel.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/edu/vanderbilt/chuilian/clients/subscriber/DataReceiver.java" afterPath="$PROJECT_DIR$/src/main/java/edu/vanderbilt/chuilian/clients/subscriber/DataReceiver.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/edu/vanderbilt/chuilian/clients/subscriber/DefaultReceiver.java" afterPath="$PROJECT_DIR$/src/main/java/edu/vanderbilt/chuilian/clients/subscriber/DefaultReceiver.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/edu/vanderbilt/chuilian/clients/subscriber/Subscriber.java" afterPath="$PROJECT_DIR$/src/main/java/edu/vanderbilt/chuilian/clients/subscriber/Subscriber.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/edu/vanderbilt/chuilian/clients/subscriber/TopicReceiverMap.java" afterPath="$PROJECT_DIR$/src/main/java/edu/vanderbilt/chuilian/clients/subscriber/TopicReceiverMap.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/edu/vanderbilt/chuilian/clients/subscriber/Waiter.java" afterPath="$PROJECT_DIR$/src/main/java/edu/vanderbilt/chuilian/clients/subscriber/Waiter.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/edu/vanderbilt/chuilian/loadbalancer/BrokerLoadReportBuffer.java" afterPath="$PROJECT_DIR$/src/main/java/edu/vanderbilt/chuilian/loadbalancer/BrokerLoadReportBuffer.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/edu/vanderbilt/chuilian/loadbalancer/BrokerReportAnalyzer.java" afterPath="$PROJECT_DIR$/src/main/java/edu/vanderbilt/chuilian/loadbalancer/BrokerReportAnalyzer.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/edu/vanderbilt/chuilian/loadbalancer/Dispatcher.java" afterPath="$PROJECT_DIR$/src/main/java/edu/vanderbilt/chuilian/loadbalancer/Dispatcher.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/edu/vanderbilt/chuilian/loadbalancer/LoadBalancer.java" afterPath="$PROJECT_DIR$/src/main/java/edu/vanderbilt/chuilian/loadbalancer/LoadBalancer.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/edu/vanderbilt/chuilian/loadbalancer/consistenthashing/BrokerRegisterMap.java" afterPath="$PROJECT_DIR$/src/main/java/edu/vanderbilt/chuilian/loadbalancer/consistenthashing/BrokerRegisterMap.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/edu/vanderbilt/chuilian/loadbalancer/consistenthashing/ChannelRegisterMap.java" afterPath="$PROJECT_DIR$/src/main/java/edu/vanderbilt/chuilian/loadbalancer/consistenthashing/ChannelRegisterMap.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/edu/vanderbilt/chuilian/loadbalancer/consistenthashing/ConsistentHashingMap.java" afterPath="$PROJECT_DIR$/src/main/java/edu/vanderbilt/chuilian/loadbalancer/consistenthashing/ConsistentHashingMap.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/edu/vanderbilt/chuilian/loadbalancer/plan/ChannelMapping.java" afterPath="$PROJECT_DIR$/src/main/java/edu/vanderbilt/chuilian/loadbalancer/plan/ChannelMapping.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/edu/vanderbilt/chuilian/loadbalancer/plan/ChannelPlan.java" afterPath="$PROJECT_DIR$/src/main/java/edu/vanderbilt/chuilian/loadbalancer/plan/ChannelPlan.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/edu/vanderbilt/chuilian/loadbalancer/plan/ChannelPlanGenerator.java" afterPath="$PROJECT_DIR$/src/main/java/edu/vanderbilt/chuilian/loadbalancer/plan/ChannelPlanGenerator.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/edu/vanderbilt/chuilian/loadbalancer/plan/Plan.java" afterPath="$PROJECT_DIR$/src/main/java/edu/vanderbilt/chuilian/loadbalancer/plan/Plan.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/edu/vanderbilt/chuilian/loadbalancer/plan/SystemPlan.java" afterPath="$PROJECT_DIR$/src/main/java/edu/vanderbilt/chuilian/loadbalancer/plan/SystemPlan.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/edu/vanderbilt/chuilian/util/ZkConnect.java" afterPath="$PROJECT_DIR$/src/main/java/edu/vanderbilt/chuilian/util/ZkConnect.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/edu/vanderbilt/chuilian/loadbalancer/plan/Strategy.java" afterPath="$PROJECT_DIR$/src/main/java/edu/vanderbilt/chuilian/loadbalancer/plan/Strategy.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/edu/vanderbilt/chuilian/types/TypesBrokerReport.java" afterPath="$PROJECT_DIR$/src/main/java/edu/vanderbilt/chuilian/types/TypesBrokerReport.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/edu/vanderbilt/chuilian/types/TypesBrokerReportHelper.java" afterPath="$PROJECT_DIR$/src/main/java/edu/vanderbilt/chuilian/types/TypesBrokerReportHelper.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/edu/vanderbilt/chuilian/types/TypesChannelReport.java" afterPath="$PROJECT_DIR$/src/main/java/edu/vanderbilt/chuilian/types/TypesChannelReport.java" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -51,83 +43,59 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="LoadBalancer.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/java/edu/vanderbilt/chuilian/loadbalancer/LoadBalancer.java">
+      <file leaf-file-name="HighLoadPlan.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/main/java/edu/vanderbilt/chuilian/loadbalancer/plan/HighLoadPlan.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="479">
-              <caret line="160" column="0" lean-forward="true" selection-start-line="160" selection-start-column="0" selection-end-line="160" selection-end-column="0" />
+            <state relative-caret-position="135">
+              <caret line="9" column="5" lean-forward="true" selection-start-line="9" selection-start-column="5" selection-end-line="9" selection-end-column="5" />
               <folding>
-                <element signature="imports" expanded="true" />
+                <element signature="e#205#206#0" expanded="true" />
+                <element signature="e#245#246#0" expanded="true" />
               </folding>
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="ZkConnect.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/java/edu/vanderbilt/chuilian/util/ZkConnect.java">
+      <file leaf-file-name="ChannelMapping.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/main/java/edu/vanderbilt/chuilian/loadbalancer/plan/ChannelMapping.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="152">
-              <caret line="47" column="7" lean-forward="false" selection-start-line="47" selection-start-column="7" selection-end-line="47" selection-end-column="7" />
+            <state relative-caret-position="570">
+              <caret line="50" column="53" lean-forward="false" selection-start-line="50" selection-start-column="53" selection-end-line="50" selection-end-column="53" />
+              <folding>
+                <element signature="e#1603#1604#0" expanded="true" />
+                <element signature="e#1663#1664#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="ChannelPlanGenerator.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/main/java/edu/vanderbilt/chuilian/loadbalancer/plan/ChannelPlanGenerator.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="442">
+              <caret line="58" column="45" lean-forward="false" selection-start-line="58" selection-start-column="45" selection-end-line="58" selection-end-column="45" />
+              <folding>
+                <element signature="e#4824#4832#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="ChannelPlan.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/main/java/edu/vanderbilt/chuilian/loadbalancer/plan/ChannelPlan.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="285">
+              <caret line="23" column="27" lean-forward="true" selection-start-line="23" selection-start-column="27" selection-end-line="23" selection-end-column="27" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="MainChannel.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/java/edu/vanderbilt/chuilian/brokers/edge/MainChannel.java">
+      <file leaf-file-name="TypesPlanHelper.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/main/java/edu/vanderbilt/chuilian/types/TypesPlanHelper.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="222">
-              <caret line="24" column="74" lean-forward="false" selection-start-line="24" selection-start-column="74" selection-end-line="24" selection-end-column="74" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="EdgeBroker.java" pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/src/main/java/edu/vanderbilt/chuilian/brokers/edge/EdgeBroker.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="269">
-              <caret line="55" column="28" lean-forward="false" selection-start-line="55" selection-start-column="28" selection-end-line="55" selection-end-column="28" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="MessageQueue.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/java/edu/vanderbilt/chuilian/brokers/edge/MessageQueue.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="255">
-              <caret line="21" column="32" lean-forward="false" selection-start-line="21" selection-start-column="32" selection-end-line="21" selection-end-column="32" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="MsgChannel.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/java/edu/vanderbilt/chuilian/brokers/edge/MsgChannel.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="338">
-              <caret line="70" column="35" lean-forward="true" selection-start-line="70" selection-start-column="35" selection-end-line="70" selection-end-column="35" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="ChannelReport.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/java/edu/vanderbilt/chuilian/loadbalancer/ChannelReport.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="698">
-              <caret line="68" column="55" lean-forward="false" selection-start-line="68" selection-start-column="55" selection-end-line="68" selection-end-column="55" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="SystemPlanGenerator.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/java/edu/vanderbilt/chuilian/loadbalancer/plan/SystemPlanGenerator.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="434">
-              <caret line="35" column="38" lean-forward="false" selection-start-line="35" selection-start-column="38" selection-end-line="35" selection-end-column="38" />
+            <state relative-caret-position="569">
+              <caret line="71" column="49" lean-forward="true" selection-start-line="71" selection-start-column="49" selection-end-line="71" selection-end-column="49" />
               <folding />
             </state>
           </provider>
@@ -136,24 +104,55 @@
       <file leaf-file-name="Plan.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main/java/edu/vanderbilt/chuilian/loadbalancer/plan/Plan.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="540">
-              <caret line="42" column="70" lean-forward="false" selection-start-line="42" selection-start-column="70" selection-end-line="42" selection-end-column="70" />
+            <state relative-caret-position="258">
+              <caret line="24" column="45" lean-forward="false" selection-start-line="24" selection-start-column="45" selection-end-line="24" selection-end-column="45" />
               <folding>
                 <element signature="imports" expanded="true" />
-                <element signature="e#1484#1485#0" expanded="true" />
-                <element signature="e#1514#1515#0" expanded="true" />
               </folding>
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="BrokerReportAnalyzer.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/java/edu/vanderbilt/chuilian/loadbalancer/BrokerReportAnalyzer.java">
+      <file leaf-file-name="TypesChannelPlan.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/main/java/edu/vanderbilt/chuilian/types/TypesChannelPlan.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="270">
-              <caret line="22" column="100" lean-forward="true" selection-start-line="22" selection-start-column="3" selection-end-line="22" selection-end-column="100" />
+            <state relative-caret-position="105">
+              <caret line="10" column="19" lean-forward="false" selection-start-line="10" selection-start-column="19" selection-end-line="10" selection-end-column="19" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="Dispatcher.java" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/src/main/java/edu/vanderbilt/chuilian/loadbalancer/Dispatcher.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="-781">
+              <caret line="14" column="0" lean-forward="true" selection-start-line="14" selection-start-column="0" selection-end-line="14" selection-end-column="0" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="SystemPlanGenerator.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/main/java/edu/vanderbilt/chuilian/loadbalancer/plan/SystemPlanGenerator.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="518">
+              <caret line="39" column="9" lean-forward="true" selection-start-line="39" selection-start-column="9" selection-end-line="39" selection-end-column="9" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="Strategy.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/main/java/edu/vanderbilt/chuilian/loadbalancer/plan/Strategy.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="240">
+              <caret line="16" column="25" lean-forward="true" selection-start-line="16" selection-start-column="25" selection-end-line="16" selection-end-column="25" />
               <folding>
-                <element signature="imports" expanded="false" />
+                <element signature="e#252#253#0" expanded="true" />
+                <element signature="e#298#299#0" expanded="true" />
+                <element signature="e#344#345#0" expanded="true" />
+                <element signature="e#378#379#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -185,9 +184,6 @@
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
-        <option value="$PROJECT_DIR$/src/main/java/edu/vanderbilt/chuilian/clients/publisher/DefaultSender.java" />
-        <option value="$PROJECT_DIR$/src/main/java/edu/vanderbilt/chuilian/clients/publisher/DataSender.java" />
-        <option value="$PROJECT_DIR$/src/main/java/log4j2.xml" />
         <option value="$PROJECT_DIR$/src/main/java/edu/vanderbilt/chuilian/clients/subscriber/DataReceiver.java" />
         <option value="$PROJECT_DIR$/src/main/java/edu/vanderbilt/chuilian/clients/subscriber/DefaultReceiver.java" />
         <option value="$PROJECT_DIR$/src/main/java/edu/vanderbilt/chuilian/clients/publisher/Publisher.java" />
@@ -199,7 +195,6 @@
         <option value="$PROJECT_DIR$/src/main/java/edu/vanderbilt/chuilian/util/ZkConnect.java" />
         <option value="$PROJECT_DIR$/.gitignore" />
         <option value="$PROJECT_DIR$/src/main/java/edu/vanderbilt/chuilian/loadbalancer/Plan.java" />
-        <option value="$PROJECT_DIR$/src/main/java/edu/vanderbilt/chuilian/loadbalancer/plan/Strategy.java" />
         <option value="$PROJECT_DIR$/src/main/java/edu/vanderbilt/chuilian/loadbalancer/LoadAnalyzer.java" />
         <option value="$PROJECT_DIR$/src/main/java/edu/vanderbilt/chuilian/loadbalancer/ReportMap.java" />
         <option value="$PROJECT_DIR$/src/main/java/edu/vanderbilt/chuilian/loadbalancer/plan/HighLoadPlan.java" />
@@ -223,19 +218,23 @@
         <option value="$PROJECT_DIR$/src/main/java/edu/vanderbilt/chuilian/brokers/edge/MessageQueue.java" />
         <option value="$PROJECT_DIR$/src/main/java/edu/vanderbilt/chuilian/loadbalancer/BrokerLoadReportBuffer.java" />
         <option value="$PROJECT_DIR$/src/main/java/edu/vanderbilt/chuilian/brokers/edge/MsgChannel.java" />
-        <option value="$PROJECT_DIR$/src/main/java/edu/vanderbilt/chuilian/loadbalancer/Dispatcher.java" />
         <option value="$PROJECT_DIR$/src/main/java/edu/vanderbilt/chuilian/loadbalancer/consistenthashing/ChannelRegisterMap.java" />
         <option value="$PROJECT_DIR$/src/main/java/edu/vanderbilt/chuilian/loadbalancer/consistenthashing/BrokerRegisterMap.java" />
         <option value="$PROJECT_DIR$/src/main/java/edu/vanderbilt/chuilian/loadbalancer/consistenthashing/ConsistentHashingMap.java" />
         <option value="$PROJECT_DIR$/src/main/java/edu/vanderbilt/chuilian/loadbalancer/plan/ChannelPlanGenerator.java" />
-        <option value="$PROJECT_DIR$/src/main/java/edu/vanderbilt/chuilian/loadbalancer/plan/ChannelMapping.java" />
         <option value="$PROJECT_DIR$/src/main/java/edu/vanderbilt/chuilian/loadbalancer/plan/ChannelPlan.java" />
         <option value="$PROJECT_DIR$/src/main/java/edu/vanderbilt/chuilian/loadbalancer/plan/SystemPlan.java" />
         <option value="$PROJECT_DIR$/src/main/java/edu/vanderbilt/chuilian/loadbalancer/BrokerReportAnalyzer.java" />
-        <option value="$PROJECT_DIR$/src/main/java/edu/vanderbilt/chuilian/loadbalancer/plan/Plan.java" />
         <option value="$PROJECT_DIR$/src/main/java/edu/vanderbilt/chuilian/loadbalancer/LoadBalancer.java" />
-        <option value="$PROJECT_DIR$/src/main/java/edu/vanderbilt/chuilian/brokers/edge/MainChannel.java" />
         <option value="$PROJECT_DIR$/src/main/java/edu/vanderbilt/chuilian/brokers/edge/EdgeBroker.java" />
+        <option value="$PROJECT_DIR$/src/main/java/edu/vanderbilt/chuilian/brokers/edge/MainChannel.java" />
+        <option value="$PROJECT_DIR$/src/main/java/edu/vanderbilt/chuilian/types/TypesChannelReport.java" />
+        <option value="$PROJECT_DIR$/src/main/java/edu/vanderbilt/chuilian/types/TypesBrokerReportHelper.java" />
+        <option value="$PROJECT_DIR$/src/main/java/edu/vanderbilt/chuilian/loadbalancer/plan/ChannelMapping.java" />
+        <option value="$PROJECT_DIR$/src/main/java/edu/vanderbilt/chuilian/loadbalancer/plan/Strategy.java" />
+        <option value="$PROJECT_DIR$/src/main/java/edu/vanderbilt/chuilian/types/TypesPlanHelper.java" />
+        <option value="$PROJECT_DIR$/src/main/java/edu/vanderbilt/chuilian/loadbalancer/plan/Plan.java" />
+        <option value="$PROJECT_DIR$/src/main/java/edu/vanderbilt/chuilian/loadbalancer/Dispatcher.java" />
       </list>
     </option>
   </component>
@@ -355,6 +354,10 @@
             </PATH_ELEMENT>
             <PATH_ELEMENT>
               <option name="myItemId" value="chuilian" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="types" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
           </PATH>
@@ -1101,7 +1104,7 @@
       <workItem from="1496687911674" duration="11362000" />
       <workItem from="1496759835512" duration="18688000" />
       <workItem from="1496850681518" duration="15222000" />
-      <workItem from="1496935314136" duration="21573000" />
+      <workItem from="1496935314136" duration="26377000" />
     </task>
     <task id="LOCAL-00001" summary="update readme and some comments">
       <created>1495643793918</created>
@@ -1383,11 +1386,18 @@
       <option name="project" value="LOCAL" />
       <updated>1496960144631</updated>
     </task>
-    <option name="localTasksCounter" value="41" />
+    <task id="LOCAL-00041" summary="start adding load balancing module to system">
+      <created>1497031260431</created>
+      <option name="number" value="00041" />
+      <option name="presentableId" value="LOCAL-00041" />
+      <option name="project" value="LOCAL" />
+      <updated>1497031260431</updated>
+    </task>
+    <option name="localTasksCounter" value="42" />
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="236070000" />
+    <option name="totallyTimeSpent" value="240874000" />
   </component>
   <component name="TodoView">
     <todo-panel id="selected-file">
@@ -1513,24 +1523,6 @@
     <option name="FILTER_TARGETS" value="false" />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/src/main/java/edu/vanderbilt/chuilian/clients/subscriber/TopicWaiterMap.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="471">
-          <caret line="39" column="17" lean-forward="true" selection-start-line="39" selection-start-column="17" selection-end-line="39" selection-end-column="17" />
-          <folding>
-            <element signature="imports" expanded="false" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/edu/vanderbilt/chuilian/types/ChannelReport.java" />
-    <entry file="file://$PROJECT_DIR$/src/main/java/edu/vanderbilt/chuilian/types/DataSample.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="393">
-          <caret line="34" column="30" lean-forward="true" selection-start-line="34" selection-start-column="30" selection-end-line="34" selection-end-column="30" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/edu/vanderbilt/chuilian/util/PortList.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="270">
@@ -1555,23 +1547,6 @@
             <element signature="imports" expanded="false" />
             <element signature="e#2548#2549#0" expanded="false" />
             <element signature="e#2585#2586#0" expanded="false" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/edu/vanderbilt/chuilian/types/DataSampleHelper.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="300">
-          <caret line="21" column="31" lean-forward="true" selection-start-line="21" selection-start-column="31" selection-end-line="21" selection-end-column="31" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/edu/vanderbilt/chuilian/types/BalancerPlanHelper.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="330">
-          <caret line="22" column="0" lean-forward="true" selection-start-line="22" selection-start-column="0" selection-end-line="22" selection-end-column="0" />
-          <folding>
-            <element signature="imports" expanded="false" />
           </folding>
         </state>
       </provider>
@@ -1627,31 +1602,6 @@
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/edu/vanderbilt/chuilian/types/ReportEntry.java" />
-    <entry file="file://$PROJECT_DIR$/src/main/java/edu/vanderbilt/chuilian/types/TypesChannelReport.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="105">
-          <caret line="10" column="19" lean-forward="false" selection-start-line="10" selection-start-column="19" selection-end-line="10" selection-end-column="19" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/edu/vanderbilt/chuilian/types/TypesBrokerReport.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="59">
-          <caret line="10" column="19" lean-forward="false" selection-start-line="10" selection-start-column="19" selection-end-line="10" selection-end-column="19" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/edu/vanderbilt/chuilian/types/TypesBrokerReportHelper.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="180">
-          <caret line="17" column="24" lean-forward="false" selection-start-line="17" selection-start-column="12" selection-end-line="17" selection-end-column="24" />
-          <folding>
-            <element signature="imports" expanded="false" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/edu/vanderbilt/chuilian/loadbalancer/LoadReport.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="195">
@@ -1728,25 +1678,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/edu/vanderbilt/chuilian/loadbalancer/BrokerReport.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="210">
-          <caret line="18" column="20" lean-forward="true" selection-start-line="18" selection-start-column="20" selection-end-line="18" selection-end-column="20" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/edu/vanderbilt/chuilian/loadbalancer/BrokerLoadReportBuffer.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="315">
-          <caret line="29" column="41" lean-forward="false" selection-start-line="29" selection-start-column="41" selection-end-line="29" selection-end-column="41" />
-          <folding>
-            <element signature="e#752#753#0" expanded="true" />
-            <element signature="e#800#801#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/edu/vanderbilt/chuilian/loadbalancer/LoadAnalyzer.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="604">
@@ -1787,118 +1718,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/edu/vanderbilt/chuilian/loadbalancer/plan/Strategy.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="105">
-          <caret line="7" column="1" lean-forward="false" selection-start-line="7" selection-start-column="1" selection-end-line="7" selection-end-column="1" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/edu/vanderbilt/chuilian/loadbalancer/plan/ChannelMapping.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="390">
-          <caret line="31" column="32" lean-forward="false" selection-start-line="31" selection-start-column="32" selection-end-line="31" selection-end-column="32" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/edu/vanderbilt/chuilian/loadbalancer/plan/ChannelPlanGenerator.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="79">
-          <caret line="48" column="60" lean-forward="true" selection-start-line="48" selection-start-column="60" selection-end-line="48" selection-end-column="60" />
-          <folding>
-            <element signature="e#4824#4832#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/edu/vanderbilt/chuilian/loadbalancer/plan/LowLoadPlan.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="75">
-          <caret line="5" column="13" lean-forward="false" selection-start-line="5" selection-start-column="13" selection-end-line="5" selection-end-column="13" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/edu/vanderbilt/chuilian/loadbalancer/plan/HighLoadPlan.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="135">
-          <caret line="9" column="5" lean-forward="true" selection-start-line="9" selection-start-column="5" selection-end-line="9" selection-end-column="5" />
-          <folding>
-            <element signature="e#205#206#0" expanded="true" />
-            <element signature="e#245#246#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/edu/vanderbilt/chuilian/loadbalancer/plan/ChannelPlan.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="180">
-          <caret line="18" column="73" lean-forward="false" selection-start-line="18" selection-start-column="73" selection-end-line="18" selection-end-column="73" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/edu/vanderbilt/chuilian/loadbalancer/Dispatcher.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="390">
-          <caret line="36" column="90" lean-forward="true" selection-start-line="36" selection-start-column="4" selection-end-line="36" selection-end-column="90" />
-          <folding>
-            <element signature="imports" expanded="false" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/edu/vanderbilt/chuilian/loadbalancer/plan/SystemPlan.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="285">
-          <caret line="19" column="31" lean-forward="false" selection-start-line="19" selection-start-column="31" selection-end-line="19" selection-end-column="31" />
-          <folding>
-            <element signature="e#733#734#0" expanded="true" />
-            <element signature="e#765#766#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/edu/vanderbilt/chuilian/loadbalancer/plan/SystemPlanGenerator.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="434">
-          <caret line="35" column="38" lean-forward="false" selection-start-line="35" selection-start-column="38" selection-end-line="35" selection-end-column="38" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/edu/vanderbilt/chuilian/loadbalancer/ChannelReport.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="698">
-          <caret line="68" column="55" lean-forward="false" selection-start-line="68" selection-start-column="55" selection-end-line="68" selection-end-column="55" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/edu/vanderbilt/chuilian/loadbalancer/plan/Plan.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="540">
-          <caret line="42" column="70" lean-forward="false" selection-start-line="42" selection-start-column="70" selection-end-line="42" selection-end-column="70" />
-          <folding>
-            <element signature="imports" expanded="true" />
-            <element signature="e#1484#1485#0" expanded="true" />
-            <element signature="e#1514#1515#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/edu/vanderbilt/chuilian/loadbalancer/BrokerReportAnalyzer.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="270">
-          <caret line="22" column="100" lean-forward="true" selection-start-line="22" selection-start-column="3" selection-end-line="22" selection-end-column="100" />
-          <folding>
-            <element signature="imports" expanded="false" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/edu/vanderbilt/chuilian/loadbalancer/LoadBalancer.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="479">
@@ -1917,14 +1736,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/edu/vanderbilt/chuilian/brokers/edge/MessageQueue.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="255">
-          <caret line="21" column="32" lean-forward="false" selection-start-line="21" selection-start-column="32" selection-end-line="21" selection-end-column="32" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/edu/vanderbilt/chuilian/brokers/edge/MsgChannel.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="338">
@@ -1933,18 +1744,224 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/edu/vanderbilt/chuilian/brokers/edge/MainChannel.java">
+    <entry file="file://$PROJECT_DIR$/src/main/java/edu/vanderbilt/chuilian/brokers/edge/EdgeBroker.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="222">
-          <caret line="24" column="74" lean-forward="false" selection-start-line="24" selection-start-column="74" selection-end-line="24" selection-end-column="74" />
+        <state relative-caret-position="267">
+          <caret line="45" column="38" lean-forward="false" selection-start-line="45" selection-start-column="38" selection-end-line="45" selection-end-column="38" />
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/edu/vanderbilt/chuilian/brokers/edge/EdgeBroker.java">
+    <entry file="file://$PROJECT_DIR$/src/main/java/edu/vanderbilt/chuilian/loadbalancer/plan/SystemPlan.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="269">
-          <caret line="55" column="28" lean-forward="false" selection-start-line="55" selection-start-column="28" selection-end-line="55" selection-end-column="28" />
+        <state relative-caret-position="270">
+          <caret line="19" column="31" lean-forward="false" selection-start-line="19" selection-start-column="31" selection-end-line="19" selection-end-column="31" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/edu/vanderbilt/chuilian/brokers/edge/MessageQueue.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="255">
+          <caret line="21" column="32" lean-forward="false" selection-start-line="21" selection-start-column="32" selection-end-line="21" selection-end-column="32" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/edu/vanderbilt/chuilian/brokers/edge/MainChannel.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="165">
+          <caret line="47" column="52" lean-forward="false" selection-start-line="47" selection-start-column="52" selection-end-line="47" selection-end-column="52" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/edu/vanderbilt/chuilian/types/TypesBrokerReport.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="135">
+          <caret line="9" column="19" lean-forward="false" selection-start-line="9" selection-start-column="19" selection-end-line="9" selection-end-column="19" />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/edu/vanderbilt/chuilian/types/DataSample.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="393">
+          <caret line="34" column="30" lean-forward="true" selection-start-line="34" selection-start-column="30" selection-end-line="34" selection-end-column="30" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/edu/vanderbilt/chuilian/types/TypesPlan.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="105">
+          <caret line="10" column="19" lean-forward="false" selection-start-line="10" selection-start-column="19" selection-end-line="10" selection-end-column="19" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/edu/vanderbilt/chuilian/types/DataSampleHelper.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="300">
+          <caret line="21" column="31" lean-forward="true" selection-start-line="21" selection-start-column="31" selection-end-line="21" selection-end-column="31" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/edu/vanderbilt/chuilian/types/TypesChannelReport.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="135">
+          <caret line="9" column="19" lean-forward="false" selection-start-line="9" selection-start-column="19" selection-end-line="9" selection-end-column="19" />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/edu/vanderbilt/chuilian/types/TypesBrokerReportHelper.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="210">
+          <caret line="19" column="95" lean-forward="false" selection-start-line="19" selection-start-column="83" selection-end-line="19" selection-end-column="95" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/edu/vanderbilt/chuilian/loadbalancer/ChannelReport.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="698">
+          <caret line="68" column="55" lean-forward="false" selection-start-line="68" selection-start-column="55" selection-end-line="68" selection-end-column="55" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/edu/vanderbilt/chuilian/loadbalancer/plan/LowLoadPlan.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="75">
+          <caret line="5" column="13" lean-forward="false" selection-start-line="5" selection-start-column="13" selection-end-line="5" selection-end-column="13" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/edu/vanderbilt/chuilian/loadbalancer/BrokerLoadReportBuffer.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="300">
+          <caret line="29" column="41" lean-forward="false" selection-start-line="29" selection-start-column="41" selection-end-line="29" selection-end-column="41" />
+          <folding>
+            <element signature="e#752#753#0" expanded="true" />
+            <element signature="e#800#801#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/edu/vanderbilt/chuilian/loadbalancer/BrokerReportAnalyzer.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-421">
+          <caret line="36" column="17" lean-forward="true" selection-start-line="36" selection-start-column="17" selection-end-line="36" selection-end-column="17" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/edu/vanderbilt/chuilian/loadbalancer/BrokerReport.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="210">
+          <caret line="18" column="20" lean-forward="true" selection-start-line="18" selection-start-column="20" selection-end-line="18" selection-end-column="20" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/edu/vanderbilt/chuilian/loadbalancer/plan/SystemPlanGenerator.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="518">
+          <caret line="39" column="9" lean-forward="true" selection-start-line="39" selection-start-column="9" selection-end-line="39" selection-end-column="9" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/edu/vanderbilt/chuilian/loadbalancer/plan/HighLoadPlan.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="135">
+          <caret line="9" column="5" lean-forward="true" selection-start-line="9" selection-start-column="5" selection-end-line="9" selection-end-column="5" />
+          <folding>
+            <element signature="e#205#206#0" expanded="true" />
+            <element signature="e#245#246#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/edu/vanderbilt/chuilian/loadbalancer/plan/ChannelPlanGenerator.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="442">
+          <caret line="58" column="45" lean-forward="false" selection-start-line="58" selection-start-column="45" selection-end-line="58" selection-end-column="45" />
+          <folding>
+            <element signature="e#4824#4832#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/edu/vanderbilt/chuilian/types/TypesChannelPlan.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="105">
+          <caret line="10" column="19" lean-forward="false" selection-start-line="10" selection-start-column="19" selection-end-line="10" selection-end-column="19" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/edu/vanderbilt/chuilian/loadbalancer/plan/Strategy.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="240">
+          <caret line="16" column="25" lean-forward="true" selection-start-line="16" selection-start-column="25" selection-end-line="16" selection-end-column="25" />
+          <folding>
+            <element signature="e#252#253#0" expanded="true" />
+            <element signature="e#298#299#0" expanded="true" />
+            <element signature="e#344#345#0" expanded="true" />
+            <element signature="e#378#379#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/edu/vanderbilt/chuilian/loadbalancer/plan/ChannelPlan.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="285">
+          <caret line="23" column="27" lean-forward="true" selection-start-line="23" selection-start-column="27" selection-end-line="23" selection-end-column="27" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/edu/vanderbilt/chuilian/loadbalancer/plan/ChannelMapping.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="570">
+          <caret line="50" column="53" lean-forward="false" selection-start-line="50" selection-start-column="53" selection-end-line="50" selection-end-column="53" />
+          <folding>
+            <element signature="e#1603#1604#0" expanded="true" />
+            <element signature="e#1663#1664#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/edu/vanderbilt/chuilian/loadbalancer/plan/Plan.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="258">
+          <caret line="24" column="45" lean-forward="false" selection-start-line="24" selection-start-column="45" selection-end-line="24" selection-end-column="45" />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/edu/vanderbilt/chuilian/types/TypesPlanHelper.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="569">
+          <caret line="71" column="49" lean-forward="true" selection-start-line="71" selection-start-column="49" selection-end-line="71" selection-end-column="49" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/edu/vanderbilt/chuilian/loadbalancer/Dispatcher.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-781">
+          <caret line="14" column="0" lean-forward="true" selection-start-line="14" selection-start-column="0" selection-end-line="14" selection-end-column="0" />
           <folding />
         </state>
       </provider>

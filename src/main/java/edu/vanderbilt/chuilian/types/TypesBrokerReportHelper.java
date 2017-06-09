@@ -15,17 +15,17 @@ public class TypesBrokerReportHelper {
         int counter = 0;
         for (Map.Entry<String, ChannelReport> entry : brokerReport.entrySet()) {
             int topic = builder.createString(entry.getValue().getTopic());
-            channelRepts[counter++] = TypesChannelReport.createLoadReportEntry(builder, topic, entry.getValue().getNumIOBytes(), entry.getValue().getNumIOMsgs(), entry.getValue().getNumPublications(), entry.getValue().getNumSubscribers());
+            channelRepts[counter++] = TypesChannelReport.createTypesChannelReport(builder, topic, entry.getValue().getNumIOBytes(), entry.getValue().getNumIOMsgs(), entry.getValue().getNumPublications(), entry.getValue().getNumSubscribers());
         }
         int channelReports = TypesBrokerReport.createChannelReportsVector(builder, channelRepts);
         int brokerID = builder.createString(brokerReport.getBrokerID());
-        TypesBrokerReport.startLoadReport(builder);
+        TypesBrokerReport.startTypesBrokerReport(builder);
         TypesBrokerReport.addChannelReports(builder, channelReports);
         TypesBrokerReport.addBrokerID(builder, brokerID);
         TypesBrokerReport.addTimeTag(builder, timeTag);
         TypesBrokerReport.addLoadRatio(builder, brokerReport.getLoadRatio());
         TypesBrokerReport.addBandWidthBytes(builder, LoadAnalyzer.getBandWidthBytes());
-        int report = TypesBrokerReport.endLoadReport(builder);
+        int report = TypesBrokerReport.endTypesBrokerReport(builder);
         builder.finish(report);
         java.nio.ByteBuffer buf = builder.dataBuffer();
         return builder.sizedByteArray();
@@ -33,7 +33,7 @@ public class TypesBrokerReportHelper {
 
     public static TypesBrokerReport deserialize(byte[] data) {
         java.nio.ByteBuffer buf = java.nio.ByteBuffer.wrap(data);
-        return TypesBrokerReport.getRootAsLoadReport(buf);
+        return TypesBrokerReport.getRootAsTypesBrokerReport(buf);
     }
 
 }

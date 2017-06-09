@@ -1,0 +1,15 @@
+namespace edu.vanderbilt.chuilian.types;
+
+table TypesChannelPlan{
+	topic:string;
+	strategy:string;
+	availableBroker:[string];
+}
+
+table TypesPlan {
+	timeTag:long;
+	version:long;
+	channelMapping:[TypesChannelPlan];
+}
+
+root_type TypesPlan;

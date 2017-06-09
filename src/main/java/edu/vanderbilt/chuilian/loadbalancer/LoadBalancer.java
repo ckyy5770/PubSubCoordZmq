@@ -6,9 +6,9 @@ package edu.vanderbilt.chuilian.loadbalancer;
 
 import edu.vanderbilt.chuilian.loadbalancer.consistenthashing.ConsistentHashingMap;
 import edu.vanderbilt.chuilian.loadbalancer.plan.*;
-import edu.vanderbilt.chuilian.types.BalancerPlanHelper;
 import edu.vanderbilt.chuilian.types.TypesBrokerReport;
 import edu.vanderbilt.chuilian.types.TypesBrokerReportHelper;
+import edu.vanderbilt.chuilian.types.TypesPlanHelper;
 import edu.vanderbilt.chuilian.util.ZkConnect;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -155,7 +155,7 @@ public class LoadBalancer {
 
         // TODO: 6/7/17 plan serialization
         sendSocket.sendMore("plan");
-        sendSocket.send(BalancerPlanHelper.serialize(currentPlan, System.currentTimeMillis()));
+        sendSocket.send(TypesPlanHelper.serialize(currentPlan, System.currentTimeMillis()));
         logger.info("Current plan sent. plan version: {}", currentPlan.getVersion());
     }
 

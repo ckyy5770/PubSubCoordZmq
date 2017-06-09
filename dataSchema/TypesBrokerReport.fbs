@@ -1,6 +1,6 @@
 namespace edu.vanderbilt.chuilian.types;
 
-table LoadReportEntry {
+table TypesChannelReport {
   topic:string;
   numIOBytes:long;
   numIOMsgs:long;
@@ -8,12 +8,12 @@ table LoadReportEntry {
   numSubscribers:long;
 }
 
-table LoadReport{
+table TypesBrokerReport {
   brokerID:string;
   timeTag:long;
   loadRatio:double;
   bandWidthBytes:double;
-  channelReports:[LoadReportEntry];
+  channelReports:[TypesChannelReport];
 }
 
-root_type LoadReport;
+root_type TypesBrokerReport;

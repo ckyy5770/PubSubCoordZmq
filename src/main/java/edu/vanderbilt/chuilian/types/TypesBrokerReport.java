@@ -10,11 +10,11 @@ import java.nio.ByteOrder;
 
 @SuppressWarnings("unused")
 public final class TypesBrokerReport extends Table {
-    public static TypesBrokerReport getRootAsLoadReport(ByteBuffer _bb) {
-        return getRootAsLoadReport(_bb, new TypesBrokerReport());
+    public static TypesBrokerReport getRootAsTypesBrokerReport(ByteBuffer _bb) {
+        return getRootAsTypesBrokerReport(_bb, new TypesBrokerReport());
     }
 
-    public static TypesBrokerReport getRootAsLoadReport(ByteBuffer _bb, TypesBrokerReport obj) {
+    public static TypesBrokerReport getRootAsTypesBrokerReport(ByteBuffer _bb, TypesBrokerReport obj) {
         _bb.order(ByteOrder.LITTLE_ENDIAN);
         return (obj.__assign(_bb.getInt(_bb.position()) + _bb.position(), _bb));
     }
@@ -67,22 +67,22 @@ public final class TypesBrokerReport extends Table {
         return o != 0 ? __vector_len(o) : 0;
     }
 
-    public static int createLoadReport(FlatBufferBuilder builder,
-                                       int brokerIDOffset,
-                                       long timeTag,
-                                       double loadRatio,
-                                       double bandWidthBytes,
-                                       int channelReportsOffset) {
+    public static int createTypesBrokerReport(FlatBufferBuilder builder,
+                                              int brokerIDOffset,
+                                              long timeTag,
+                                              double loadRatio,
+                                              double bandWidthBytes,
+                                              int channelReportsOffset) {
         builder.startObject(5);
         TypesBrokerReport.addBandWidthBytes(builder, bandWidthBytes);
         TypesBrokerReport.addLoadRatio(builder, loadRatio);
         TypesBrokerReport.addTimeTag(builder, timeTag);
         TypesBrokerReport.addChannelReports(builder, channelReportsOffset);
         TypesBrokerReport.addBrokerID(builder, brokerIDOffset);
-        return TypesBrokerReport.endLoadReport(builder);
+        return TypesBrokerReport.endTypesBrokerReport(builder);
     }
 
-    public static void startLoadReport(FlatBufferBuilder builder) {
+    public static void startTypesBrokerReport(FlatBufferBuilder builder) {
         builder.startObject(5);
     }
 
@@ -116,12 +116,12 @@ public final class TypesBrokerReport extends Table {
         builder.startVector(4, numElems, 4);
     }
 
-    public static int endLoadReport(FlatBufferBuilder builder) {
+    public static int endTypesBrokerReport(FlatBufferBuilder builder) {
         int o = builder.endObject();
         return o;
     }
 
-    public static void finishLoadReportBuffer(FlatBufferBuilder builder, int offset) {
+    public static void finishTypesBrokerReportBuffer(FlatBufferBuilder builder, int offset) {
         builder.finish(offset);
     }
 }

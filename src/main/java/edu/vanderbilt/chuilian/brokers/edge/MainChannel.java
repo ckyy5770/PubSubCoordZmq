@@ -45,7 +45,8 @@ public class MainChannel extends MsgChannel {
             logger.info("Main Channel Worker Thread Started. ");
             while (true) {
                 receiver();
-                sender();
+                // main channel don't need a sender.
+                //sender();
             }
         });
 
@@ -83,10 +84,17 @@ public class MainChannel extends MsgChannel {
         messageQueue.add(receivedMsg);
         logger.info("Message Received at Main Channel: Topic: {} ID: {}", msgTopic, DataSampleHelper.deserialize(msgContent).sampleId());
         // if this topic is new, create a new channel for it
-        if (channelMap.get(topic) == null) {
+        /*
+        if (channelMap.get(msgTopic) == null) {
             logger.info("New topic detected, creating a new channel for it. topic: {}", msgTopic);
             MsgChannel newChannel = channelMap.register(msgTopic, this.portList, this.executor, this.zkConnect, this.channelMap);
             if (newChannel != null) newChannel.start();
+        }
+        */
+        // if this topic is new, report to Load Balancer
+        if (dispatcher.getPlan().getChannelMapping().getChannelPlan(msgTopic) == null) {
+            logger.info("New topic detected, reporting to load balancer. topic: {}", msgTopic);
+            dispatcher.registerChannelToLB(msgTopic);
         }
     }
 

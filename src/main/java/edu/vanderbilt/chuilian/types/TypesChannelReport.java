@@ -10,11 +10,11 @@ import java.nio.ByteOrder;
 
 @SuppressWarnings("unused")
 public final class TypesChannelReport extends Table {
-    public static TypesChannelReport getRootAsLoadReportEntry(ByteBuffer _bb) {
-        return getRootAsLoadReportEntry(_bb, new TypesChannelReport());
+    public static TypesChannelReport getRootAsTypesChannelReport(ByteBuffer _bb) {
+        return getRootAsTypesChannelReport(_bb, new TypesChannelReport());
     }
 
-    public static TypesChannelReport getRootAsLoadReportEntry(ByteBuffer _bb, TypesChannelReport obj) {
+    public static TypesChannelReport getRootAsTypesChannelReport(ByteBuffer _bb, TypesChannelReport obj) {
         _bb.order(ByteOrder.LITTLE_ENDIAN);
         return (obj.__assign(_bb.getInt(_bb.position()) + _bb.position(), _bb));
     }
@@ -58,22 +58,22 @@ public final class TypesChannelReport extends Table {
         return o != 0 ? bb.getLong(o + bb_pos) : 0L;
     }
 
-    public static int createLoadReportEntry(FlatBufferBuilder builder,
-                                            int topicOffset,
-                                            long numIOBytes,
-                                            long numIOMsgs,
-                                            long numPublications,
-                                            long numSubscribers) {
+    public static int createTypesChannelReport(FlatBufferBuilder builder,
+                                               int topicOffset,
+                                               long numIOBytes,
+                                               long numIOMsgs,
+                                               long numPublications,
+                                               long numSubscribers) {
         builder.startObject(5);
         TypesChannelReport.addNumSubscribers(builder, numSubscribers);
         TypesChannelReport.addNumPublications(builder, numPublications);
         TypesChannelReport.addNumIOMsgs(builder, numIOMsgs);
         TypesChannelReport.addNumIOBytes(builder, numIOBytes);
         TypesChannelReport.addTopic(builder, topicOffset);
-        return TypesChannelReport.endLoadReportEntry(builder);
+        return TypesChannelReport.endTypesChannelReport(builder);
     }
 
-    public static void startLoadReportEntry(FlatBufferBuilder builder) {
+    public static void startTypesChannelReport(FlatBufferBuilder builder) {
         builder.startObject(5);
     }
 
@@ -97,7 +97,7 @@ public final class TypesChannelReport extends Table {
         builder.addLong(4, numSubscribers, 0L);
     }
 
-    public static int endLoadReportEntry(FlatBufferBuilder builder) {
+    public static int endTypesChannelReport(FlatBufferBuilder builder) {
         int o = builder.endObject();
         return o;
     }

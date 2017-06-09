@@ -1,7 +1,0 @@
-namespace edu.vanderbilt.chuilian.types;
-
-table BalancerPlan {
-  timeTag:long;
-}
-
-root_type BalancerPlan;

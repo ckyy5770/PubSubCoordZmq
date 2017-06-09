@@ -4,8 +4,9 @@ package edu.vanderbilt.chuilian.loadbalancer;
  * Created by Killian on 6/2/17.
  */
 
-import edu.vanderbilt.chuilian.types.BalancerPlan;
-import edu.vanderbilt.chuilian.types.BalancerPlanHelper;
+import edu.vanderbilt.chuilian.loadbalancer.plan.Plan;
+import edu.vanderbilt.chuilian.types.TypesPlan;
+import edu.vanderbilt.chuilian.types.TypesPlanHelper;
 import edu.vanderbilt.chuilian.util.ZkConnect;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -20,7 +21,7 @@ import java.util.concurrent.Future;
  * Dispatcher residing in each edge broker will keep the latest balancer plan
  */
 public class Dispatcher {
-    private BalancerPlan plan;
+    private Plan plan;
     private String brokerID;
     private ZkConnect zkConnect;
     // socket connect to LB's sender
@@ -78,10 +79,11 @@ public class Dispatcher {
     public void receiverFromLB() {
         ZMsg receivedMsg = ZMsg.recvMsg(recSocket);
         byte[] msgContent = receivedMsg.getLast().getData();
-        BalancerPlan balancerPlan = BalancerPlanHelper.deserialize(msgContent);
-        logger.info("New Balancer Plan Received at Dispatcher. brokerID: {} timeTag: {}", brokerID, balancerPlan.timeTag());
+        TypesPlan typesPlan = TypesPlanHelper.deserialize(msgContent);
+        Plan plan = TypesPlanHelper.toPlan(typesPlan);
+        logger.info("New Balancer Plan Received at Dispatcher. brokerID: {} timeTag: {}", brokerID, typesPlan.timeTag());
         // update plan
-        this.plan = balancerPlan;
+        this.plan = plan;
     }
 
     public void stop() {
@@ -93,7 +95,7 @@ public class Dispatcher {
         logger.info("Dispatcher closed.");
     }
 
-    public BalancerPlan getPlan() {
+    public Plan getPlan() {
         return this.plan;
     }
 

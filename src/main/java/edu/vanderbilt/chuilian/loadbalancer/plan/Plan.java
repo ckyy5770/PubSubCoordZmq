@@ -20,6 +20,11 @@ public class Plan {
     public Plan() {
     }
 
+    public Plan(long version, ChannelMapping channelMapping) {
+        this.version = version;
+        this.channelMapping = channelMapping;
+    }
+
     public ChannelMapping getChannelMapping() {
         return channelMapping;
     }
@@ -47,6 +52,7 @@ public class Plan {
     public long getVersion() {
         return version;
     }
+
 }
 
 

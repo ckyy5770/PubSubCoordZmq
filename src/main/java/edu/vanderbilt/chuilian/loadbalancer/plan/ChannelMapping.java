@@ -4,6 +4,8 @@ import edu.vanderbilt.chuilian.loadbalancer.consistenthashing.ConsistentHashingM
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Created by Killian on 6/7/17.
@@ -34,5 +36,17 @@ public class ChannelMapping {
             map.get(plan.getChannel()).removeAvailableBroker(plan.getFrom());
             map.get(plan.getChannel()).addAvailableBroker(plan.getTo());
         }
+    }
+
+    public int size() {
+        return map.size();
+    }
+
+    public Set<Map.Entry<String, ChannelPlan>> entrySet() {
+        return map.entrySet();
+    }
+
+    public void addNewChannelPlan(ChannelPlan channelPlan) {
+        map.put(channelPlan.getTopic(), channelPlan);
     }
 }
