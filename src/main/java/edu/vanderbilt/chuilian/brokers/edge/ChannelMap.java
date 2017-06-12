@@ -4,6 +4,8 @@ package edu.vanderbilt.chuilian.brokers.edge;
  * Created by Killian on 5/23/17.
  */
 
+import edu.vanderbilt.chuilian.loadbalancer.Dispatcher;
+import edu.vanderbilt.chuilian.loadbalancer.LoadAnalyzer;
 import edu.vanderbilt.chuilian.util.PortList;
 import edu.vanderbilt.chuilian.util.ZkConnect;
 
@@ -38,10 +40,10 @@ public class ChannelMap {
      * @param topic
      * @return null if the topic already existed
      */
-    public MsgChannel register(String topic, PortList portList, ExecutorService executor, ZkConnect zkConnect, ChannelMap channelMap) {
+    public MsgChannel register(String topic, PortList portList, ExecutorService executor, ZkConnect zkConnect, ChannelMap channelMap, Dispatcher dispatcher, LoadAnalyzer loadAnalyzer) {
         if (map.containsKey(topic)) return null;
         else{
-            MsgChannel newChannel = new MsgChannel(topic, portList, executor, zkConnect, channelMap);
+            MsgChannel newChannel = new MsgChannel(topic, portList, executor, zkConnect, channelMap, dispatcher, loadAnalyzer);
             map.put(topic, newChannel);
             return newChannel;
         }

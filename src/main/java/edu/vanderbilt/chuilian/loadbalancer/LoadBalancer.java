@@ -26,8 +26,8 @@ import java.util.concurrent.Future;
  */
 public class LoadBalancer {
     Plan currentPlan;
-    ConsistentHashingMap consistentHashingMap;
-    BrokerLoadReportBuffer brokerLoadReportBuffer;
+    private final ConsistentHashingMap consistentHashingMap;
+    private final BrokerLoadReportBuffer brokerLoadReportBuffer;
     private final ExecutorService executor;
     private final ZkConnect zkConnect;
     /**
@@ -51,6 +51,7 @@ public class LoadBalancer {
 
     public LoadBalancer() {
         this.brokerLoadReportBuffer = new BrokerLoadReportBuffer();
+        this.consistentHashingMap = new ConsistentHashingMap();
         this.executor = Executors.newFixedThreadPool(3);
         this.zkConnect = new ZkConnect();
         // initialize socket
@@ -69,14 +70,18 @@ public class LoadBalancer {
         recSocket.subscribe("".getBytes());
         // start connecting to sending port
         sendSocket.bind("tcp://*:" + sendPort);
+        // start zookeeper client
+        zkConnect.connect("127.0.0.1:2181");
+        // clear the data tree
+        zkConnect.resetServer();
         // register itself to zookeeper service
-        zkConnect.registerBalancer(ip + recPort, ip + sendPort);
+        zkConnect.registerBalancer(ip + ":" + recPort, ip + ":" + sendPort);
 
         logger.info("LoadBalancer started. ip {} recPort {} sendPort {}", ip, recPort, sendPort);
 
         // start receiving reports and updating channel stats on each broker
         receiverFuture = executor.submit(() -> {
-            logger.info("LoadBalancer receiverFromLB Thread Started. ");
+            logger.info("LoadBalancer receiver Thread Started. ");
             while (true) {
                 receiver();
             }
@@ -103,6 +108,9 @@ public class LoadBalancer {
         recContext.term();
         sendSocket.close();
         sendContext.term();
+        executor.shutdownNow();
+        // clear the data tree
+        zkConnect.resetServer();
         logger.info("Balancer closed.");
     }
 
@@ -115,7 +123,7 @@ public class LoadBalancer {
         ZMsg receivedMsg = ZMsg.recvMsg(recSocket);
         String msgTopic = new String(receivedMsg.getFirst().getData());
         byte[] msgContent = receivedMsg.getLast().getData();
-        if (msgTopic == "registerChannel") {
+        if (msgTopic.equals("registerChannel")) {
             String channel = new String(msgContent);
             logger.info("Received Channel Register request. Channel: {}", channel);
             if (consistentHashingMap.getBroker(channel) != null) {
@@ -123,6 +131,7 @@ public class LoadBalancer {
             } else {
                 consistentHashingMap.registerChannel(channel);
                 currentPlan.getChannelMapping().registerNewChannel(channel, consistentHashingMap);
+                currentPlan.updateVersion();
                 logger.info("Registered new channel: {}", channel);
             }
             return;
@@ -130,6 +139,7 @@ public class LoadBalancer {
         String brokerID = msgTopic;
         TypesBrokerReport report = TypesBrokerReportHelper.deserialize(msgContent);
         logger.info("Report Received at LoadBalancer. brokerID: {} timeTag: {}", brokerID, report.timeTag());
+        //logger.info("LR {}", report.loadRatio());
         if (!brokerLoadReportBuffer.exist(brokerID)) {
             logger.info("New Broker Detected. brokerID: {}", brokerID);
             consistentHashingMap.registerBroker(brokerID);
@@ -141,6 +151,7 @@ public class LoadBalancer {
      * process reports and generate new plan, send new plan to dispatchers
      */
     private void processor() {
+        //logger.info("Processor starts.");
         BrokerLoadReportBuffer reports = brokerLoadReportBuffer.snapShot();
         // TODO: 6/7/17 not support Low load plan now. the generator for low load plan always returns null.
         // initialize a report analyzer
@@ -162,8 +173,8 @@ public class LoadBalancer {
     public static void main(String args[]) throws Exception {
         LoadBalancer loadBalancer = new LoadBalancer();
         loadBalancer.start();
-        Thread.sleep(90000);
-        loadBalancer.stop();
+        //Thread.sleep(90000);
+        //loadBalancer.stop();
     }
 
 }

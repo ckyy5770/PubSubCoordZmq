@@ -31,7 +31,8 @@ public class Dispatcher {
     private ZMQ.Context sendContext;
     private ZMQ.Socket sendSocket;
     private ExecutorService executor;
-    private String balancerAddress;
+    private String balancerSendAddress;
+    private String balancerRecAddress;
 
     private Future<?> futureReceiverFromLB;
 
@@ -41,7 +42,7 @@ public class Dispatcher {
         this.brokerID = brokerID;
         this.plan = null;
         this.zkConnect = zkConnect;
-        this.balancerAddress = null;
+        this.balancerSendAddress = null;
         this.executor = Executors.newFixedThreadPool(10);
         this.zkConnect = zkConnect;
         this.recContext = ZMQ.context(1);
@@ -52,23 +53,36 @@ public class Dispatcher {
 
     public void start() {
         futureReceiverFromLB = executor.submit(() -> {
-            logger.info("Starting Dispatcher.");
+            logger.info("Dispatcher thread started, trying to connect LoadBalancer.");
             // try to get balancer sender address
             try {
-                this.balancerAddress = zkConnect.getBalancerSendAddress();
-                while (balancerAddress == null) {
+                this.balancerSendAddress = zkConnect.getBalancerSendAddress();
+                while (balancerSendAddress == null) {
                     // if cannot get it, keep trying, every 5 secs
                     Thread.sleep(5000);
-                    balancerAddress = zkConnect.getBalancerSendAddress();
+                    balancerSendAddress = zkConnect.getBalancerSendAddress();
+                }
+            } catch (Exception e) {
+                return;
+            }
+            // try to get balancer receiver address
+            try {
+                this.balancerRecAddress = zkConnect.getBalancerRecAddress();
+                while (balancerRecAddress == null) {
+                    // if cannot get it, keep trying, every 5 secs
+                    Thread.sleep(5000);
+                    balancerRecAddress = zkConnect.getBalancerRecAddress();
                 }
             } catch (Exception e) {
                 return;
             }
             // here we get a non-null address, connect it
-            recSocket.connect(balancerAddress);
+            recSocket.connect("tcp://" + balancerSendAddress);
+            sendSocket.connect("tcp://" + balancerRecAddress);
+            logger.info("Dispatcher connected to LoadBalancer sender port @{}", balancerSendAddress);
+            logger.info("Dispatcher connected to LoadBalancer receiver port @{}", balancerRecAddress);
             // subscribe "plan" topic see @LoadBalancer
             recSocket.subscribe("plan".getBytes());
-            logger.info("Dispatcher thread started.");
             // keep receiving and updating local plan
             while (true) {
                 receiverFromLB();
@@ -91,6 +105,8 @@ public class Dispatcher {
         futureReceiverFromLB.cancel(false);
         recSocket.close();
         recContext.term();
+        sendSocket.close();
+        sendContext.term();
         executor.shutdownNow();
         logger.info("Dispatcher closed.");
     }
@@ -100,12 +116,13 @@ public class Dispatcher {
     }
 
 
-    public void registerChannelToLB(String topic) {
-        sendMsgToLB("registerChannel", topic);
+    public void registerChannelToLB(String channel) {
+        sendMsgToLB("registerChannel", channel);
     }
 
     private void sendMsgToLB(String topic, String content) {
         sendSocket.sendMore(topic);
         sendSocket.send(content.getBytes());
+        logger.info("Message sent from dispatcher to LoadBalancer. Topic:{} Content:{}", topic, content);
     }
 }

@@ -11,6 +11,7 @@ import org.apache.logging.log4j.Logger;
 import org.zeromq.ZMQ;
 
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
 /**
@@ -35,23 +36,27 @@ public class LoadAnalyzer {
 
     private static final Logger logger = LogManager.getLogger(LoadAnalyzer.class.getName());
 
-    public LoadAnalyzer(String brokerID, ExecutorService executor, ZkConnect zkConnect) {
+    public LoadAnalyzer(String brokerID, ZkConnect zkConnect) {
         this.brokerID = brokerID;
         this.balancerAddress = null;
-        this.executor = executor;
+        this.executor = Executors.newFixedThreadPool(2);
         this.zkConnect = zkConnect;
         this.sendContext = ZMQ.context(1);
         this.sendSocket = sendContext.socket(ZMQ.PUB);
         this.brokerReport = new BrokerReport(brokerID);
     }
 
-    public static double getBandWidthBytes() {
-        return 1e10;
+    public BrokerReport getBrokerReport() {
+        return brokerReport;
     }
 
-    void start() throws Exception {
+    public static double getBandWidthBytes() {
+        return 1024 * 1024;
+    }
+
+    public void start() throws Exception {
         future = executor.submit(() -> {
-            logger.info("Local LoadAnalyzer thread started.");
+            logger.info("Local LoadAnalyzer thread started, trying to connect LoadBalancer.");
             // try to get balancer address
             try {
                 this.balancerAddress = zkConnect.getBalancerRecAddress();
@@ -64,11 +69,12 @@ public class LoadAnalyzer {
                 return;
             }
             // here we get a non-null address, connect it
-            sendSocket.connect(balancerAddress);
+            sendSocket.connect("tcp://" + balancerAddress);
+            logger.info("Local LoadAnalyzer connected to LoadBalancer receiver port @{}", balancerAddress);
 
             while (true) {
                 try {
-                    Thread.sleep(1000);
+                    Thread.sleep(5000);
                     report();
                     reset();
                 } catch (Exception e) {
@@ -78,20 +84,22 @@ public class LoadAnalyzer {
         });
     }
 
-    void stop() {
+    public void stop() {
         logger.info("Closing Local LoadAnalyzer.");
         future.cancel(false);
         sendSocket.close();
         sendContext.term();
+        executor.shutdownNow();
         logger.info("Local load analyzer closed.");
     }
 
-    void report() {
+    private void report() {
         sendSocket.sendMore(brokerID);
         sendSocket.send(TypesBrokerReportHelper.serialize(brokerReport, System.currentTimeMillis()));
+        logger.info("load report sent from Load Analyzer of broker: {}", brokerID);
     }
 
-    void reset() {
+    private void reset() {
         brokerReport.reset();
     }
 

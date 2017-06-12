@@ -1,6 +1,7 @@
 package edu.vanderbilt.chuilian.brokers.edge;
 
 import edu.vanderbilt.chuilian.loadbalancer.Dispatcher;
+import edu.vanderbilt.chuilian.loadbalancer.LoadAnalyzer;
 import edu.vanderbilt.chuilian.util.PortList;
 import edu.vanderbilt.chuilian.util.ZkConnect;
 import org.apache.logging.log4j.LogManager;
@@ -17,8 +18,9 @@ public class EdgeBroker {
     // the executor for channel threads
     private final ExecutorService channelExecutor;
     private final ZkConnect zkConnect;
-    // load balancer module: dispatcher
+    // load balancer module: dispatcher, local load analyzer
     private final Dispatcher dispatcher;
+    private final LoadAnalyzer loadAnalyzer;
 
     private static final Logger logger = LogManager.getLogger(EdgeBroker.class.getName());
 
@@ -28,6 +30,8 @@ public class EdgeBroker {
      * to start the edgeBroker, use start().
      */
     public EdgeBroker(){
+        // get broker ID
+        this.brokerID = getBrokerID();
         // init channel map
         this.channelMap = new ChannelMap();
         // init port list
@@ -38,6 +42,7 @@ public class EdgeBroker {
         this.zkConnect = new ZkConnect();
         // load balancer module: create a dispatcher
         this.dispatcher = new Dispatcher(brokerID, zkConnect);
+        this.loadAnalyzer = new LoadAnalyzer(brokerID, zkConnect);
     }
 
     /**
@@ -47,11 +52,12 @@ public class EdgeBroker {
         // start zookeeper client
         zkConnect.connect("127.0.0.1:2181");
         // clear the data tree
-        zkConnect.resetServer();
+        // zkConnect.resetServer();
         // load balancer module: start dispatcher
         dispatcher.start();
+        loadAnalyzer.start();
         // create and start main channel
-        MainChannel mainChannel = new MainChannel("", this.portList, this.channelExecutor, this.zkConnect, this.channelMap, this.dispatcher);
+        MainChannel mainChannel = new MainChannel("", this.portList, this.channelExecutor, this.zkConnect, this.channelMap, this.dispatcher, this.loadAnalyzer);
         channelMap.setMain(mainChannel);
         mainChannel.start();
     }
@@ -72,20 +78,31 @@ public class EdgeBroker {
         }
         // create a new map, discard the old one
         channelMap = new ChannelMap();
+        // close dispatcher and local load analyzer
+        dispatcher.stop();
+        loadAnalyzer.stop();
         // clear the data tree
-        zkConnect.resetServer();
+        //zkConnect.resetServer();
         // turn off executor
         channelExecutor.shutdownNow();
         // close zookeeper client
         zkConnect.close();
     }
 
+    /**
+     * get broker ID, here just a fake method for test purpose
+     *
+     * @return
+     */
+    private String getBrokerID() {
+        return Long.toString(System.currentTimeMillis());
+    }
 
     public static void main(String args[]) throws Exception {
         EdgeBroker broker = new EdgeBroker();
         broker.start();
-        Thread.sleep(80000);
-        broker.stop();
+        //Thread.sleep(80000);
+        //broker.stop();
     }
 
 

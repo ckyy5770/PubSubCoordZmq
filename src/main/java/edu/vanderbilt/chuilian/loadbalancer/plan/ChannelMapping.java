@@ -11,7 +11,7 @@ import java.util.Set;
  * Created by Killian on 6/7/17.
  */
 public class ChannelMapping {
-    HashMap<String, ChannelPlan> map;
+    HashMap<String, ChannelPlan> map = new HashMap<>();
 
     public ChannelPlan getChannelPlan(String topic) {
         return map.get(topic);

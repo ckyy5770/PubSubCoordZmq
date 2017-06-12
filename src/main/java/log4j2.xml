@@ -19,6 +19,15 @@
         <File name="publisher" fileName="logs/publisher.log" append="false">
             <PatternLayout pattern="%d{HH:mm:ss.SSS} %-5level %class{36} %L %M - %msg%xEx%n"/>
         </File>
+        <File name="loadBalancer" fileName="logs/loadBalancer.log" append="false">
+            <PatternLayout pattern="%d{HH:mm:ss.SSS} %-5level %class{36} %L %M - %msg%xEx%n"/>
+        </File>
+        <File name="util" fileName="logs/util.log" append="false">
+            <PatternLayout pattern="%d{HH:mm:ss.SSS} %-5level %class{36} %L %M - %msg%xEx%n"/>
+        </File>
+        <File name="types" fileName="logs/types.log" append="false">
+            <PatternLayout pattern="%d{HH:mm:ss.SSS} %-5level %class{36} %L %M - %msg%xEx%n"/>
+        </File>
     </Appenders>
     <Loggers>
         <Logger name="edu.vanderbilt.chuilian.brokers.edge" level="info" additivity="false">
@@ -35,6 +44,21 @@
             <AppenderRef ref="Console"/>
             <AppenderRef ref="all"/>
             <AppenderRef ref="subscriber"/>
+        </Logger>
+        <Logger name="edu.vanderbilt.chuilian.loadbalancer" level="info" additivity="false">
+            <AppenderRef ref="Console"/>
+            <AppenderRef ref="all"/>
+            <AppenderRef ref="loadBalancer"/>
+        </Logger>
+        <Logger name="edu.vanderbilt.chuilian.util" level="info" additivity="false">
+            <AppenderRef ref="Console"/>
+            <AppenderRef ref="all"/>
+            <AppenderRef ref="util"/>
+        </Logger>
+        <Logger name="edu.vanderbilt.chuilian.types" level="info" additivity="false">
+            <AppenderRef ref="Console"/>
+            <AppenderRef ref="all"/>
+            <AppenderRef ref="types"/>
         </Logger>
         <Root level="error">
             <AppenderRef ref="Console"/>

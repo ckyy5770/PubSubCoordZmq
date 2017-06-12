@@ -1,6 +1,7 @@
 package edu.vanderbilt.chuilian.brokers.edge;
 
 import edu.vanderbilt.chuilian.loadbalancer.Dispatcher;
+import edu.vanderbilt.chuilian.loadbalancer.LoadAnalyzer;
 import edu.vanderbilt.chuilian.types.DataSampleHelper;
 import edu.vanderbilt.chuilian.util.PortList;
 import edu.vanderbilt.chuilian.util.ZkConnect;
@@ -51,6 +52,7 @@ public class MsgChannel {
     Future<?> terminatorFuture;
     // broker dispatcher
     Dispatcher dispatcher;
+    LoadAnalyzer loadAnalyzer;
 
     private static final Logger logger = LogManager.getLogger(MsgChannel.class.getName());
 
@@ -63,7 +65,7 @@ public class MsgChannel {
      * @param portList available port list, there should be only one port list within a broker
      * @param executor executor for worker threads, there should be only one executor within a broker
      */
-    public MsgChannel(String topic, PortList portList, ExecutorService executor, ZkConnect zkConnect, ChannelMap channelMap, Dispatcher dispatcher) {
+    public MsgChannel(String topic, PortList portList, ExecutorService executor, ZkConnect zkConnect, ChannelMap channelMap, Dispatcher dispatcher, LoadAnalyzer loadAnalyzer) {
         // initialize member vars
         this.topic = topic;
         this.portList = portList;
@@ -81,6 +83,7 @@ public class MsgChannel {
         this.channelMap = channelMap;
         // broker dispatcher
         this.dispatcher = dispatcher;
+        this.loadAnalyzer = loadAnalyzer;
     }
 
     /**
@@ -152,6 +155,9 @@ public class MsgChannel {
         String msgTopic = new String(receivedMsg.getFirst().getData());
         byte[] msgContent = receivedMsg.getLast().getData();
         messageQueue.add(receivedMsg);
+
+        // load balancer module: update metrics
+        loadAnalyzer.getBrokerReport().updateBytes(msgTopic, msgContent.length);
         logger.debug("Message Received at Channel ({}) Topic: {} ID: {}", topic, msgTopic, DataSampleHelper.deserialize(msgContent).sampleId());
     }
 
@@ -163,6 +169,11 @@ public class MsgChannel {
         byte[] msgContent = sendingMsg.getLast().getData();
         sendSocket.sendMore(msgTopic);
         sendSocket.send(msgContent);
+
+        // load balancer module: update metrics
+        loadAnalyzer.getBrokerReport().updateBytes(msgTopic, msgContent.length);
+        loadAnalyzer.getBrokerReport().updateMsgs(msgTopic, 1);
+        loadAnalyzer.getBrokerReport().updatePublications(msgTopic, 1);
         logger.info("Message Sent from Channel ({}) Topic: {} ID: {}", topic, msgTopic, DataSampleHelper.deserialize(msgContent).sampleId());
     }
 

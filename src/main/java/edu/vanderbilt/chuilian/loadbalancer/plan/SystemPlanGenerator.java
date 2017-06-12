@@ -8,6 +8,8 @@ package edu.vanderbilt.chuilian.loadbalancer.plan;
 import edu.vanderbilt.chuilian.loadbalancer.BrokerReport;
 import edu.vanderbilt.chuilian.loadbalancer.BrokerReportAnalyzer;
 import edu.vanderbilt.chuilian.loadbalancer.ChannelReport;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.ArrayList;
 
@@ -16,6 +18,7 @@ import java.util.ArrayList;
  * NOTE: system plan generator should run before channel plan generator, and they should share the same broker report analyzer.
  */
 public class SystemPlanGenerator {
+    private static final Logger logger = LogManager.getLogger(SystemPlanGenerator.class.getName());
     private SystemPlanGenerator() {
     }
 
@@ -24,6 +27,8 @@ public class SystemPlanGenerator {
         ArrayList<HighLoadPlan> plans = new ArrayList<>();
         while (true) {
             BrokerReport maxReport = brokerReportAnalyzer.getMostBusyBroker();
+            if (maxReport == null) return plans;
+            //logger.info("max broker:{} max lr:{} max bw:{}", maxReport.getBrokerID(), maxReport.getLoadRatio(), maxReport.getBandWidthBytes());
             double maxLR = maxReport.getLoadRatio();
             if (maxLR < LR_THRESHOLD) return plans;
             String maxBrokerID = maxReport.getBrokerID();

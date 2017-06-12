@@ -56,7 +56,8 @@ public class BrokerReportAnalyzer {
     }
 
     public BrokerReport getMostBusyBroker() {
-        return brokerReports.get(brokerReports.size());
+        if (brokerReports.size() == 0) return null;
+        return brokerReports.get(brokerReports.size() - 1);
     }
 
     public BrokerReport getLeastBusyBroker() {

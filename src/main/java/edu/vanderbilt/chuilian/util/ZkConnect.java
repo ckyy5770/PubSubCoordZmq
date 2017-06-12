@@ -51,6 +51,9 @@ public class ZkConnect {
         if (existsNode("/topics")) this.recursiveDelete("/topics");
         // "null" means the default channel address is not set yet
         this.createNode("/topics", "null".getBytes());
+        if (existsNode("/balancer")) this.recursiveDelete("/balancer");
+        // "null" means the load balancer address is not set yet
+        this.createNode("/balancer", "null".getBytes());
     }
 
     /**
@@ -250,11 +253,11 @@ public class ZkConnect {
      * @throws Exception
      */
     public void registerBalancer(String recAddress, String sendAddress) throws Exception {
-        // if /balancer exists, delete it
-        if (existsNode("/balancer")) recursiveDelete("/balancer");
+        // if /balancer exists, throw a exception, this will never happen in a well-designed system
+        if (!existsNode("/balancer")) throw new IllegalStateException("/balancer node does not exist");
         String data = recAddress + "\n" + sendAddress;
         // make a new /balancer with this information
-        createNode("/balancer", data.getBytes());
+        updateNode("/balancer", data.getBytes());
     }
 
     /**

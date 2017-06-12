@@ -53,6 +53,10 @@ public class Plan {
         return version;
     }
 
+    public void updateVersion() {
+        version++;
+    }
+
 }
 
 
