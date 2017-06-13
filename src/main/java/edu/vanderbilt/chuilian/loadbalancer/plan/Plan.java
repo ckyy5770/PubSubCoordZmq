@@ -5,6 +5,9 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Created by Killian on 6/2/17.
@@ -55,6 +58,20 @@ public class Plan {
 
     public void updateVersion() {
         version++;
+    }
+
+    /**
+     * this method will translate current plan to a broker-specific view, it will tell the specific broker, which channel is belong to it.
+     *
+     * @param brokerID
+     * @return a set of topic name
+     */
+    public Set<String> getBrokerView(String brokerID) {
+        Set<String> res = new HashSet<>();
+        for (Map.Entry<String, ChannelPlan> entry : channelMapping.entrySet()) {
+            if (entry.getValue().getAvailableBroker().contains(brokerID)) res.add(entry.getKey());
+        }
+        return res;
     }
 
 }

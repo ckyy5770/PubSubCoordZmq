@@ -57,10 +57,15 @@ public class MainChannel extends MsgChannel {
 
     @Override
     // main channel will never stop automatically unless being stopped explicitly by broker
-    public void stop() throws Exception {
+    public void stop() {
         logger.info("Closing main channel.");
         // unregister itself from zookeeper server
-        zkConnect.unregisterDefaultChannel();
+        try {
+            zkConnect.unregisterDefaultChannel();
+        } catch (Exception e) {
+            logger.error("cannot stop the default channel. error message:{}", e.getMessage());
+        }
+
         // stop worker thread
         workerFuture.cancel(false);
         // shutdown zmq socket and context
@@ -83,7 +88,7 @@ public class MainChannel extends MsgChannel {
         String msgTopic = new String(receivedMsg.getFirst().getData());
         byte[] msgContent = receivedMsg.getLast().getData();
         messageQueue.add(receivedMsg);
-        logger.info("Message Received at Main Channel: Topic: {} ID: {}", msgTopic, DataSampleHelper.deserialize(msgContent).sampleId());
+        //logger.info("Message Received at Main Channel: Topic: {} ID: {}", msgTopic, DataSampleHelper.deserialize(msgContent).sampleId());
         // if this topic is new, create a new channel for it
         /*
         if (channelMap.get(msgTopic) == null) {
@@ -94,7 +99,7 @@ public class MainChannel extends MsgChannel {
         */
         // if this topic is new, report to Load Balancer
         if (dispatcher.getPlan().getChannelMapping().getChannelPlan(msgTopic) == null) {
-            logger.info("New topic detected, reporting to load balancer. topic: {}", msgTopic);
+            //logger.info("New topic detected, reporting to load balancer. topic: {}", msgTopic);
             dispatcher.registerChannelToLB(msgTopic);
         }
     }
@@ -108,7 +113,24 @@ public class MainChannel extends MsgChannel {
         byte[] msgContent = sendingMsg.getLast().getData();
         sendSocket.sendMore(msgTopic);
         sendSocket.send(msgContent);
-        logger.info("Message Sent from Main Channel: Topic: {} ID: {}", topic, msgTopic, DataSampleHelper.deserialize(msgContent).sampleId());
+        logger.debug("Message Sent from Main Channel: Topic: {} ID: {}", topic, msgTopic, DataSampleHelper.deserialize(msgContent).sampleId());
     }
 
+
+    // a method that is used for creating a new channel. Should only be invoked by dispatcher
+    public void createChannel(String topic) {
+        if (topic != null) {
+            logger.info("Creating a new channel for topic: {}", topic);
+            MsgChannel newChannel = channelMap.register(topic, this.portList, this.executor, this.zkConnect, this.channelMap, this.dispatcher, this.loadAnalyzer);
+            if (newChannel != null) {
+                try {
+                    newChannel.start();
+                } catch (Exception e) {
+                    logger.error("can not create start the new channel: {}, error message: {}", topic, e.getMessage());
+                }
+                logger.info("Channel created. topic: {}", topic);
+            }
+        }
+    }
 }
+

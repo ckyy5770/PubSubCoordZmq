@@ -91,7 +91,7 @@ public class LoadBalancer {
         processorFuture = executor.submit(() -> {
             logger.info("LoadBalancer processor Thread Started. ");
             while (true) {
-                Thread.sleep(10000);
+                Thread.sleep(1200);
                 processor();
             }
         });
@@ -125,9 +125,9 @@ public class LoadBalancer {
         byte[] msgContent = receivedMsg.getLast().getData();
         if (msgTopic.equals("registerChannel")) {
             String channel = new String(msgContent);
-            logger.info("Received Channel Register request. Channel: {}", channel);
+            logger.debug("Received Channel Register request. Channel: {}", channel);
             if (consistentHashingMap.getBroker(channel) != null) {
-                logger.info("Channel Already Exists. Channel: {}", channel);
+                logger.debug("Channel Already Exists. Channel: {}", channel);
             } else {
                 consistentHashingMap.registerChannel(channel);
                 currentPlan.getChannelMapping().registerNewChannel(channel, consistentHashingMap);
@@ -138,7 +138,7 @@ public class LoadBalancer {
         }
         String brokerID = msgTopic;
         TypesBrokerReport report = TypesBrokerReportHelper.deserialize(msgContent);
-        logger.info("Report Received at LoadBalancer. brokerID: {} timeTag: {}", brokerID, report.timeTag());
+        logger.debug("Report Received at LoadBalancer. brokerID: {} timeTag: {}", brokerID, report.timeTag());
         //logger.info("LR {}", report.loadRatio());
         if (!brokerLoadReportBuffer.exist(brokerID)) {
             logger.info("New Broker Detected. brokerID: {}", brokerID);
@@ -167,7 +167,7 @@ public class LoadBalancer {
         // TODO: 6/7/17 plan serialization
         sendSocket.sendMore("plan");
         sendSocket.send(TypesPlanHelper.serialize(currentPlan, System.currentTimeMillis()));
-        logger.info("Current plan sent. plan version: {}", currentPlan.getVersion());
+        logger.debug("Current plan sent. plan version: {}", currentPlan.getVersion());
     }
 
     public static void main(String args[]) throws Exception {

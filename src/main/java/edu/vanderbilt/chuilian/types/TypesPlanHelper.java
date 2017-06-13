@@ -19,7 +19,7 @@ import java.util.Set;
 public class TypesPlanHelper {
     private static final Logger logger = LogManager.getLogger(TypesPlanHelper.class.getName());
     public static byte[] serialize(Plan plan, long timeTag) {
-        FlatBufferBuilder builder = new FlatBufferBuilder(1024);
+        FlatBufferBuilder builder = new FlatBufferBuilder(2048);
         ChannelMapping channelMapping = plan.getChannelMapping();
         int[] channelPlans = null;
         int channelMappingOffset = 0;
@@ -36,7 +36,7 @@ public class TypesPlanHelper {
                     availableBroker[counterBroker++] = builder.createString(curBrokerID);
                 }
                 int availableBrokerOffset = TypesChannelPlan.createAvailableBrokerVector(builder, availableBroker);
-                channelPlans[counterChannel] = TypesChannelPlan.createTypesChannelPlan(builder, topicOffset, strategyOffset, availableBrokerOffset);
+                channelPlans[counterChannel++] = TypesChannelPlan.createTypesChannelPlan(builder, topicOffset, strategyOffset, availableBrokerOffset);
             }
             channelMappingOffset = TypesPlan.createChannelMappingVector(builder, channelPlans);
         }
@@ -56,29 +56,43 @@ public class TypesPlanHelper {
     }
 
     public static Plan toPlan(TypesPlan typesPlan) {
+        //logger.info("here-1");
         ChannelMapping channelMapping = new ChannelMapping();
         long version = typesPlan.version();
         int numChannel = typesPlan.channelMappingLength();
+        //logger.info("here-2, numChannel: {}", numChannel);
         for (int i = 0; i < numChannel; i++) {
+            //logger.info("here-3-0");
             String topic = typesPlan.channelMapping(i).topic();
+            //logger.info("here-3-topic-{}", topic);
             String strategyString = typesPlan.channelMapping(i).strategy();
+            //logger.info("here-3-strategyString-{}", strategyString);
             Strategy strategy = null;
+            //logger.info("here-3-1, strategyString: {}", strategyString);
             switch (strategyString) {
                 case "HASH":
                     strategy = Strategy.HASH;
+                    break;
                 case "ALL_SUB":
                     strategy = Strategy.ALL_SUB;
+                    break;
                 case "ALL_PUB":
                     strategy = Strategy.ALL_PUB;
             }
+            //logger.info("here-3-2, strategy: {}", strategy.toString());
             Set<String> brokerIDs = new HashSet<>();
             int numBrokers = typesPlan.channelMapping(i).availableBrokerLength();
+            //logger.info("here-3-3, numBrokers: {}", numBrokers);
             for (int j = 0; j < numBrokers; j++) {
                 brokerIDs.add(typesPlan.channelMapping(i).availableBroker(j));
             }
+            //logger.info("here-3-4");
             ChannelPlan channelPlan = new ChannelPlan(topic, brokerIDs, strategy);
+            //logger.info("here-3-5");
             channelMapping.addNewChannelPlan(channelPlan);
+            //logger.info("here-3-6");
         }
+        //logger.info("here-4");
         return new Plan(version, channelMapping);
     }
 }

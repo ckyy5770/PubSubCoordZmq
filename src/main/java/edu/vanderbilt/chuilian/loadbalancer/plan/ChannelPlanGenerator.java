@@ -72,12 +72,15 @@ public class ChannelPlanGenerator {
             case ALL_SUB:
                 newPlan.setStrategy(Strategy.ALL_SUB);
                 newPlan.setAvailableBroker(brokerReportAnalyzer.getLeastBusyBrokers(numBrokers));
+                break;
             case ALL_PUB:
                 newPlan.setStrategy(Strategy.ALL_PUB);
                 newPlan.setAvailableBroker(brokerReportAnalyzer.getLeastBusyBrokers(numBrokers));
+                break;
             case HASH:
                 newPlan.setStrategy(Strategy.HASH);
                 newPlan.setAvailableBroker(consistentHashing(consistentHashingMap, topic));
+                break;
         }
         return newPlan;
     }

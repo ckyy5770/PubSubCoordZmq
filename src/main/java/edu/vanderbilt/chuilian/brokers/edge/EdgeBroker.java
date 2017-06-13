@@ -41,7 +41,7 @@ public class EdgeBroker {
         // make a new zookeeper connector
         this.zkConnect = new ZkConnect();
         // load balancer module: create a dispatcher
-        this.dispatcher = new Dispatcher(brokerID, zkConnect);
+        this.dispatcher = new Dispatcher(brokerID, zkConnect, channelMap);
         this.loadAnalyzer = new LoadAnalyzer(brokerID, zkConnect);
     }
 
@@ -97,6 +97,7 @@ public class EdgeBroker {
     private String getBrokerID() {
         return Long.toString(System.currentTimeMillis());
     }
+
 
     public static void main(String args[]) throws Exception {
         EdgeBroker broker = new EdgeBroker();

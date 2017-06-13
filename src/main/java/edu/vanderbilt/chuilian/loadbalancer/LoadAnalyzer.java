@@ -74,7 +74,7 @@ public class LoadAnalyzer {
 
             while (true) {
                 try {
-                    Thread.sleep(5000);
+                    Thread.sleep(1000);
                     report();
                     reset();
                 } catch (Exception e) {
@@ -96,7 +96,7 @@ public class LoadAnalyzer {
     private void report() {
         sendSocket.sendMore(brokerID);
         sendSocket.send(TypesBrokerReportHelper.serialize(brokerReport, System.currentTimeMillis()));
-        logger.info("load report sent from Load Analyzer of broker: {}", brokerID);
+        logger.debug("load report sent from Load Analyzer of broker: {}", brokerID);
     }
 
     private void reset() {

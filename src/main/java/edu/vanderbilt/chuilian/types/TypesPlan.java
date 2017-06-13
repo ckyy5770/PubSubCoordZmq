@@ -10,93 +10,93 @@ import java.nio.ByteOrder;
 
 @SuppressWarnings("unused")
 public final class TypesPlan extends Table {
-    public static TypesPlan getRootAsTypesPlan(ByteBuffer _bb) {
-        return getRootAsTypesPlan(_bb, new TypesPlan());
-    }
+  public static TypesPlan getRootAsTypesPlan(ByteBuffer _bb) {
+    return getRootAsTypesPlan(_bb, new TypesPlan());
+  }
 
-    public static TypesPlan getRootAsTypesPlan(ByteBuffer _bb, TypesPlan obj) {
-        _bb.order(ByteOrder.LITTLE_ENDIAN);
-        return (obj.__assign(_bb.getInt(_bb.position()) + _bb.position(), _bb));
-    }
+  public static TypesPlan getRootAsTypesPlan(ByteBuffer _bb, TypesPlan obj) {
+    _bb.order(ByteOrder.LITTLE_ENDIAN);
+    return (obj.__assign(_bb.getInt(_bb.position()) + _bb.position(), _bb));
+  }
 
-    public void __init(int _i, ByteBuffer _bb) {
-        bb_pos = _i;
-        bb = _bb;
-    }
+  public void __init(int _i, ByteBuffer _bb) {
+    bb_pos = _i;
+    bb = _bb;
+  }
 
-    public TypesPlan __assign(int _i, ByteBuffer _bb) {
-        __init(_i, _bb);
-        return this;
-    }
+  public TypesPlan __assign(int _i, ByteBuffer _bb) {
+    __init(_i, _bb);
+    return this;
+  }
 
-    public long timeTag() {
-        int o = __offset(4);
-        return o != 0 ? bb.getLong(o + bb_pos) : 0L;
-    }
+  public long timeTag() {
+    int o = __offset(4);
+    return o != 0 ? bb.getLong(o + bb_pos) : 0L;
+  }
 
-    public long version() {
-        int o = __offset(6);
-        return o != 0 ? bb.getLong(o + bb_pos) : 0L;
-    }
+  public long version() {
+    int o = __offset(6);
+    return o != 0 ? bb.getLong(o + bb_pos) : 0L;
+  }
 
-    public TypesChannelPlan channelMapping(int j) {
-        return channelMapping(new TypesChannelPlan(), j);
-    }
+  public TypesChannelPlan channelMapping(int j) {
+    return channelMapping(new TypesChannelPlan(), j);
+  }
 
-    public TypesChannelPlan channelMapping(TypesChannelPlan obj, int j) {
-        int o = __offset(8);
-        return o != 0 ? obj.__assign(__indirect(__vector(o) + j * 4), bb) : null;
-    }
+  public TypesChannelPlan channelMapping(TypesChannelPlan obj, int j) {
+    int o = __offset(8);
+    return o != 0 ? obj.__assign(__indirect(__vector(o) + j * 4), bb) : null;
+  }
 
-    public int channelMappingLength() {
-        int o = __offset(8);
-        return o != 0 ? __vector_len(o) : 0;
-    }
+  public int channelMappingLength() {
+    int o = __offset(8);
+    return o != 0 ? __vector_len(o) : 0;
+  }
 
-    public static int createTypesPlan(FlatBufferBuilder builder,
-                                      long timeTag,
-                                      long version,
-                                      int channelMappingOffset) {
-        builder.startObject(3);
-        TypesPlan.addVersion(builder, version);
-        TypesPlan.addTimeTag(builder, timeTag);
-        TypesPlan.addChannelMapping(builder, channelMappingOffset);
-        return TypesPlan.endTypesPlan(builder);
-    }
+  public static int createTypesPlan(FlatBufferBuilder builder,
+                                    long timeTag,
+                                    long version,
+                                    int channelMappingOffset) {
+    builder.startObject(3);
+    TypesPlan.addVersion(builder, version);
+    TypesPlan.addTimeTag(builder, timeTag);
+    TypesPlan.addChannelMapping(builder, channelMappingOffset);
+    return TypesPlan.endTypesPlan(builder);
+  }
 
-    public static void startTypesPlan(FlatBufferBuilder builder) {
-        builder.startObject(3);
-    }
+  public static void startTypesPlan(FlatBufferBuilder builder) {
+    builder.startObject(3);
+  }
 
-    public static void addTimeTag(FlatBufferBuilder builder, long timeTag) {
-        builder.addLong(0, timeTag, 0L);
-    }
+  public static void addTimeTag(FlatBufferBuilder builder, long timeTag) {
+    builder.addLong(0, timeTag, 0L);
+  }
 
-    public static void addVersion(FlatBufferBuilder builder, long version) {
-        builder.addLong(1, version, 0L);
-    }
+  public static void addVersion(FlatBufferBuilder builder, long version) {
+    builder.addLong(1, version, 0L);
+  }
 
-    public static void addChannelMapping(FlatBufferBuilder builder, int channelMappingOffset) {
-        builder.addOffset(2, channelMappingOffset, 0);
-    }
+  public static void addChannelMapping(FlatBufferBuilder builder, int channelMappingOffset) {
+    builder.addOffset(2, channelMappingOffset, 0);
+  }
 
-    public static int createChannelMappingVector(FlatBufferBuilder builder, int[] data) {
-        builder.startVector(4, data.length, 4);
-        for (int i = data.length - 1; i >= 0; i--) builder.addOffset(data[i]);
-        return builder.endVector();
-    }
+  public static int createChannelMappingVector(FlatBufferBuilder builder, int[] data) {
+    builder.startVector(4, data.length, 4);
+    for (int i = data.length - 1; i >= 0; i--) builder.addOffset(data[i]);
+    return builder.endVector();
+  }
 
-    public static void startChannelMappingVector(FlatBufferBuilder builder, int numElems) {
-        builder.startVector(4, numElems, 4);
-    }
+  public static void startChannelMappingVector(FlatBufferBuilder builder, int numElems) {
+    builder.startVector(4, numElems, 4);
+  }
 
-    public static int endTypesPlan(FlatBufferBuilder builder) {
-        int o = builder.endObject();
-        return o;
-    }
+  public static int endTypesPlan(FlatBufferBuilder builder) {
+    int o = builder.endObject();
+    return o;
+  }
 
-    public static void finishTypesPlanBuffer(FlatBufferBuilder builder, int offset) {
-        builder.finish(offset);
-    }
+  public static void finishTypesPlanBuffer(FlatBufferBuilder builder, int offset) {
+    builder.finish(offset);
+  }
 }
 

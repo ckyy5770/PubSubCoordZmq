@@ -72,7 +72,7 @@ public class ChannelMap {
      *
      * @return null if topic not existed
      */
-    public MsgChannel getMain() {
+    public MainChannel getMain() {
         return this.mainChannel;
     }
 
@@ -83,6 +83,17 @@ public class ChannelMap {
      */
     public Set<Map.Entry<String, MsgChannel>> entrySet() {
         return map.entrySet();
+    }
+
+
+    /**
+     * see if the map contains specific key
+     *
+     * @param key
+     * @return
+     */
+    public boolean containsKey(String key) {
+        return map.containsKey(key);
     }
 
 }

@@ -130,10 +130,14 @@ public class MsgChannel {
         */
     }
 
-    public void stop() throws Exception {
+    public void stop() {
         logger.info("Closing channel. topic: {}", topic);
         // unregister itself from zookeeper server
-        zkConnect.unregisterChannel(topic);
+        try {
+            zkConnect.unregisterChannel(topic);
+        } catch (Exception e) {
+            logger.error("can not unregister this channel from zookeeper server: {}, error message: {}", topic, e.getMessage());
+        }
         // stop worker thread
         workerFuture.cancel(false);
         // shutdown zmq socket and context
@@ -174,7 +178,7 @@ public class MsgChannel {
         loadAnalyzer.getBrokerReport().updateBytes(msgTopic, msgContent.length);
         loadAnalyzer.getBrokerReport().updateMsgs(msgTopic, 1);
         loadAnalyzer.getBrokerReport().updatePublications(msgTopic, 1);
-        logger.info("Message Sent from Channel ({}) Topic: {} ID: {}", topic, msgTopic, DataSampleHelper.deserialize(msgContent).sampleId());
+        logger.debug("Message Sent from Channel ({}) Topic: {} ID: {}", topic, msgTopic, DataSampleHelper.deserialize(msgContent).sampleId());
     }
 
 
