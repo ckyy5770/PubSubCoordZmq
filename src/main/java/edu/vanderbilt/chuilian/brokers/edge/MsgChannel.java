@@ -134,7 +134,7 @@ public class MsgChannel {
         logger.info("Closing channel. topic: {}", topic);
         // unregister itself from zookeeper server
         try {
-            zkConnect.unregisterChannel(topic);
+            zkConnect.unregisterChannel(topic, ip + ":" + Integer.toString(recPort), ip + ":" + Integer.toString(sendPort));
         } catch (Exception e) {
             logger.error("can not unregister this channel from zookeeper server: {}, error message: {}", topic, e.getMessage());
         }

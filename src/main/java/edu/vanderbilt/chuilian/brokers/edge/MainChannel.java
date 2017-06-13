@@ -61,7 +61,7 @@ public class MainChannel extends MsgChannel {
         logger.info("Closing main channel.");
         // unregister itself from zookeeper server
         try {
-            zkConnect.unregisterDefaultChannel();
+            zkConnect.unregisterDefaultChannel(ip + ":" + Integer.toString(recPort), ip + ":" + Integer.toString(sendPort));
         } catch (Exception e) {
             logger.error("cannot stop the default channel. error message:{}", e.getMessage());
         }

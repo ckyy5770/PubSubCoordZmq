@@ -2,7 +2,7 @@ package edu.vanderbilt.chuilian.util;
 
 import java.util.LinkedList;
 import java.util.Queue;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ThreadLocalRandom;
 
 /**
  * Created by Killian on 5/23/17.
@@ -26,7 +26,8 @@ public class PortList {
      * @return null if no ports avaible
      */
     public int get(){
-        return list.poll();
+        return ThreadLocalRandom.current().nextInt(5000, 25000 + 1);
+        //return list.poll();
     }
 
     /**

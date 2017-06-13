@@ -49,8 +49,6 @@ public class ZkConnect {
      */
     public void resetServer() throws Exception {
         if (existsNode("/topics")) this.recursiveDelete("/topics");
-        // "null" means the default channel address is not set yet
-        this.createNode("/topics", "null".getBytes());
         if (existsNode("/balancer")) this.recursiveDelete("/balancer");
         // "null" means the load balancer address is not set yet
         this.createNode("/balancer", "null".getBytes());
@@ -93,18 +91,21 @@ public class ZkConnect {
     public void registerChannel(String topic, String recAddress, String sendAddress) throws Exception {
         // if there is no /topics yet, throw a exception, this will never happen in a well-designed system
         if (!existsNode("/topics")) throw new IllegalStateException("/topics node does not exist");
-        // if there is already a channel corresponding to this topic, throw a exception
-        if (existsNode("/topics/" + topic))
-            throw new IllegalStateException("try to register a topic that already exists on zookeeper. topic: " + topic);
-        // here everything is fine, we create a new node with "null" data
-        createNode("/topics/" + topic, "null".getBytes());
-        // Create two child node under this node: pub and sub
-        // and put receiverFromLB address and sender address in them separately
-        createNode("/topics/" + topic + "/pub", recAddress.getBytes());
-        createNode("/topics/" + topic + "/sub", sendAddress.getBytes());
+        if (!existsNode("/topics/" + topic)) {
+            // if the node doesn't exist, create a new one.
+            createNode("/topics/" + topic, "null".getBytes());
+            // Create two child node under this node: pub and sub
+            // and put receiverFromLB address and sender address in them separately
+            createNode("/topics/" + topic + "/pub", recAddress.getBytes());
+            createNode("/topics/" + topic + "/sub", sendAddress.getBytes());
+        } else {
+            // here the node already exist, add this channel to the node
+            addDataToNode("/topics/" + topic + "/pub", recAddress.getBytes());
+            addDataToNode("/topics/" + topic + "/sub", sendAddress.getBytes());
+        }
     }
 
-    public void unregisterChannel(String topic) throws Exception {
+    public void unregisterChannel(String topic, String recAddress, String sendAddress) throws Exception {
         // if the channel does not exist on zookeeper, throw an exception
         if (!existsNode("/topics/" + topic))
             throw new IllegalStateException("/topics/" + topic + " node does not exist");
@@ -112,7 +113,8 @@ public class ZkConnect {
         if (anyPublisher(topic) || anySubsciber(topic))
             throw new IllegalStateException("/topics/" + topic + " still has alive pub/sub!");
         // now delete this channel
-        recursiveDelete("/topics/" + topic);
+        deleteDataFromNode("/topics/" + topic + "/pub", recAddress.getBytes());
+        deleteDataFromNode("/topics/" + topic + "/sub", sendAddress.getBytes());
     }
 
     /**
@@ -160,11 +162,15 @@ public class ZkConnect {
      * @throws Exception
      */
     public void registerDefaultChannel(String recAddress, String sendAddress) throws Exception {
-        // if there is no /topics yet, throw a exception, this will never happen in a well-designed system
-        if (!existsNode("/topics")) throw new IllegalStateException("/topics node does not exist");
-        // here everything is fine, we update node data
-        String data = recAddress + "\n" + sendAddress;
-        updateNode("/topics", data.getBytes());
+        // if there is no /topics yet, create a new one
+        if (!existsNode("/topics")) {
+            String data = recAddress + "," + sendAddress + "\n";
+            createNode("/topics", data.getBytes());
+        } else {
+            // here /topics already exists
+            String data = recAddress + "," + sendAddress + "\n";
+            addDataToNode("/topics", data.getBytes());
+        }
     }
 
     /**
@@ -172,11 +178,11 @@ public class ZkConnect {
      *
      * @throws Exception
      */
-    public void unregisterDefaultChannel() throws Exception {
+    public void unregisterDefaultChannel(String recAddress, String sendAddress) throws Exception {
         // if there is no /topics yet, throw a exception, this will never happen in a well-designed system
         if (!existsNode("/topics")) throw new IllegalStateException("/topics node does not exist");
-        // here we delete default channel by updating /topics to "null"
-        updateNode("/topics", "null".getBytes());
+        String oldData = recAddress + "," + sendAddress;
+        deleteDataFromNode("/topics", oldData.getBytes());
     }
 
     /**
@@ -257,7 +263,7 @@ public class ZkConnect {
         if (!existsNode("/balancer")) throw new IllegalStateException("/balancer node does not exist");
         String data = recAddress + "\n" + sendAddress;
         // make a new /balancer with this information
-        updateNode("/balancer", data.getBytes());
+        setDataToNode("/balancer", data.getBytes());
     }
 
     /**
@@ -269,7 +275,7 @@ public class ZkConnect {
         // if there is no /balancer yet, throw a exception, this will never happen in a well-designed system
         if (!existsNode("/balancer")) throw new IllegalStateException("/balancer node does not exist");
         // here we delete default channel by updating /topics to "null"
-        updateNode("/balancer", "null".getBytes());
+        setDataToNode("/balancer", "null".getBytes());
     }
 
     /**
@@ -329,12 +335,31 @@ public class ZkConnect {
         zk.create(path, data, Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
     }
 
-    public void updateNode(String path, byte[] data) throws Exception {
+    public void setDataToNode(String path, byte[] data) throws Exception {
         zk.setData(path, data, zk.exists(path, true).getVersion());
+    }
+
+    public void addDataToNode(String path, byte[] data) throws Exception {
+        byte[] oldData = zk.getData(path, true, null);
+        byte[] newData = (new String(oldData) + new String(data)).getBytes();
+        setDataToNode(path, newData);
     }
 
     public void deleteNode(String path) throws Exception {
         zk.delete(path, zk.exists(path, true).getVersion());
+    }
+
+    public void deleteDataFromNode(String path, byte[] data) throws Exception {
+        byte[] oldData = zk.getData(path, true, null);
+        String target = new String(data);
+        String oldString = new String(oldData);
+        String[] addresses = oldString.split("\n");
+        StringBuilder newString = new StringBuilder();
+        for (String address : addresses) {
+            if (!address.equals(target)) newString.append(address + "\n");
+        }
+        byte[] newData = newString.toString().getBytes();
+        setDataToNode(path, newData);
     }
 
 
@@ -354,7 +379,7 @@ public class ZkConnect {
         }
 
         System.out.println("GetData after setting");
-        connector.updateNode(newNode, "Modified data".getBytes());
+        connector.setDataToNode(newNode, "Modified data".getBytes());
         data = zk.getData(newNode, true, zk.exists(newNode, true));
         for (byte dataPoint : data) {
             System.out.print((char) dataPoint);

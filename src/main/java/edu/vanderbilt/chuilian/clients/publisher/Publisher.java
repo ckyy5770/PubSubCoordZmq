@@ -7,6 +7,7 @@ import edu.vanderbilt.chuilian.util.ZkConnect;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 
 
@@ -108,23 +109,31 @@ public class Publisher {
 	 * @param topic
 	 * @return null if can not get it
 	 */
-	private String getAddress(String topic) throws Exception {
-		String address = zkConnect.getNodeData("/topics/" + topic + "/pub");
-		return address;
-	}
+    // TODO: 6/13/17 randomly picked from current available brokers for now, this should be changed in the next step.
+    private String getAddress(String topic) throws Exception {
+        String data = zkConnect.getNodeData("/topics/" + topic + "/pub");
+        if (data == null) return null;
+        String[] addresses = data.split("\n");
+        if (addresses[0].length() == 0 || addresses[0].equals("null")) return null;
+        int numOfAddresses = addresses.length;
+        int randomNum = ThreadLocalRandom.current().nextInt(0, numOfAddresses);
+        return addresses[randomNum];
+    }
 
 	/**
-	 * get the default receiver address from zookeeper server
-	 *
+     * get one default receiver address (randomly picked from current available brokers) from zookeeper server
+     *
 	 * @return
 	 */
 	private String getDefaultAddress() throws Exception {
 		String data = zkConnect.getNodeData("/topics");
 		if (data == null) return null;
 		String[] addresses = data.split("\n");
-		if (addresses[0] == "null") return null;
-		return addresses[0];
-	}
+        if (addresses[0].length() == 0 || addresses[0].equals("null")) return null;
+        int numOfAddresses = addresses.length;
+        int randomNum = ThreadLocalRandom.current().nextInt(0, numOfAddresses);
+        return addresses[randomNum].split(",")[0];
+    }
 
 
 	public static void main(String args[]) throws Exception {

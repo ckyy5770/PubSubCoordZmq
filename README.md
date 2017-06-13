@@ -114,7 +114,7 @@ root:
 * children: topics 
 
 topics: 
-* data: default channel address, including receiver port and sender port, first line in the data file is receiver address and the second line is sender address.
+* data: default channel address, including receiver port and sender port, format: "broker1_receiver_address,broker1_sender_address\nbroker2_receiver_address,broker2_sender_address\n"
 * children: topic_A, topic_B, ...
 
 topic_A:
@@ -122,8 +122,9 @@ topic_A:
 * children: always has two children, pub, sub.
 
 topic_A/pub:
-* data: must always be valid channel receiver address of topic_A
+* data: must always be valid channel receiver addresses of topic_A
 * children: pub1, pub2, pub3...
+Note: since channel can be replicated, there might be multiple receiver addresses or sender addresses on topics/sometopic/pub(or sub).
 
 topic_A/pub/pub1:
 * data: must always be valid ip address of pub1.
