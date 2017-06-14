@@ -20,7 +20,9 @@ When a message channel initializes and starts, it will require two available por
 
 Then it subscribe the specific topic it interested in and register itself to the zookeeper server by making a new node /topics/sometopic, and two subnode /sub, /pub and write its sender/receiver address information to them respectively. 
 
-Then it will start two threads, one for receiving/sending messages, the other for monitoring znode information, if there is no publisher/subscriber connect to this channel, it will be closed by this monitor thread.
+Then it will start one thread for receiving/sending messages.
+
+(TBD) Message channel should also be able to notify clients that "there is a channel plan change, please reconnect to correct channel for send/receive publications."
 
 ## Default Channel (Main Channel)
 
@@ -31,10 +33,9 @@ Default channel is a message channel that is used for transferring messages of n
 Default is essentially a message channel with some modifications including:
 
 1. there should be one and only one default channel, and it should be created when the broker starts.
-2. default channel will never be automatically closed, hence don't need a monitor thread.
-3. in stead of receiving messages from one specific topic like a normal message channel, it will receive messages from all topics.
-4. the default channel will be taking charge of making new message channels: for every message received, the main channel will look up the channel map, see if there is a channel for it, if there is not, make a new one.
-5. every message should be sent to default channel if zookeeper server doesn't have a registered channel for it.
+2. in stead of receiving messages from one specific topic like a normal message channel, it will receive messages from all topics.
+3. the default channel will be taking charge of registering new topics to load balancer: for every message received, the main channel will look up the current load plan, see if there is a channel for it, if there is not, report it. 
+4. if a publisher do not have a sender for a specific topic, it should send the message to default channel of a random broker to get channel registered on load balancer.
 
 ## Publisher
 
@@ -55,6 +56,8 @@ Data sender is a object that sends messages of one topic, and it should connect 
 When the data sender starts, it will connect to given receiver address and register itself on the zookeeper server by creating a node under /sometopic/pub, then it will register a local message buffer for it, and start a thread that keep checking and sending messages from the buffer. (Note the sender provides a send(message) method for publisher to send messages to its internal message buffer.)
 
 Note: once started, the sender will not automatically stopped when there are no messages in its sending buffer, it can only be removed by explicitly by publisher calling sender.stop();
+
+(TBD) data sender should also has a thread to receive notifications from the broker, if there is a channel plan change for this topic, it should reconnect itself to the new correct channel address.
 
 ## Default Sender
 Every publisher born with a default sender, which directly connects to the default message channel of the broker. When there is not a message channel for one specific topic, the message will be sent through default sender.
@@ -81,6 +84,8 @@ If not, the subscriber will first, subscribe the topic at default receiver, then
 
 ## Data Receiver
 Data receiver is a object that receives messages of one topic, and it should connect to the specific channel in broker for that topic.
+
+(TBD) data receiver should also has a thread to receive notifications from the broker, if there is a channel plan change for this topic, it should reconnect itself to the new correct channel address.
 
 ### Work flow
 When the data receiver starts, it will connect to given sender address and register itself on the zookeeper server by creating a node under /sometopic/sub, then it will register a local message buffer for it, and start a thread that keep receiving and storing messages to the buffer.
@@ -136,15 +141,17 @@ balancer:
 
 ### WorkFlow
 
-When the broker starts, it will initialize a default channel with a receiver port and a sender port associate with it. Then it will go to zookeeper server, wipe out all data in the /topics node alone with all sub-nodes if needed, then rewrite its current sender and receiver address to it. Then it claims the broker started.
+When load balancer starts, it will register itself on /loadbalancer.
+
+When a broker starts, it will initialize a default channel with a receiver port and a sender port associate with it. Then it will go to zookeeper server, register the default channel on /topics.
 
 Publisher will maintain a list in its local machine that says which topic should send to which address. Before it send something, it will first look up the local list, try to figure out which address should it send the message to, if not found in local list, it will go to zookeeper server and try to find the receiver port under /topics/sometopic, if sometopic does not exist, it just go to /topic and try to send the message to the default receiver address. If there is not default receiver address, that means the broker is not started yet or something wrong with the zookeeper sever, it should just wait for certain amount of time and try again. If the publisher successfully get the receiver address for that topic, it will add its address under /topic/sometopic/pub, then add the receiver address to local list.
 
-When a new topic comes into the default channel, the main channel thread will first check if this is a unregistered topic, then if it is, make a new channel (in new thread) for it. When starting the channel, the channel thread will first go to zookeeper server, make a new topic node under /topics, and make two node /pub /sub, write its receiver address and sender address to the corresponding node.
+When starting a channel, the channel thread will first go to zookeeper server, register itself on /topics/sometopic/
 
 Subscriber will have similar logic as the publisher.
 
-When the broker stops, it should delete all topics and data under /topics, and all data in /topics.
+When the load balancer stops, it should delete all in /
 
 ### Data format
 
@@ -167,6 +174,30 @@ The load balancing system is inspired by [Dynamoth](http://ieeexplore.ieee.org/d
 ### Load Balancing Overview
 
 Each edge broker will be equipped with a Local Load Analyzer(LLA) and a Dispatcher(D). LLA will send a local load report of the broker every 1 secs, to the Load Balancer(LB). Then Load Balancer will gather all current load information for each edge broker, then decide whether it should change the Load Plan. If a new plan is generated, it will be sent to dispatchers residing in each edge broker.
+
+### Load Balancing Workflow
+
+#### Load balancer:
+
+* broker closing and opening channels are under the instruction of load balancer. More specifically, load balancer will keep sending latest load plan to each broker, and brokers should open/close channels strictly following the plan.
+
+* receiver thread (keep running): keep receiving reports from brokers and update the broker load report buffer. also register new coming brokers.
+
+* processor thread (run every x secs): take a snapshot of latest reports from the broker load report buffer, initialize an analyzer for this version of report. Generate channel-level plan, system-level plan using the analyzer. Apply two level plans (if any) to generate new channel mapping. Send new plan to dispatchers residing in each broker.
+
+* first message from broker: after a new broker starts, it first send a message to register itself at load balancer. 
+
+* (TBD) last message from broker: when a broker stops normally, it will send a message to notify load balancer to unregister itself.
+
+* channel register: when a broker's default channel received a message of brand new topic, it will report the topic to load balancer, the load balancer should double-check if this is a new topic, then register the topic, and generate a proper mapping for it, then disseminate the new plan to brokers, some brokers will open new channel for it.
+
+* (TBD) unregister channel: load balancer will periodically check if there are topics that don't have any subs/pubs and unregister them as needed.
+
+* (TBD) unregister broker: load balancer will periodically check if there are broker that don't update reports for a long time and unregister them as needed. 
+
+#### Reconfiguration (TBD):
+
+* each publisher/subscriber has a partial plan.
 
 ### Plan
 
