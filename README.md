@@ -78,7 +78,7 @@ Data receiver is a object that receives messages of one topic, and it should con
 
 * When the data receiver starts, it will connect to given sender address and register itself on the zookeeper server by creating a node under /sometopic/sub, then it will register a local message buffer for it, and start a thread that keep receiving and storing messages to the buffer.
 
-## Default Receiver
+### Default Receiver
 
 Every publisher born with a default receiver, which directly connects to the default message channel of the broker. It behaves exactly like a normal receiver except:
 
@@ -146,17 +146,13 @@ When the load balancer stops, it should delete all in /
 
 ### Data format
 
-data storing at "/topics" should follow following format:
+* all: "null" --> nodes with no information or initialization a node with empty information
 
-1. "null" --> this node should be initialized with a string "null", which indicates no valid information yet
+* /topic: "broker1_receiver_address,broker1_sender_address\nbroker2_receiver_address,broker2_sender_address\n"
 
-2. "IP_ADDRESS:PORT_NUMBER\nIP_ADDRESS:PORT_NUMBER" this information should always added by the broker's message channel. When channel established, the channel thread should go to zookeeper server update its address under proper node. The first line should be the channel's receiver address, and the second line should be the channel's sender address. 
+* /topics/sometopic/pub: "broker1_sometopic_receiver_address\nbroker2_sometopic_receiver_address\n"
 
-data storing at "/topics/sometopic" must be "null"
-
-data storing at "/topics/sometopic/pub" or "/topics/sometopic/sub" must be:
-
-"IP_ADDRESS:PORT_NUMBER" which indicates where publisher/subscriber should connect to.
+* /topics/sometopic/sub: "broker1_sometopic_sender_address\nbroker2_sometopic_sender_address\n"
 
 ## Load Balancing
 
@@ -212,65 +208,10 @@ Default strategy:
 
 * Low-load rebalancing: If the global load ratio is below a given threshold, then one or more servers can be freed. Channel from the lowest loaded server are slowly migrated to the other servers as long as the load on the other server stays below a given limit.
 
-### Plan data structure
-
-channel-level plan:
-
-map:
-
-* key: topic
-
-* value: channelPlan
-
-```
-channelPlan{
-    topic: string;
-    availableBroker: [string(brokerID)];
-    strategy:{ALL_SUB, ALL_PUB, HASH};
-}
-```
-
-system-level plan:
-
-```
-systemPlan{
-    highLoadPlans:[highLoadPlan];
-    lowLoadPlans:[lowLoadPlan];
-}
-
-highLoadPlan{
-    from: string(brokerID);
-    to: string(brokerID);
-    channels: string(topic);
-}
-
-lowLoadPlan{
-    from: string(brokerID);
-    to: string(brokerID);
-    channels: string(topic);
-}
-```
-
 ## Serialization/Deserialization
 using [flatbuffer](https://google.github.io/flatbuffers/index.html)
 
-### DataSample schema
-```
-table DataSample {
-  sampleId:int;
-  regionId:int;
-  runId:int;
-  priority:int;
-  tsMilisec:ulong;
-  payload:[int];
-}
-```
-
-### LoadReport schema
-TBD  
-
-### BalancerPlan schema
-TBD
+see /dataSchema
 
 ## Test
 
@@ -278,4 +219,4 @@ TBD
 
 * compile EdgeBroker, Publisher, Subscriber.(need libzmq and zookeeper library)
 
-* run EdgeBroker first, wait for system started (about 2 secs), run Publisher, wait for channel registered (about 2 secs), run Subscriber.
+* run LoadBalancer first, wait for system started (about 2 secs), run two EdgeBroker, run Publisher, run Subscriber.
