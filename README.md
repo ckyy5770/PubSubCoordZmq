@@ -217,6 +217,6 @@ see /dataSchema
 
 * config zookeeper server
 
-* compile EdgeBroker, Publisher, Subscriber.(need libzmq and zookeeper library)
+* compile EdgeBroker, Publisher, Subscriber. (need libzmq and zookeeper library)
 
 * run LoadBalancer first, wait for system started (about 2 secs), run two EdgeBroker, run Publisher, run Subscriber.
