@@ -95,7 +95,7 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="EdgeBroker.java" pinned="false" current-in-tab="true">
+      <file leaf-file-name="EdgeBroker.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main/java/edu/vanderbilt/chuilian/brokers/edge/EdgeBroker.java">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="265">
@@ -110,19 +110,17 @@
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="358">
               <caret line="37" column="5" lean-forward="true" selection-start-line="37" selection-start-column="5" selection-end-line="37" selection-end-column="5" />
-              <folding>
-                <element signature="imports" expanded="false" />
-              </folding>
+              <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="README.md" pinned="false" current-in-tab="false">
+      <file leaf-file-name="README.md" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/README.md">
           <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
             <state split_layout="FIRST">
-              <first_editor relative-caret-position="-999">
-                <caret line="149" column="116" lean-forward="false" selection-start-line="149" selection-start-column="116" selection-end-line="149" selection-end-column="116" />
+              <first_editor relative-caret-position="296">
+                <caret line="87" column="0" lean-forward="true" selection-start-line="87" selection-start-column="0" selection-end-line="87" selection-end-column="0" />
                 <folding />
               </first_editor>
               <second_editor />
@@ -206,8 +204,8 @@
         <option value="$PROJECT_DIR$/src/main/java/edu/vanderbilt/chuilian/clients/publisher/Publisher.java" />
         <option value="$PROJECT_DIR$/src/main/java/edu/vanderbilt/chuilian/loadbalancer/ClientPlanner.java" />
         <option value="$PROJECT_DIR$/src/main/java/edu/vanderbilt/chuilian/loadbalancer/ClientPlanKeeper.java" />
-        <option value="$PROJECT_DIR$/README.md" />
         <option value="$PROJECT_DIR$/src/main/java/edu/vanderbilt/chuilian/brokers/edge/EdgeBroker.java" />
+        <option value="$PROJECT_DIR$/README.md" />
       </list>
     </option>
   </component>
@@ -1093,7 +1091,7 @@
       <workItem from="1496687911674" duration="11362000" />
       <workItem from="1496759835512" duration="18688000" />
       <workItem from="1496850681518" duration="15222000" />
-      <workItem from="1496935314136" duration="60335000" />
+      <workItem from="1496935314136" duration="60753000" />
     </task>
     <task id="LOCAL-00001" summary="update readme and some comments">
       <created>1495643793918</created>
@@ -1410,11 +1408,18 @@
       <option name="project" value="LOCAL" />
       <updated>1497391782881</updated>
     </task>
-    <option name="localTasksCounter" value="46" />
+    <task id="LOCAL-00046" summary="update readme">
+      <created>1497462317065</created>
+      <option name="number" value="00046" />
+      <option name="presentableId" value="LOCAL-00046" />
+      <option name="project" value="LOCAL" />
+      <updated>1497462317065</updated>
+    </task>
+    <option name="localTasksCounter" value="47" />
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="274832000" />
+    <option name="totallyTimeSpent" value="275250000" />
   </component>
   <component name="TodoView">
     <todo-panel id="selected-file">
@@ -1512,7 +1517,6 @@
     <MESSAGE value="start implementing load balancing. add local load analyzer, add new data schema for analyzer reporting load info, add serialization/deserialization support for this new schema" />
     <MESSAGE value="add load balancer, add new data schema BalancerPlan for balancer to send new plan info to dispatchers, note now the plan info includes nothing but a simple time tag. Next: add dispatcher. Then add balancing logic and fill balancer plan schema." />
     <MESSAGE value="add dispatcher. note now the plan info includes nothing but a simple time tag. Next: test communication between local load analyzer, balancer and dispatcher. Then add balancing logic and fill balancer plan schema." />
-    <MESSAGE value="update readme" />
     <MESSAGE value="update gitignore" />
     <MESSAGE value="complete plan data structure" />
     <MESSAGE value="start writing core load balancing algorithms. many report structures need to be change a lot." />
@@ -1526,7 +1530,8 @@
     <MESSAGE value="start adding load balancing module to system, debugging. next: broker add/delete channel according to the plan it received." />
     <MESSAGE value="start adding load balancing module to system, broker add/delete channel according to the plan it received, tested. next: change znode structure to support multiple brokers. Then change client get address logic accordingly." />
     <MESSAGE value="changed znode structure to support multiple brokers, changed publisher get address logic, tested. next: add partial plan to clients. subscriber get address logic, get address logic change according to strategy." />
-    <option name="LAST_COMMIT_MESSAGE" value="changed znode structure to support multiple brokers, changed publisher get address logic, tested. next: add partial plan to clients. subscriber get address logic, get address logic change according to strategy." />
+    <MESSAGE value="update readme" />
+    <option name="LAST_COMMIT_MESSAGE" value="update readme" />
     <option name="OPTIMIZE_IMPORTS_BEFORE_PROJECT_COMMIT" value="true" />
     <option name="REFORMAT_BEFORE_PROJECT_COMMIT" value="true" />
   </component>
@@ -1893,16 +1898,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/edu/vanderbilt/chuilian/util/PortList.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="358">
-          <caret line="37" column="5" lean-forward="true" selection-start-line="37" selection-start-column="5" selection-end-line="37" selection-end-column="5" />
-          <folding>
-            <element signature="imports" expanded="false" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/edu/vanderbilt/chuilian/util/ZkConnect.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="125">
@@ -1967,22 +1962,30 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/README.md">
-      <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
-        <state split_layout="FIRST">
-          <first_editor relative-caret-position="-999">
-            <caret line="149" column="116" lean-forward="false" selection-start-line="149" selection-start-column="116" selection-end-line="149" selection-end-column="116" />
-            <folding />
-          </first_editor>
-          <second_editor />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/edu/vanderbilt/chuilian/brokers/edge/EdgeBroker.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="265">
           <caret line="103" column="23" lean-forward="true" selection-start-line="103" selection-start-column="23" selection-end-line="103" selection-end-column="23" />
           <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/edu/vanderbilt/chuilian/util/PortList.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="358">
+          <caret line="37" column="5" lean-forward="true" selection-start-line="37" selection-start-column="5" selection-end-line="37" selection-end-column="5" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/README.md">
+      <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
+        <state split_layout="FIRST">
+          <first_editor relative-caret-position="296">
+            <caret line="87" column="0" lean-forward="true" selection-start-line="87" selection-start-column="0" selection-end-line="87" selection-end-column="0" />
+            <folding />
+          </first_editor>
+          <second_editor />
         </state>
       </provider>
     </entry>
