@@ -13,7 +13,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 
 /**
- * topic --> corresponding data receiverFromLB ref
+ * topic --> corresponding data receiver ref
  */
 public class TopicReceiverMap {
     final DefaultReceiver defaultReceiver;
@@ -26,7 +26,7 @@ public class TopicReceiverMap {
     }
 
     /**
-     * get corresponding data receiverFromLB for given topic
+     * get corresponding data receiver for given topic
      *
      * @param topic
      * @return null if no such data receiverFromLB exist
@@ -39,7 +39,7 @@ public class TopicReceiverMap {
      * register a topic with given sender address, this will register the topic to the TopicReceiverMap and return the reference to newly created DataReceiver
      *
      * @param topic
-     * @return return newly created receiverFromLB, if the receiverFromLB for the topic already exist, return null
+     * @return return newly created receiver, if the receiverFromLB for the topic already exist, return null
      */
     public DataReceiver register(String topic, String address, MsgBufferMap msgBufferMap, ExecutorService executor, ZkConnect zkConnect) {
         if (map.containsKey(topic)) return null;
@@ -51,7 +51,7 @@ public class TopicReceiverMap {
     }
 
     /**
-     * delete a topic along with the receiverFromLB that corresponding to it, before delete the receiverFromLB, stop it first.
+     * delete a topic along with the receiver that corresponding to it, before delete the receiverFromLB, stop it first.
      *
      * @param topic
      * @return the previous receiverFromLB associated with topic, or null if there was no mapping for topic
@@ -61,9 +61,9 @@ public class TopicReceiverMap {
     }
 
     /**
-     * get default data receiverFromLB
+     * get default data receiver
      *
-     * @return default data receiverFromLB should always exist as long as broker and publisher started properly.
+     * @return default data receiver should always exist as long as broker and publisher started properly.
      */
     public DefaultReceiver getDefault() {
         return this.defaultReceiver;

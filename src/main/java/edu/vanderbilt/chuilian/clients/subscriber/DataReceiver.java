@@ -47,7 +47,7 @@ public class DataReceiver {
         this.executor = executor;
         this.zkConnect = zkConnect;
         this.subID = null;
-        logger.info("New receiverFromLB object created, topic: {} source: {}", topic, address);
+        logger.info("New receiver object created, topic: {} source: {}", topic, address);
     }
 
     public void start() throws Exception {
@@ -64,7 +64,7 @@ public class DataReceiver {
         subID = zkConnect.registerSub(topic, ip);
         // execute receiverFromLB thread for this topic
         future = executor.submit(() -> {
-            logger.info("New receiverFromLB thread started, topic: {}", topic);
+            logger.info("New receiver thread started, topic: {}", topic);
             while (true) {
                 this.receiver();
             }

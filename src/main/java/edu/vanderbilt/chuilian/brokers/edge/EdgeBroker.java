@@ -102,7 +102,7 @@ public class EdgeBroker {
     public static void main(String args[]) throws Exception {
         EdgeBroker broker = new EdgeBroker();
         broker.start();
-        //Thread.sleep(80000);
+        //Thread.sleep(10000);
         //broker.stop();
     }
 

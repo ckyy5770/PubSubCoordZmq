@@ -33,7 +33,7 @@ public class DefaultReceiver extends DataReceiver {
         }
         // execute receiverFromLB thread for this topic
         future = executor.submit(() -> {
-            logger.info("New default receiverFromLB thread started.");
+            logger.info("New default receiver thread started.");
             while (true) {
                 receiver();
             }
@@ -53,13 +53,13 @@ public class DefaultReceiver extends DataReceiver {
     @Override
     // will not unregister itself from zookeeper server since it never does
     public MsgBuffer stop() throws Exception {
-        logger.info("Stopping default receiverFromLB.");
+        logger.info("Stopping default receiver.");
         // stop the receiverFromLB thread
         future.cancel(false);
         // shutdown zmq socket and context
         recSocket.close();
         recContext.term();
-        logger.info("Default receiverFromLB stopped.");
+        logger.info("Default receiver stopped.");
         // unregister the message buffer, the return value is the old buffer, which may have some old message left
         // return them to subscriber for properly handling.
         return msgBufferMap.unregister(topic);
@@ -68,12 +68,12 @@ public class DefaultReceiver extends DataReceiver {
     public void subscribe(String topic) throws Exception {
         // subscribe topic
         recSocket.subscribe(topic.getBytes());
-        logger.info("Subscribe topic {} at default receiverFromLB.", topic);
+        logger.info("Subscribe topic {} at default receiver.", topic);
     }
 
     public void unsubscribe(String topic) throws Exception {
         // unsubscribe topic
         recSocket.unsubscribe(topic.getBytes());
-        logger.info("Unsubscribe topic {} at default receiverFromLB.", topic);
+        logger.info("Unsubscribe topic {} at default receiver.", topic);
     }
 }

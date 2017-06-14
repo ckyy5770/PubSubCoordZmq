@@ -11,10 +11,7 @@ import org.zeromq.ZMsg;
 
 import java.util.Iterator;
 import java.util.Map;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 
 public class Subscriber {
 	// TODO: 5/25/17 hard coded ip 
@@ -164,27 +161,35 @@ public class Subscriber {
 	}
 
 	/**
-     * get the specific receiverFromLB address from zookeeper server
-     *
-     * @param topic
-     * @return null if can not get it
+	 * get the specific sender address from zookeeper server
+	 *
+	 * @param topic
+	 * @return null if can not get it
 	 */
+	// TODO: 6/13/17 randomly picked from current available brokers for now, this should be changed in the next step.
 	private String getAddress(String topic) throws Exception {
-		String address = zkConnect.getNodeData("/topics/" + topic + "/sub");
-		return address;
+		String data = zkConnect.getNodeData("/topics/" + topic + "/sub");
+		if (data == null) return null;
+		String[] addresses = data.split("\n");
+		if (addresses[0].length() == 0 || addresses[0].equals("null")) return null;
+		int numOfAddresses = addresses.length;
+		int randomNum = ThreadLocalRandom.current().nextInt(0, numOfAddresses);
+		return addresses[randomNum];
 	}
 
 	/**
-     * get the default receiverFromLB address from zookeeper server
-     *
-     * @return
-     */
+	 * get one default sender address (randomly picked from current available brokers) from zookeeper server
+	 *
+	 * @return
+	 */
 	private String getDefaultAddress() throws Exception {
 		String data = zkConnect.getNodeData("/topics");
 		if (data == null) return null;
 		String[] addresses = data.split("\n");
-		if (addresses[0] == "null") return null;
-		return addresses[1];
+		if (addresses[0].length() == 0 || addresses[0].equals("null")) return null;
+		int numOfAddresses = addresses.length;
+		int randomNum = ThreadLocalRandom.current().nextInt(0, numOfAddresses);
+		return addresses[randomNum].split(",")[1];
 	}
 
 	public static void main(String args[]) throws Exception {
