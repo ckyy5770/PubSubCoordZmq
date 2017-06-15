@@ -41,10 +41,10 @@ public class TopicReceiverMap {
      * @param topic
      * @return return newly created receiver, if the receiverFromLB for the topic already exist, return null
      */
-    public DataReceiver register(String topic, String address, MsgBufferMap msgBufferMap, ExecutorService executor, ZkConnect zkConnect) {
+    public DataReceiver register(String topic, String address, MsgBufferMap msgBufferMap, ExecutorService executor, ZkConnect zkConnect, String ip) {
         if (map.containsKey(topic)) return null;
         else {
-            DataReceiver newReceiver = new DataReceiver(topic, address, msgBufferMap, executor, zkConnect);
+            DataReceiver newReceiver = new DataReceiver(topic, address, msgBufferMap, executor, zkConnect, ip);
             map.put(topic, newReceiver);
             return newReceiver;
         }

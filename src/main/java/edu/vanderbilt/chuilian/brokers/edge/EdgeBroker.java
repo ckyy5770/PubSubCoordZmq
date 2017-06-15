@@ -3,15 +3,19 @@ package edu.vanderbilt.chuilian.brokers.edge;
 import edu.vanderbilt.chuilian.loadbalancer.Dispatcher;
 import edu.vanderbilt.chuilian.loadbalancer.LoadAnalyzer;
 import edu.vanderbilt.chuilian.util.PortList;
+import edu.vanderbilt.chuilian.util.UtilMethods;
 import edu.vanderbilt.chuilian.util.ZkConnect;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.net.InetAddress;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class EdgeBroker {
+    private String ip;
+    private String zkAddress;
     private String brokerID;
     private ChannelMap channelMap;
     private final PortList portList;
@@ -29,7 +33,11 @@ public class EdgeBroker {
      * It only pass in some critical information for constructing the connection,
      * to start the edgeBroker, use start().
      */
-    public EdgeBroker(){
+    public EdgeBroker() {
+        // get zookeeper server address
+        this.zkAddress = UtilMethods.getZookeeperAddress();
+        // get IP address
+        this.ip = UtilMethods.getIPaddress();
         // get broker ID
         this.brokerID = getBrokerID();
         // init channel map
@@ -50,14 +58,14 @@ public class EdgeBroker {
      */
     public void start() throws Exception {
         // start zookeeper client
-        zkConnect.connect("127.0.0.1:2181");
+        zkConnect.connect(zkAddress);
         // clear the data tree
         // zkConnect.resetServer();
         // load balancer module: start dispatcher
         dispatcher.start();
         loadAnalyzer.start();
         // create and start main channel
-        MainChannel mainChannel = new MainChannel("", this.portList, this.channelExecutor, this.zkConnect, this.channelMap, this.dispatcher, this.loadAnalyzer);
+        MainChannel mainChannel = new MainChannel("", this.portList, this.channelExecutor, this.zkConnect, this.channelMap, this.dispatcher, this.loadAnalyzer, this.ip);
         channelMap.setMain(mainChannel);
         mainChannel.start();
     }
@@ -97,7 +105,6 @@ public class EdgeBroker {
     private String getBrokerID() {
         return Long.toString(System.currentTimeMillis());
     }
-
 
     public static void main(String args[]) throws Exception {
         EdgeBroker broker = new EdgeBroker();

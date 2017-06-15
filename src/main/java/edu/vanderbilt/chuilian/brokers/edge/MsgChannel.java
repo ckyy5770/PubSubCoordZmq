@@ -65,8 +65,9 @@ public class MsgChannel {
      * @param portList available port list, there should be only one port list within a broker
      * @param executor executor for worker threads, there should be only one executor within a broker
      */
-    public MsgChannel(String topic, PortList portList, ExecutorService executor, ZkConnect zkConnect, ChannelMap channelMap, Dispatcher dispatcher, LoadAnalyzer loadAnalyzer) {
+    public MsgChannel(String topic, PortList portList, ExecutorService executor, ZkConnect zkConnect, ChannelMap channelMap, Dispatcher dispatcher, LoadAnalyzer loadAnalyzer, String ip) {
         // initialize member vars
+        this.ip = ip;
         this.topic = topic;
         this.portList = portList;
         this.executor = executor;

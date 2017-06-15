@@ -22,8 +22,8 @@ import java.util.concurrent.ExecutorService;
 public class MainChannel extends MsgChannel {
     private static final Logger logger = LogManager.getLogger(MainChannel.class.getName());
 
-    public MainChannel(String topic, PortList portList, ExecutorService executor, ZkConnect zkConnect, ChannelMap channelMap, Dispatcher dispatcher, LoadAnalyzer loadAnalyzer) {
-        super(topic, portList, executor, zkConnect, channelMap, dispatcher, loadAnalyzer);
+    public MainChannel(String topic, PortList portList, ExecutorService executor, ZkConnect zkConnect, ChannelMap channelMap, Dispatcher dispatcher, LoadAnalyzer loadAnalyzer, String ip) {
+        super(topic, portList, executor, zkConnect, channelMap, dispatcher, loadAnalyzer, ip);
         // channel map is used to create new channel
         this.channelMap = channelMap;
     }
@@ -121,7 +121,7 @@ public class MainChannel extends MsgChannel {
     public void createChannel(String topic) {
         if (topic != null) {
             logger.info("Creating a new channel for topic: {}", topic);
-            MsgChannel newChannel = channelMap.register(topic, this.portList, this.executor, this.zkConnect, this.channelMap, this.dispatcher, this.loadAnalyzer);
+            MsgChannel newChannel = channelMap.register(topic, this.portList, this.executor, this.zkConnect, this.channelMap, this.dispatcher, this.loadAnalyzer, this.ip);
             if (newChannel != null) {
                 try {
                     newChannel.start();

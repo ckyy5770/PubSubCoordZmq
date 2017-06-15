@@ -40,10 +40,10 @@ public class ChannelMap {
      * @param topic
      * @return null if the topic already existed
      */
-    public MsgChannel register(String topic, PortList portList, ExecutorService executor, ZkConnect zkConnect, ChannelMap channelMap, Dispatcher dispatcher, LoadAnalyzer loadAnalyzer) {
+    public MsgChannel register(String topic, PortList portList, ExecutorService executor, ZkConnect zkConnect, ChannelMap channelMap, Dispatcher dispatcher, LoadAnalyzer loadAnalyzer, String ip) {
         if (map.containsKey(topic)) return null;
         else{
-            MsgChannel newChannel = new MsgChannel(topic, portList, executor, zkConnect, channelMap, dispatcher, loadAnalyzer);
+            MsgChannel newChannel = new MsgChannel(topic, portList, executor, zkConnect, channelMap, dispatcher, loadAnalyzer, ip);
             map.put(topic, newChannel);
             return newChannel;
         }

@@ -44,7 +44,8 @@ public class DataSender {
     }
 
 
-    DataSender(String topic, String address, MsgBufferMap msgBufferMap, ExecutorService executor, ZkConnect zkConnect) {
+    DataSender(String topic, String address, MsgBufferMap msgBufferMap, ExecutorService executor, ZkConnect zkConnect, String ip) {
+        this.ip = ip;
         this.topic = topic;
         this.address = address;
         this.sendContext = ZMQ.context(1);

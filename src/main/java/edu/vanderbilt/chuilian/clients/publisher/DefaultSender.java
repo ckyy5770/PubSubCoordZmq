@@ -15,8 +15,8 @@ import java.util.concurrent.ExecutorService;
  */
 public class DefaultSender extends DataSender {
     private static final Logger logger = LogManager.getLogger(DefaultSender.class.getName());
-    public DefaultSender(String address, MsgBufferMap msgBufferMap, ExecutorService executor, ZkConnect zkConnect) {
-        super("", address, msgBufferMap, executor, zkConnect);
+    public DefaultSender(String address, MsgBufferMap msgBufferMap, ExecutorService executor, ZkConnect zkConnect, String ip) {
+        super("", address, msgBufferMap, executor, zkConnect, ip);
     }
 
     @Override

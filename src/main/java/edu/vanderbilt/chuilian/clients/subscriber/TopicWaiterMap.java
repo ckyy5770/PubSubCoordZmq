@@ -22,10 +22,10 @@ public class TopicWaiterMap {
         return map.get(topic);
     }
 
-    public Waiter register(String topic, MsgBufferMap msgBufferMap, ExecutorService waiterExecutor, ExecutorService receiverExecutor, TopicReceiverMap topicReceiverMap, ZkConnect zkConnect) {
+    public Waiter register(String topic, MsgBufferMap msgBufferMap, ExecutorService waiterExecutor, ExecutorService receiverExecutor, TopicReceiverMap topicReceiverMap, ZkConnect zkConnect, String ip) {
         if (map.containsKey(topic)) return null;
         else {
-            Waiter newWaiter = new Waiter(topic, msgBufferMap, waiterExecutor, receiverExecutor, this, topicReceiverMap, zkConnect);
+            Waiter newWaiter = new Waiter(topic, msgBufferMap, waiterExecutor, receiverExecutor, this, topicReceiverMap, zkConnect, ip);
             map.put(topic, newWaiter);
             return newWaiter;
 

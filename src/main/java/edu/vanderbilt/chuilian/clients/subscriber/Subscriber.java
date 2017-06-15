@@ -4,6 +4,7 @@ import edu.vanderbilt.chuilian.types.DataSample;
 import edu.vanderbilt.chuilian.types.DataSampleHelper;
 import edu.vanderbilt.chuilian.util.MsgBuffer;
 import edu.vanderbilt.chuilian.util.MsgBufferMap;
+import edu.vanderbilt.chuilian.util.UtilMethods;
 import edu.vanderbilt.chuilian.util.ZkConnect;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -14,8 +15,8 @@ import java.util.Map;
 import java.util.concurrent.*;
 
 public class Subscriber {
-	// TODO: 5/25/17 hard coded ip 
-	private final String ip = "127.0.0.1";
+	private String ip = "127.0.0.1";
+	private String zkAddress;
 	private TopicReceiverMap topicReceiverMap;
 	private TopicWaiterMap topicWaiterMap;
 	private final MsgBufferMap msgBufferMap;
@@ -27,6 +28,9 @@ public class Subscriber {
 	private static final Logger logger = LogManager.getLogger(Subscriber.class.getName());
 
 	public Subscriber() {
+		// get zookeeper server address
+		this.zkAddress = UtilMethods.getZookeeperAddress();
+		this.ip = UtilMethods.getIPaddress();
 		this.topicReceiverMap = null;
 		this.topicWaiterMap = new TopicWaiterMap();
 		this.msgBufferMap = new MsgBufferMap();
@@ -38,7 +42,7 @@ public class Subscriber {
 
 	public void start() throws Exception {
 		// start zookeeper client
-        zkConnect.connect("127.0.0.1:2181");
+        zkConnect.connect(zkAddress);
         // initialize a default data receiverFromLB
         // try to get default address, if fail, wait 2 seconds and do it again.
         String defaultAddress;
@@ -50,7 +54,7 @@ public class Subscriber {
 			}
 		}
         // here we get the default sending address, make a default receiverFromLB for it, and initialize topic receiverFromLB map
-        topicReceiverMap = new TopicReceiverMap(new DefaultReceiver(defaultAddress, this.msgBufferMap, this.receiverExecutor, this.zkConnect));
+        topicReceiverMap = new TopicReceiverMap(new DefaultReceiver(defaultAddress, this.msgBufferMap, this.receiverExecutor, this.zkConnect, this.ip));
         topicReceiverMap.getDefault().start();
         // this thread will constantly (3s) check MsgBuffer and process msgs
 		processorFuture = processorExecutor.submit(() -> {
@@ -71,12 +75,12 @@ public class Subscriber {
         String address;
 		if ((address = getAddress(topic)) == null) {
 			logger.info("Fail to get message channel for topic {}, creating a waiter for this topic.", topic);
-			Waiter newWaiter = topicWaiterMap.register(topic, this.msgBufferMap, this.waiterExecutor, this.receiverExecutor, this.topicReceiverMap, this.zkConnect);
+			Waiter newWaiter = topicWaiterMap.register(topic, this.msgBufferMap, this.waiterExecutor, this.receiverExecutor, this.topicReceiverMap, this.zkConnect, this.ip);
 			newWaiter.start();
 			return;
 		}
         // here we successfully get the broker sender address for this topic, create a data receiverFromLB for it.
-        DataReceiver newReceiver = topicReceiverMap.register(topic, address, this.msgBufferMap, this.receiverExecutor, this.zkConnect);
+        DataReceiver newReceiver = topicReceiverMap.register(topic, address, this.msgBufferMap, this.receiverExecutor, this.zkConnect, this.ip);
         newReceiver.start();
     }
 

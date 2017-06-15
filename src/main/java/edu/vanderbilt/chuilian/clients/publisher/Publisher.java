@@ -2,6 +2,7 @@ package edu.vanderbilt.chuilian.clients.publisher;
 
 import edu.vanderbilt.chuilian.types.DataSampleHelper;
 import edu.vanderbilt.chuilian.util.MsgBufferMap;
+import edu.vanderbilt.chuilian.util.UtilMethods;
 import edu.vanderbilt.chuilian.util.ZkConnect;
 
 import java.util.Map;
@@ -12,12 +13,17 @@ import java.util.concurrent.TimeUnit;
 
 
 public class Publisher {
+    private String ip;
 	private TopicSenderMap topicSenderMap;
 	private final ExecutorService executor;
 	private final MsgBufferMap msgBufferMap;
 	private final ZkConnect zkConnect;
+	private String zkAddress;
 
 	public Publisher() {
+        // get zookeeper server address
+        this.zkAddress = UtilMethods.getZookeeperAddress();
+	    this.ip = UtilMethods.getIPaddress();
 		this.topicSenderMap = null;
 		this.executor = Executors.newFixedThreadPool(100);
 		this.zkConnect = new ZkConnect();
@@ -26,7 +32,7 @@ public class Publisher {
 
 	public void start() throws Exception {
 		// start zookeeper client
-		zkConnect.connect("127.0.0.1:2181");
+		zkConnect.connect(zkAddress);
 		// initialize a default data sender
 		// try to get default address, if fail, wait 2 seconds and do it again.
 		String defaultAddress;
@@ -38,7 +44,7 @@ public class Publisher {
 			}
 		}
 		// here we get the default receiving address, make a default sender for it, and initialize topic sender map
-		topicSenderMap = new TopicSenderMap(new DefaultSender(defaultAddress, this.msgBufferMap, this.executor, this.zkConnect));
+		topicSenderMap = new TopicSenderMap(new DefaultSender(defaultAddress, this.msgBufferMap, this.executor, this.zkConnect, this.ip));
 		topicSenderMap.getDefault().start();
 	}
 
@@ -60,7 +66,7 @@ public class Publisher {
 			} else {
 				// successfully get the sender from zookeeper
 				// create new sender
-				sender = topicSenderMap.register(topic, address, this.msgBufferMap, this.executor, this.zkConnect);
+				sender = topicSenderMap.register(topic, address, this.msgBufferMap, this.executor, this.zkConnect, this.ip);
 				sender.start();
 				sender.send(message);
 				return;

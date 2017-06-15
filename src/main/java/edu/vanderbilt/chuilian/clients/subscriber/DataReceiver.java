@@ -38,7 +38,8 @@ public class DataReceiver {
     protected DataReceiver() {
     }
 
-    DataReceiver(String topic, String address, MsgBufferMap msgBufferMap, ExecutorService executor, ZkConnect zkConnect) {
+    DataReceiver(String topic, String address, MsgBufferMap msgBufferMap, ExecutorService executor, ZkConnect zkConnect, String ip) {
+        this.ip = ip;
         this.topic = topic;
         this.address = address;
         this.msgBufferMap = msgBufferMap;

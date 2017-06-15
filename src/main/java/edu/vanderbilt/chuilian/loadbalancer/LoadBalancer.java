@@ -9,6 +9,7 @@ import edu.vanderbilt.chuilian.loadbalancer.plan.*;
 import edu.vanderbilt.chuilian.types.TypesBrokerReport;
 import edu.vanderbilt.chuilian.types.TypesBrokerReportHelper;
 import edu.vanderbilt.chuilian.types.TypesPlanHelper;
+import edu.vanderbilt.chuilian.util.UtilMethods;
 import edu.vanderbilt.chuilian.util.ZkConnect;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -30,6 +31,7 @@ public class LoadBalancer {
     private final BrokerLoadReportBuffer brokerLoadReportBuffer;
     private final ExecutorService executor;
     private final ZkConnect zkConnect;
+    private String zkAddress;
     /**
      * receiverFromLB socket will receive load reports from all local load analyzer, residing in each broker
      * sender socket will send new plans to all dispatcher, residing in each broker
@@ -50,6 +52,8 @@ public class LoadBalancer {
     private static final Logger logger = LogManager.getLogger(LoadBalancer.class.getName());
 
     public LoadBalancer() {
+        this.ip = UtilMethods.getIPaddress();
+        this.zkAddress = UtilMethods.getZookeeperAddress();
         this.brokerLoadReportBuffer = new BrokerLoadReportBuffer();
         this.consistentHashingMap = new ConsistentHashingMap();
         this.executor = Executors.newFixedThreadPool(3);
@@ -71,7 +75,7 @@ public class LoadBalancer {
         // start connecting to sending port
         sendSocket.bind("tcp://*:" + sendPort);
         // start zookeeper client
-        zkConnect.connect("127.0.0.1:2181");
+        zkConnect.connect(zkAddress);
         // clear the data tree
         zkConnect.resetServer();
         // register itself to zookeeper service

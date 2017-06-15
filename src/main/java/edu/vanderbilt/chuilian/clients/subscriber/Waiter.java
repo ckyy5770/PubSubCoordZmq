@@ -16,6 +16,7 @@ import java.util.concurrent.Future;
  * waiter will periodically check if message channel with given topic is opened on broker.
  */
 public class Waiter {
+    private String ip;
     private String topic;
     private MsgBufferMap msgBufferMap;
     private ExecutorService waiterExecutor;
@@ -26,7 +27,8 @@ public class Waiter {
     private Future<?> future;
     private static final Logger logger = LogManager.getLogger(Waiter.class.getName());
 
-    public Waiter(String topic, MsgBufferMap msgBufferMap, ExecutorService waiterExecutor, ExecutorService receiverExecutor, TopicWaiterMap topicWaiterMap, TopicReceiverMap topicReceiverMap, ZkConnect zkConnect) {
+    public Waiter(String topic, MsgBufferMap msgBufferMap, ExecutorService waiterExecutor, ExecutorService receiverExecutor, TopicWaiterMap topicWaiterMap, TopicReceiverMap topicReceiverMap, ZkConnect zkConnect, String ip) {
+        this.ip = ip;
         this.topic = topic;
         this.msgBufferMap = msgBufferMap;
         this.waiterExecutor = waiterExecutor;
@@ -52,7 +54,7 @@ public class Waiter {
             }
             logger.info("Waiter ({}): newly opened channel detected, creating a receiverFromLB for it", topic);
             // here we successfully get the broker sender address for this topic, create a data receiverFromLB for it.
-            DataReceiver newReceiver = topicReceiverMap.register(topic, address, this.msgBufferMap, this.receiverExecutor, this.zkConnect);
+            DataReceiver newReceiver = topicReceiverMap.register(topic, address, this.msgBufferMap, this.receiverExecutor, this.zkConnect, this.ip);
             try {
                 newReceiver.start();
             } catch (Exception e) {
