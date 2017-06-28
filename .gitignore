@@ -29,4 +29,5 @@ production/
 dataSchema/edu/
 dataSchema/flatc
 sync.sh
-**/.idea/workspace.xml **/.idea/tasks.xml
+.idea/workspace.xml
+.idea/tasks.xml

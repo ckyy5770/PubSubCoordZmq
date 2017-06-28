@@ -1,0 +1,19 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="PubSubCoordZmq:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/PubSubCoordZmq_jar</output-path>
+    <root id="archive" name="PubSubCoordZmq.jar">
+      <element id="module-output" name="PubSubCoordZmq" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/lib/log4j-1.2-api-2.8.2.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/lib/log4j-api-2.8.2.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/lib/log4j-core-2.8.2.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/lib/zookeeper-3.4.10.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/lib/slf4j-api-1.6.1.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/lib/slf4j-log4j12-1.6.1.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/lib/log4j-1.2.16.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/lib/jline-0.9.94.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/lib/junit-4.8.1.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/lib/netty-3.10.5.Final.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/lib/jeromq-0.4.0.jar" path-in-jar="/" />
+    </root>
+  </artifact>
+</component>
