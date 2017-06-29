@@ -1,3 +1,2 @@
 #!/bin/bash
-
-java -cp ./PubSubCoordZmq.jar edu.vanderbilt.chuilian.loadbalancer.LoadBalancer
+java -cp /media/sf_SharedFolderWithMininetVM/TestEnv/testScripts/PubSubCoordZmq.jar edu.vanderbilt.chuilian.loadbalancer.LoadBalancer

@@ -1,3 +1,3 @@
 #!/bin/bash
 
-java -cp ./PubSubCoordZmq.jar edu.vanderbilt.chuilian.clients.subscriber
+java -cp /media/sf_SharedFolderWithMininetVM/TestEnv/testScripts/PubSubCoordZmq.jar edu.vanderbilt.chuilian.clients.subscriber.Subscriber

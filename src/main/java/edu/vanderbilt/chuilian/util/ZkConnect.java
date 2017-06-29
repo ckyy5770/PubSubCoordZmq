@@ -24,7 +24,7 @@ public class ZkConnect {
     private static final Logger logger = LogManager.getLogger(ZkConnect.class.getName());
 
     public ZooKeeper connect(String host) throws Exception {
-        logger.debug("Connecting host: " + host);
+        logger.info("Connecting host: " + host);
         //host should be 127.0.0.1:2187
         zk = new ZooKeeper(host, 3000, new Watcher() {
             public void process(WatchedEvent event) {
@@ -34,7 +34,7 @@ public class ZkConnect {
             }
         });
         connSignal.await();
-        logger.debug("Connected host: " + host);
+        logger.info("Connected host: " + host);
         return zk;
     }
 

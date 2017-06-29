@@ -6,6 +6,8 @@ from mininet.topo import Topo
 from mininet.net import Mininet
 from mininet.util import dumpNodeConnections
 from mininet.log import setLogLevel
+from functools import partial
+from mininet.node import Host
 
 PATH_LOGS = '/media/sf_SharedFolderWithMininetVM/TestEnv/logs/'
 PATH_TMP = '/media/sf_SharedFolderWithMininetVM/TestEnv/tmp/'
@@ -52,43 +54,52 @@ def testIPconfig(net):
 		host = net.get('h' + str(h + 1))
 		print "Host", host.name, "has IP address", host.IP(), "and MAC address", host.MAC()
 
+def printIPconfig(net):
+	"Save IP configuration info to the private folder of each host"
+	print "printing ip config info to private folders"
+	for h in range(HOST_NUM):
+		host = net.get('h' + str(h + 1))
+		host.cmd('echo ' + str(host.IP()) + ' > ' + '/var/run/' + 'hostIP.config')
+
+
 def runZooKeeper(zkhost):
 	"Run zookeeper server on a host"
 	print "* Starting zookeeper server on host " + str(zkhost)
-	#print PATH_ZOOKEEPER_SERVER + " start" +" > " + PATH_TMP + "zkServer.out" + " &"
-	zkhost.cmd(PATH_ZOOKEEPER_SERVER + " start" + " > " + PATH_ZOOKEEPER_SERVER_OUT + " &" )
+	print PATH_ZOOKEEPER_SERVER + " start" + " &> " + PATH_ZOOKEEPER_SERVER_OUT + " &" 
+	zkhost.cmd(PATH_ZOOKEEPER_SERVER + " start" + " &> " + PATH_ZOOKEEPER_SERVER_OUT + " &" )
 
 def stopZooKeeper(zkhost):
 	"Stop zookeeper server on a host"
 	print "* Stopping zookeeper server on host " + str(zkhost)
 	#print PATH_ZOOKEEPER_SERVER + " stop" +" > " + PATH_TMP + "zkServer.out" + " &"
-	zkhost.cmd("sudo " + PATH_ZOOKEEPER_SERVER + " stop" + " > " + PATH_ZOOKEEPER_SERVER_OUT + " &" )
+	zkhost.cmd("sudo " + PATH_ZOOKEEPER_SERVER + " stop" + " &> " + PATH_ZOOKEEPER_SERVER_OUT + " &" )
 
 def testZooKeeper(clihost,zkhost):
 	"Testing zookeeper basic connection using zkCli"
 	print "* Testing zookeeper connection"
 	#print "sudo " + PATH_ZOOKEEPER_CLIENT + " -server " + str(zkhost.IP()) + ":" + PORT_ZOOKEEPER_SERVER + " > "+ PATH_TMP + "zkCli.out" + " &"
-	clihost.cmd("sudo " + PATH_ZOOKEEPER_CLIENT + " -server " + str(zkhost.IP()) + ":" + PORT_ZOOKEEPER_SERVER + " > "+ PATH_ZOOKEEPER_CLIENT_OUT + " &")
+	clihost.cmd("sudo " + PATH_ZOOKEEPER_CLIENT + " -server " + str(zkhost.IP()) + ":" + PORT_ZOOKEEPER_SERVER + " &> "+ PATH_ZOOKEEPER_CLIENT_OUT + " &")
 
 def runLoadBalancer(lbhost):
 	"Run load balancer on a host"
 	print "* Starting loadbalancer on host " + str(lbhost)
-	lbhost.cmd("sudo " + PATH_LOADBALANCER + " > " + PATH_LOADBALANCER_OUT + " &")
+	print "sudo " + PATH_LOADBALANCER + " &> " + PATH_LOADBALANCER_OUT + " &"
+	lbhost.cmd("sudo " + PATH_LOADBALANCER + " &> " + PATH_LOADBALANCER_OUT + " &")
 
 def runEdgeBroker(host):
 	"Run edge broker on a host"
 	print "* Starting edgeBroker on host " + str(host)
-	host.cmd("sudo " + PATH_EDGEBROKER + " > " + PATH_EDGEBROKER_OUT + " &")
+	host.cmd("sudo " + PATH_EDGEBROKER + " &> " + PATH_EDGEBROKER_OUT + " &")
 
 def runPublisher(host):
 	"Run publisher on a host"
 	print "* Starting publisher on host " + str(host)
-	host.cmd("sudo " + PATH_PUBLISHER + " > " + PATH_PUBLISHER_OUT + " &")
+	host.cmd("sudo " + PATH_PUBLISHER + " &> " + PATH_PUBLISHER_OUT + " &")
 
 def runSubscriber(host):
 	"Run subscriber on a host"
 	print "* Starting subscriber on host " + str(host)
-	host.cmd("sudo " + PATH_SUBSCRIBER + " > " + PATH_SUBSCRIBER_OUT + " &")
+	host.cmd("sudo " + PATH_SUBSCRIBER + " &> " + PATH_SUBSCRIBER_OUT + " &")
 
 def stopAllProc(host):
 	"Kill all background processes running on a host"
@@ -102,13 +113,17 @@ def stopAllHosts(hosts):
 		stopAllProc(host)
 
 def simpleTest(net):
+
+	printIPconfig(net)
+	sleep(5)
+
 	zkhost = net.get('h1')
 	runZooKeeper(zkhost)
-	sleep(5)
+	sleep(10)
 
 	lbhost = net.get('h2')
 	runLoadBalancer(lbhost)
-	sleep(5)
+	sleep(10)
 
 	# host number 11 - 50 is reserved for edge brokers
 	edgeBrokerHosts = []
@@ -116,6 +131,7 @@ def simpleTest(net):
 		host = net.get('h' + str(11 + n))
 		runEdgeBroker(host)
 		edgeBrokerHosts.append(host)
+		sleep(10)
 
 	# host number 51 - 70 is reserved for subscribers
 	subscriberHosts = []
@@ -123,6 +139,7 @@ def simpleTest(net):
 		host = net.get('h' + str(51 + n))
 		runSubscriber(host)
 		subscriberHosts.append(host)
+		sleep(10)
 
 	# host number 71 - 90 is reserved for publishers
 	publisherHosts = []
@@ -130,9 +147,11 @@ def simpleTest(net):
 		host = net.get('h' + str(71 + n))
 		runPublisher(host)
 		publisherHosts.append(host)
+		sleep(10)
 
 
-	sleep(120)
+	sleep(60)
+
 
 	stopAllHosts(publisherHosts)
 	sleep(2)
@@ -151,14 +170,16 @@ if __name__ == '__main__':
 	setLogLevel('info')
 	# build a mininet with HOST_NUM hosts and 1 switch
 	topo = SingleSwitchTopo(n=HOST_NUM)
-	net = Mininet(topo)
+	privateDirs = [ ( '/var/log', PATH_TMP + '/private/%(name)s/var/log' ), ( '/var/run', PATH_TMP + '/private/%(name)s/var/run' ) ]
+	host = partial(Host, privateDirs=privateDirs)
+	net = Mininet(topo=topo, host=host)
 	# start mininet
 	net.start()
 	# testing.....
 	# testConnectivity(net)
 	# testIPconfig(net)
+	# printIPconfig(net)
 
 	simpleTest(net)
-	
 	# stop mininet
 	net.stop()
