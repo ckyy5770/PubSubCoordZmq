@@ -17,6 +17,7 @@ import org.apache.zookeeper.data.Stat;
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ThreadLocalRandom;
 
 public class ZkConnect {
     private ZooKeeper zk;
@@ -232,8 +233,10 @@ public class ZkConnect {
         if (stat == null) throw new IllegalStateException("/topics/" + topic + "/sub" + " node does not exist");
         // here we create a new sub node under /sub
         // int subNum = stat.getNumChildren() + 1;
-        createNode("/topics/" + topic + "/sub/" + "sub" + recAddress, recAddress.getBytes());
-        return recAddress;
+        // TODO: 7/3/17 ID need to be changed 
+        String id = recAddress + Long.toString(ThreadLocalRandom.current().nextLong(Long.MIN_VALUE, Long.MAX_VALUE));
+        createNode("/topics/" + topic + "/sub/" + "sub" + id, recAddress.getBytes());
+        return id;
     }
 
     /**

@@ -173,7 +173,7 @@ public class Publisher {
 		Publisher pub = new Publisher();
 		pub.start();
 		pub.register("topic1");
-		Thread.sleep(120 * 1000);
+		Thread.sleep(240 * 1000);
 		pub.close();
 
 		// correctness test
