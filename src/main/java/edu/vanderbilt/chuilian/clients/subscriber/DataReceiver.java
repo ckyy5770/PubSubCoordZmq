@@ -4,6 +4,7 @@ import edu.vanderbilt.chuilian.types.DataSample;
 import edu.vanderbilt.chuilian.types.DataSampleHelper;
 import edu.vanderbilt.chuilian.util.MsgBuffer;
 import edu.vanderbilt.chuilian.util.MsgBufferMap;
+import edu.vanderbilt.chuilian.util.UtilMethods;
 import edu.vanderbilt.chuilian.util.ZkConnect;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -17,8 +18,7 @@ import java.util.concurrent.Future;
  * Created by Killian on 5/24/17.
  */
 public class DataReceiver {
-    // TODO: 5/25/17 hard coded ip
-    String ip = "127.0.0.1";
+    String ip = null;
     String topic;
     String address;
     MsgBufferMap msgBufferMap;
@@ -41,7 +41,7 @@ public class DataReceiver {
     }
 
     DataReceiver(String topic, String address, MsgBufferMap msgBufferMap, ExecutorService executor, ZkConnect zkConnect, String ip) {
-        this.ip = ip;
+        this.ip = UtilMethods.getIPaddress();
         this.topic = topic;
         this.address = address;
         this.msgBufferMap = msgBufferMap;

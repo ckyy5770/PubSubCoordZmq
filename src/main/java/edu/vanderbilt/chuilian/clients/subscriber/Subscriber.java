@@ -192,6 +192,7 @@ public class Subscriber {
 		String[] addresses = data.split("\n");
 		if (addresses[0].length() == 0 || addresses[0].equals("null")) return null;
 		int numOfAddresses = addresses.length;
+		if(numOfAddresses == 1) return addresses[0].split(",")[1];
 		int randomNum = ThreadLocalRandom.current().nextInt(0, numOfAddresses);
 		return addresses[randomNum].split(",")[1];
 	}

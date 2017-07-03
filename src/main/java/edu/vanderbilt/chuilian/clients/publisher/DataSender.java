@@ -3,6 +3,7 @@ package edu.vanderbilt.chuilian.clients.publisher;
 import edu.vanderbilt.chuilian.types.DataSampleHelper;
 import edu.vanderbilt.chuilian.util.MsgBuffer;
 import edu.vanderbilt.chuilian.util.MsgBufferMap;
+import edu.vanderbilt.chuilian.util.UtilMethods;
 import edu.vanderbilt.chuilian.util.ZkConnect;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -21,8 +22,7 @@ import java.util.concurrent.Future;
  * one data DataSender can only send messages for one topic.
  */
 public class DataSender {
-    // TODO: 5/25/17 hard coded ip
-    String ip = "127.0.0.1";
+    String ip = null;
     String topic;
     String address;
     ZMQ.Context sendContext;
@@ -45,7 +45,7 @@ public class DataSender {
 
 
     DataSender(String topic, String address, MsgBufferMap msgBufferMap, ExecutorService executor, ZkConnect zkConnect, String ip) {
-        this.ip = ip;
+        this.ip = UtilMethods.getIPaddress();
         this.topic = topic;
         this.address = address;
         this.sendContext = ZMQ.context(1);

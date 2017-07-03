@@ -198,9 +198,9 @@ public class ZkConnect {
         Stat stat = zk.exists("/topics/" + topic + "/pub", true);
         if (stat == null) throw new IllegalStateException("/topics/" + topic + "/pub" + " node does not exist");
         // here we create a new pub node under /pub
-        int pubNum = stat.getNumChildren() + 1;
-        createNode("/topics/" + topic + "/pub/" + "pub" + Integer.toString(pubNum), sendAddress.getBytes());
-        return Integer.toString(pubNum);
+        //int pubNum = stat.getNumChildren() + 1;
+        createNode("/topics/" + topic + "/pub/" + "pub" + sendAddress, sendAddress.getBytes());
+        return sendAddress;
     }
 
     /**
@@ -231,9 +231,9 @@ public class ZkConnect {
         Stat stat = zk.exists("/topics/" + topic + "/sub", true);
         if (stat == null) throw new IllegalStateException("/topics/" + topic + "/sub" + " node does not exist");
         // here we create a new sub node under /sub
-        int subNum = stat.getNumChildren() + 1;
-        createNode("/topics/" + topic + "/sub/" + "sub" + Integer.toString(subNum), recAddress.getBytes());
-        return Integer.toString(subNum);
+        // int subNum = stat.getNumChildren() + 1;
+        createNode("/topics/" + topic + "/sub/" + "sub" + recAddress, recAddress.getBytes());
+        return recAddress;
     }
 
     /**
