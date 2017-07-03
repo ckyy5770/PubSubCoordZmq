@@ -44,7 +44,7 @@ public class Waiter {
             String address;
             while (true) {
                 try {
-                    Thread.sleep(500);
+                    Thread.sleep(100);
                     address = getAddress(topic);
                     if (address != null) break;
                 } catch (Exception e) {

@@ -5,7 +5,7 @@
             <!--ThresholdFilter level="ERROR" onMatch="ACCEPT" onMismatch="DENY"-->
             <!-- Flow tracing is most useful with a pattern that shows location.
                  Below pattern outputs class, line number and method name. -->
-            <PatternLayout pattern="%d{HH:mm:ss.SSS} %-5level %class{36} %L %M - %msg%xEx%n"/>
+            <PatternLayout pattern="%msg%xEx%n"/>
         </Console>
         <File name="all" fileName="logs/all.log" append="false">
             <PatternLayout pattern="%d{HH:mm:ss.SSS} %-5level %class{36} %L %M - %msg%xEx%n"/>
@@ -33,38 +33,37 @@
         </File>
     </Appenders>
     <Loggers>
-        <Logger name="edu.vanderbilt.chuilian.brokers.edge" level="info" additivity="false">
+        <Logger name="edu.vanderbilt.chuilian.brokers.edge" level="error" additivity="false">
             <AppenderRef ref="Console"/>
             <AppenderRef ref="all"/>
             <AppenderRef ref="broker"/>
         </Logger>
-        <Logger name="edu.vanderbilt.chuilian.clients.publisher" level="info" additivity="false">
+        <Logger name="edu.vanderbilt.chuilian.clients.publisher" level="error" additivity="false">
             <AppenderRef ref="Console"/>
             <AppenderRef ref="all"/>
             <AppenderRef ref="publisher"/>
         </Logger>
-        <Logger name="edu.vanderbilt.chuilian.clients.subscriber" level="info" additivity="false">
-            <AppenderRef ref="Console"/>
+        <Logger name="edu.vanderbilt.chuilian.clients.subscriber" level="error" additivity="false">
             <AppenderRef ref="all"/>
             <AppenderRef ref="subscriber"/>
         </Logger>
-        <Logger name="edu.vanderbilt.chuilian.loadbalancer" level="info" additivity="false">
+        <Logger name="edu.vanderbilt.chuilian.loadbalancer" level="error" additivity="false">
             <AppenderRef ref="Console"/>
             <AppenderRef ref="all"/>
             <AppenderRef ref="loadBalancer"/>
         </Logger>
-        <Logger name="edu.vanderbilt.chuilian.util" level="info" additivity="false">
+        <Logger name="edu.vanderbilt.chuilian.util" level="error" additivity="false">
             <AppenderRef ref="Console"/>
             <AppenderRef ref="all"/>
             <AppenderRef ref="util"/>
         </Logger>
-        <Logger name="edu.vanderbilt.chuilian.types" level="info" additivity="false">
+        <Logger name="edu.vanderbilt.chuilian.types" level="error" additivity="false">
             <AppenderRef ref="Console"/>
             <AppenderRef ref="all"/>
             <AppenderRef ref="types"/>
         </Logger>
         <Logger name="TestResult" level="info" additivity="false">
-            <AppenderRef ref="results"/>
+            <AppenderRef ref="Console"/>
         </Logger>
         <Root level="error">
             <AppenderRef ref="Console"/>

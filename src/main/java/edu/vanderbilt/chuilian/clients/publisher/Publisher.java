@@ -92,7 +92,7 @@ public class Publisher {
 			throw new IllegalStateException("cannot get default sender");
 		}
 		// register channel
-		defaultSender.send(topic, "".getBytes());
+		defaultSender.send(topic, DataSampleHelper.serialize(-1, 1, 1, 0, -1, 10));
 
 		while(true){
 			// wait for new channel to be created
@@ -173,7 +173,7 @@ public class Publisher {
 		Publisher pub = new Publisher();
 		pub.start();
 		pub.register("topic1");
-		Thread.sleep(60 * 1000);
+		Thread.sleep(120 * 1000);
 		pub.close();
 
 		// correctness test

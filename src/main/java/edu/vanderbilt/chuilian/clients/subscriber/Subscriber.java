@@ -200,7 +200,7 @@ public class Subscriber {
 		Subscriber sub = new Subscriber();
 		sub.start();
 		sub.subscribe("topic1");
-		Thread.sleep(120*1000);
+		Thread.sleep(200*1000);
 		sub.close();
 
 		// correctness test
