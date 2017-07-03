@@ -200,6 +200,14 @@ public class Subscriber {
 		Subscriber sub = new Subscriber();
 		sub.start();
 		sub.subscribe("topic1");
+		Thread.sleep(120*1000);
+		sub.close();
+
+		// correctness test
+		/*
+		Subscriber sub = new Subscriber();
+		sub.start();
+		sub.subscribe("topic1");
 		sub.subscribe("topic2");
 		sub.subscribe("topic3");
 		Thread.sleep(20000);
@@ -208,18 +216,6 @@ public class Subscriber {
 		sub.subscribe("topic4");
 		Thread.sleep(10000);
 		sub.close();
-		/*
-		Context context= ZMQ.context(1);
-		Socket subscriber= context.socket(ZMQ.SUB);	
-		subscriber.connect("tcp://localhost:5556");
-		subscriber.subscribe("alerts".getBytes());
-
-		while(true){
-			ZMsg receivedMsg= ZMsg.recvMsg(subscriber);
-			System.out.println(new String(receivedMsg.getFirst().getData()));
-			//System.out.println(DataSampleHelper.deserialize(receivedMsg.getLast().getData()).sampleId());
-			System.out.println(new String(receivedMsg.getLast().getData()));
-		}
 		*/
 	}
 
