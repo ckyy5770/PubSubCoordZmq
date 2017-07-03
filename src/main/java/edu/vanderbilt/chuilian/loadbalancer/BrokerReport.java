@@ -1,10 +1,14 @@
 package edu.vanderbilt.chuilian.loadbalancer;
 
+import com.sun.corba.se.pept.broker.Broker;
 import edu.vanderbilt.chuilian.types.TypesBrokerReport;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Created by Killian on 6/1/17.
@@ -15,13 +19,15 @@ import java.util.Set;
  */
 public class BrokerReport {
     // topic, channelReport
-    HashMap<String, ChannelReport> map;
+    ConcurrentHashMap<String, ChannelReport> map;
     String brokerID;
     double loadRatio;
     double bandWidthBytes;
 
+    private static final Logger logger = LogManager.getLogger(BrokerReport.class.getName());
+
     public BrokerReport(String brokerID) {
-        this.map = new HashMap<>();
+        this.map = new ConcurrentHashMap<>();
         this.brokerID = brokerID;
     }
 
@@ -29,7 +35,7 @@ public class BrokerReport {
         this.brokerID = typesBrokerReport.brokerID();
         this.loadRatio = typesBrokerReport.loadRatio();
         this.bandWidthBytes = typesBrokerReport.bandWidthBytes();
-        this.map = new HashMap<>();
+        this.map = new ConcurrentHashMap<>();
         // typesBrokerReport -> brokerReport
         for (int i = 0; i < typesBrokerReport.channelReportsLength(); i++) {
             // TypesChannelReport -> channelReport
@@ -56,7 +62,13 @@ public class BrokerReport {
 
     public void updateBytes(String topic, long bytes) {
         if (!map.containsKey(topic)) {
-            map.put(topic, new ChannelReport(topic));
+            Long[] i1000 = new Long[1000];
+            for(int i = 0; i< 1000; i++){
+                i1000[i] = new Long(1);
+            }
+            String a = new String(topic);
+            ChannelReport newChannelReport =  new ChannelReport(topic);
+            map.put(topic, newChannelReport);
         }
         map.get(topic).numIOBytes += bytes;
     }
@@ -92,7 +104,7 @@ public class BrokerReport {
     }
 
     public void reset() {
-        this.map = new HashMap<>();
+        this.map = new ConcurrentHashMap<>();
     }
 
     // calculations

@@ -39,7 +39,7 @@ public class LoadAnalyzer {
     public LoadAnalyzer(String brokerID, ZkConnect zkConnect) {
         this.brokerID = brokerID;
         this.balancerAddress = null;
-        this.executor = Executors.newFixedThreadPool(2);
+        this.executor = Executors.newFixedThreadPool(4);
         this.zkConnect = zkConnect;
         this.sendContext = ZMQ.context(1);
         this.sendSocket = sendContext.socket(ZMQ.PUB);

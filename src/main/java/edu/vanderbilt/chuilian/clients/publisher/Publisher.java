@@ -79,6 +79,33 @@ public class Publisher {
 	}
 
 	/**
+	 * register a topic through default channel, and create a new sender for it, this method is just for test.
+	 * @param topic
+	 */
+	public void register(String topic) throws Exception{
+		// already registered
+		if(topicSenderMap.get(topic) != null) return;
+
+		DefaultSender defaultSender = topicSenderMap.getDefault();
+		if (defaultSender == null) {
+			// this should never happen in a well-designed system
+			throw new IllegalStateException("cannot get default sender");
+		}
+		// register channel
+		defaultSender.send(topic, "".getBytes());
+
+		while(true){
+			// wait for new channel to be created
+			Thread.sleep(5000);
+			// try to get sending from zookeeper
+			String address = getAddress(topic);
+			if(address == null) continue;
+			DataSender sender = topicSenderMap.register(topic, address, this.msgBufferMap, this.executor, this.zkConnect, this.ip);
+			sender.start();
+		}
+	}
+
+	/**
 	 * shutdown the sender corresponding to the topic, if the sender does not exist, simply do nothing
 	 *
 	 * @param topic
@@ -143,6 +170,14 @@ public class Publisher {
 
 
 	public static void main(String args[]) throws Exception {
+		Publisher pub = new Publisher();
+		pub.start();
+		pub.register("topic1");
+		Thread.sleep(120 * 1000);
+		pub.close();
+
+		// correctness test
+		/*
 		int counter = 0;
 		Publisher pub = new Publisher();
 		pub.start();
@@ -159,33 +194,6 @@ public class Publisher {
 			Thread.sleep(500);
 		}
 		pub.close();
-		/*
-		Thread.sleep(1000);
-		for(int i=0; i<10; i++){
-			pub.send("topic1", Integer.toString(i));
-			Thread.sleep(100);
-		}
-		Thread.sleep(1000);
-		for(int i=0; i<10; i++){
-			pub.send("topic2", Integer.toString(i));
-			Thread.sleep(100);
-		}
-		return;
-		*/
-		/*
-		Context context= ZMQ.context(1);
-		Socket publisher= context.socket(ZMQ.PUB);
-		publisher.connect("tcp://localhost:5555");
-		Thread.sleep(1000);
-		for(int i=0;i<100;i++){
-			publisher.sendMore("alerts");
-			//publisher.send(DataSampleHelper.serialize(i, 1, 1, 0, 11111, 10),0,0,0);
-			publisher.send("hello world " +i);
-			System.out.println("sent msg:"+i);
-			Thread.sleep(100);
-		}
-		publisher.close();
-		context.term();
 		*/
 	}
 }

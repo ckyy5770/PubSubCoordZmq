@@ -25,30 +25,31 @@ public class UtilMethods {
      * @throws Exception
      */
     public static String getIPaddress(){
-        /*
-        InetAddress IP = null;
-        try{
-            IP = InetAddress.getLocalHost();
-        }catch(Exception e){
-            logger.error("can not get ip address of this machine. error message: {}", e.getMessage());
-        }
-        */
-        //return IP.toString();
-        //return "10.0.0.2";
+        // for local test
+        //return "127.0.0.1";
 
-        String ip = null;
+        // for mininet test
+
+        String fileString = null;
         try{
-            ip = readFile("/var/run/hostIP.config");
+            fileString = readFile("/var/run/hostIP.config");
         }catch(Exception e) {
             logger.error("fail to get ip address of this host.");
         }
-        logger.info("Get host ip: " + ip);
-        return ip;
+        String[] fileLines = fileString.split(System.getProperty("line.separator"));
+        logger.info("Get host ip: " + fileLines[0]);
+        return fileLines[0];
+
+
 
     }
 
     public static String getZookeeperAddress(){
+        // for mininet test
         return "10.0.0.1:2181";
+
+        // for local test
+        //return "127.0.0.1:2181";
     }
 
     private static String readFile(String file) throws Exception {

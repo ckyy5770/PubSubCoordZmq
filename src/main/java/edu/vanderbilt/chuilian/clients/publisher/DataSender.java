@@ -69,13 +69,29 @@ public class DataSender {
         // execute sender thread for this topic
         future = executor.submit(() -> {
             logger.info("New sender thread created, topic: {}", topic);
+            int counter = 0;
+            double sendInterval = 50.0;
+            logger.info("sending messages in Interval: {} ms", sendInterval);
             while (true) {
-                // checking message buffer and send message every 0.1 secs
-                Thread.sleep(100);
-                sender();
+                try {
+                    long sleep_interval=exponentialInterarrival(sendInterval);
+                    if(sleep_interval>0){
+                        Thread.sleep(sleep_interval);
+                    }
+                } catch (InterruptedException ix) {
+                    logger.error(ix.getMessage(),ix);
+                    break;
+                }
+                senderSimplified(counter++);
             }
+            return;
         });
     }
+
+    public static long exponentialInterarrival(double averageInterval){
+        return (long)(averageInterval*(-Math.log(Math.random())));
+    }
+
 
     public void stop() throws Exception {
         logger.info("Stopping sender, topic: {}", topic);
@@ -95,6 +111,14 @@ public class DataSender {
         // unregister itself from zookeeper server
         zkConnect.unregisterPub(topic, pubID);
         logger.info("Sender stopped, topic: {}", topic);
+    }
+
+    /**
+     * simplified version of sender, just making one fake message of this.topic and send it.
+     */
+    void senderSimplified(int MsgID){
+        sendSocket.sendMore(topic);
+        sendSocket.send(DataSampleHelper.serialize(MsgID, 1, 1, 0, System.currentTimeMillis(), 10));
     }
 
     void sender() {

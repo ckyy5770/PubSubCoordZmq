@@ -82,13 +82,13 @@ public class MainChannel extends MsgChannel {
     }
 
     @Override
-    public void receiver() throws Exception {
+    public void receiver() {
         // just keep receiving and sending messages
         ZMsg receivedMsg = ZMsg.recvMsg(recSocket);
         String msgTopic = new String(receivedMsg.getFirst().getData());
         byte[] msgContent = receivedMsg.getLast().getData();
         messageQueue.add(receivedMsg);
-        //logger.info("Message Received at Main Channel: Topic: {} ID: {}", msgTopic, DataSampleHelper.deserialize(msgContent).sampleId());
+        logger.info("Message Received at Main Channel: Topic: {} ID: {}", msgTopic, DataSampleHelper.deserialize(msgContent).sampleId());
         // if this topic is new, create a new channel for it
         /*
         if (channelMap.get(msgTopic) == null) {
@@ -99,7 +99,7 @@ public class MainChannel extends MsgChannel {
         */
         // if this topic is new, report to Load Balancer
         if (dispatcher.getPlan().getChannelMapping().getChannelPlan(msgTopic) == null) {
-            //logger.info("New topic detected, reporting to load balancer. topic: {}", msgTopic);
+            logger.info("New topic detected, reporting to load balancer. topic: {}", msgTopic);
             dispatcher.registerChannelToLB(msgTopic);
         }
     }
@@ -113,7 +113,7 @@ public class MainChannel extends MsgChannel {
         byte[] msgContent = sendingMsg.getLast().getData();
         sendSocket.sendMore(msgTopic);
         sendSocket.send(msgContent);
-        logger.debug("Message Sent from Main Channel: Topic: {} ID: {}", topic, msgTopic, DataSampleHelper.deserialize(msgContent).sampleId());
+        logger.info("Message Sent from Main Channel: Topic: {} ID: {}", topic, msgTopic, DataSampleHelper.deserialize(msgContent).sampleId());
     }
 
 

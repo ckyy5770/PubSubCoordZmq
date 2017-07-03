@@ -1,7 +1,6 @@
 package edu.vanderbilt.chuilian.brokers.edge;
 
-import edu.vanderbilt.chuilian.loadbalancer.Dispatcher;
-import edu.vanderbilt.chuilian.loadbalancer.LoadAnalyzer;
+import edu.vanderbilt.chuilian.loadbalancer.*;
 import edu.vanderbilt.chuilian.types.DataSampleHelper;
 import edu.vanderbilt.chuilian.util.PortList;
 import edu.vanderbilt.chuilian.util.ZkConnect;
@@ -107,10 +106,13 @@ public class MsgChannel {
         workerFuture = executor.submit(() -> {
             logger.info("Channel Worker Thread Started. topic: {} ", topic);
             while (true) {
-                receiver();
-                sender();
+                worker();
+                //receiver();
+                //sender();
             }
         });
+
+        //
 
         /* msg channel do not have a terminator anymore
         // terminator will periodically check if there is still a publisher or subscriber alive on this topic
@@ -154,16 +156,35 @@ public class MsgChannel {
         logger.info("Channel Closed. topic: {}", topic);
     }
 
-    public void receiver() throws Exception {
-        // just keep receiving and sending messages
+    public void worker(){
+        // receive one msg
+        ZMsg receivedMsg = ZMsg.recvMsg(recSocket);
+        String msgTopic = new String(receivedMsg.getFirst().getData());
+        byte[] msgContent = receivedMsg.getLast().getData();
+
+        // load balancer module: update metrics
+        BrokerReport br = loadAnalyzer.getBrokerReport();
+        br.updateBytes(msgTopic, msgContent.length);
+
+        sendSocket.sendMore(msgTopic);
+        sendSocket.send(msgContent);
+
+        // load balancer module: update metrics
+        br.updateBytes(msgTopic, msgContent.length);
+        br.updateMsgs(msgTopic, 1);
+        br.updatePublications(msgTopic, 1);
+    }
+
+
+    public void receiver() {
+        // receive one msg
         ZMsg receivedMsg = ZMsg.recvMsg(recSocket);
         String msgTopic = new String(receivedMsg.getFirst().getData());
         byte[] msgContent = receivedMsg.getLast().getData();
         messageQueue.add(receivedMsg);
-
         // load balancer module: update metrics
         loadAnalyzer.getBrokerReport().updateBytes(msgTopic, msgContent.length);
-        logger.debug("Message Received at Channel ({}) Topic: {} ID: {}", topic, msgTopic, DataSampleHelper.deserialize(msgContent).sampleId());
+        //logger.info("Message Received at Channel ({}) Topic: {} ID: {}", topic, msgTopic, DataSampleHelper.deserialize(msgContent).sampleId());
     }
 
     public void sender() throws Exception {
@@ -176,10 +197,11 @@ public class MsgChannel {
         sendSocket.send(msgContent);
 
         // load balancer module: update metrics
-        loadAnalyzer.getBrokerReport().updateBytes(msgTopic, msgContent.length);
-        loadAnalyzer.getBrokerReport().updateMsgs(msgTopic, 1);
-        loadAnalyzer.getBrokerReport().updatePublications(msgTopic, 1);
-        logger.debug("Message Sent from Channel ({}) Topic: {} ID: {}", topic, msgTopic, DataSampleHelper.deserialize(msgContent).sampleId());
+        BrokerReport br = loadAnalyzer.getBrokerReport();
+        br.updateBytes(msgTopic, msgContent.length);
+        br.updateMsgs(msgTopic, 1);
+        br.updatePublications(msgTopic, 1);
+        //logger.info("Message Sent from Channel ({}) Topic: {} ID: {}", topic, msgTopic, DataSampleHelper.deserialize(msgContent).sampleId());
     }
 
 

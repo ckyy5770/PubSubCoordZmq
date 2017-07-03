@@ -1,7 +1,8 @@
 package edu.vanderbilt.chuilian.loadbalancer;
 
 import edu.vanderbilt.chuilian.types.TypesChannelReport;
-import sun.plugin.dom.exception.InvalidStateException;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.ArrayList;
 
@@ -17,11 +18,13 @@ public class ChannelReport {
     long numPublications = 0;
     long numSubscribers = 0;
 
-    ChannelReport(String topic) {
+    private static final Logger logger = LogManager.getLogger(ChannelReport.class.getName());
+
+    public ChannelReport(String topic) {
         this.topic = topic;
     }
 
-    ChannelReport(TypesChannelReport typesChannelReport) {
+    public ChannelReport(TypesChannelReport typesChannelReport) {
         this.topic = typesChannelReport.topic();
         this.numIOBytes = typesChannelReport.numIOBytes();
         this.numIOMsgs = typesChannelReport.numIOMsgs();
@@ -29,7 +32,7 @@ public class ChannelReport {
         this.numPublications = typesChannelReport.numPublications();
     }
 
-    ChannelReport(ChannelReport originalReport, int shrinkingParameter) {
+    public ChannelReport(ChannelReport originalReport, int shrinkingParameter) {
         this.topic = originalReport.topic;
         this.numIOBytes = originalReport.getNumIOBytes() / shrinkingParameter;
         this.numIOMsgs = originalReport.getNumIOMsgs() / shrinkingParameter;
@@ -59,7 +62,7 @@ public class ChannelReport {
 
     public void mergeWith(ChannelReport that) {
         if (that.getTopic() != this.getTopic())
-            throw new InvalidStateException("cant merge two channel reports with different topics!");
+            throw new IllegalArgumentException("cant merge two channel reports with different topics!");
         this.numIOBytes += that.numIOBytes;
         this.numIOMsgs += that.numIOMsgs;
         this.numPublications += that.numPublications;
