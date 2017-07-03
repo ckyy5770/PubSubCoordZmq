@@ -28,6 +28,9 @@
         <File name="types" fileName="logs/types.log" append="false">
             <PatternLayout pattern="%d{HH:mm:ss.SSS} %-5level %class{36} %L %M - %msg%xEx%n"/>
         </File>
+        <File name="results" fileName="logs/results.log" append="false">
+            <PatternLayout pattern="%msg%xEx%n"/>
+        </File>
     </Appenders>
     <Loggers>
         <Logger name="edu.vanderbilt.chuilian.brokers.edge" level="info" additivity="false">
@@ -59,6 +62,9 @@
             <AppenderRef ref="Console"/>
             <AppenderRef ref="all"/>
             <AppenderRef ref="types"/>
+        </Logger>
+        <Logger name="TestResult" level="info" additivity="false">
+            <AppenderRef ref="results"/>
         </Logger>
         <Root level="error">
             <AppenderRef ref="Console"/>

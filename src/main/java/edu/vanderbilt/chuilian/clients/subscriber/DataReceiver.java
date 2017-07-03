@@ -1,5 +1,6 @@
 package edu.vanderbilt.chuilian.clients.subscriber;
 
+import edu.vanderbilt.chuilian.types.DataSample;
 import edu.vanderbilt.chuilian.types.DataSampleHelper;
 import edu.vanderbilt.chuilian.util.MsgBuffer;
 import edu.vanderbilt.chuilian.util.MsgBufferMap;
@@ -33,6 +34,7 @@ public class DataReceiver {
     String subID;
 
     private static final Logger logger = LogManager.getLogger(DataReceiver.class.getName());
+    private static final Logger loggerTestResult = LogManager.getLogger("TestResult");
 
     //default constructor simply do nothing
     protected DataReceiver() {
@@ -91,7 +93,13 @@ public class DataReceiver {
         ZMsg receivedMsg = ZMsg.recvMsg(recSocket);
         String msgTopic = new String(receivedMsg.getFirst().getData());
         byte[] msgContent = receivedMsg.getLast().getData();
+        DataSample data = DataSampleHelper.deserialize(msgContent);
+        calculateLatencyAndSave(data);
         logger.info("Message Received at Receiver ({}) Topic: {} ID: {}", topic, msgTopic, DataSampleHelper.deserialize(msgContent).sampleId());
         msgBuffer.add(receivedMsg);
+    }
+
+    public void calculateLatencyAndSave(DataSample data){
+        loggerTestResult.info("{}, {}", data.sampleId(), (System.currentTimeMillis() - data.tsMilisec()));
     }
 }
