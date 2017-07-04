@@ -1,5 +1,6 @@
 #!/usr/bin/python                                                                            
 
+import os
 from time import sleep
 																				   
 from mininet.topo import Topo
@@ -11,6 +12,7 @@ from mininet.node import Host
 
 PATH_LOGS = '/media/sf_SharedFolderWithMininetVM/TestEnv/logs/'
 PATH_TMP = '/media/sf_SharedFolderWithMininetVM/TestEnv/tmp/'
+PATH_RESULT = '/media/sf_SharedFolderWithMininetVM/TestEnv/results/'
 PATH_ZOOKEEPER_SERVER = '/media/sf_SharedFolderWithMininetVM/TestEnv/zookeeper-3.4.10/bin/zkServer.sh'
 PORT_ZOOKEEPER_SERVER = '2181'
 PATH_ZOOKEEPER_CLIENT = '/media/sf_SharedFolderWithMininetVM/TestEnv/zookeeper-3.4.10/bin/zkCli.sh'
@@ -26,10 +28,11 @@ PATH_EDGEBROKER_OUT = PATH_TMP + 'edgeBroker.out'
 PATH_PUBLISHER_OUT = PATH_TMP + 'publisher.out'
 PATH_SUBSCRIBER_OUT = PATH_TMP + 'subscriber.out'
 
-HOST_NUM = 100
-EDGEBROKER_NUM = 2
-SUBSCRIBER_NUM = 1
-PUBLISHER_NUM = 1
+PUBLISHING_TIME_SCEONDS = 180
+HOST_NUM = 100;
+SUB_NUM_PER_HOST = 5
+TEST_NAME = "PUB1_BROKER1_SUB100"
+TEST_RESULT_PATH = PATH_RESULT + TEST_NAME + '/'
 
 class SingleSwitchTopo(Topo):
 	"Single switch connected to n hosts."
@@ -65,7 +68,7 @@ def printIPconfig(net):
 def runZooKeeper(zkhost):
 	"Run zookeeper server on a host"
 	print "* Starting zookeeper server on host " + str(zkhost)
-	print PATH_ZOOKEEPER_SERVER + " start" + " &> " + PATH_ZOOKEEPER_SERVER_OUT + " &" 
+	#print PATH_ZOOKEEPER_SERVER + " start" + " &> " + PATH_ZOOKEEPER_SERVER_OUT + " &" 
 	zkhost.cmd(PATH_ZOOKEEPER_SERVER + " start" + " &> " + PATH_ZOOKEEPER_SERVER_OUT + " &" )
 
 def stopZooKeeper(zkhost):
@@ -83,23 +86,23 @@ def testZooKeeper(clihost,zkhost):
 def runLoadBalancer(lbhost):
 	"Run load balancer on a host"
 	print "* Starting loadbalancer on host " + str(lbhost)
-	print "sudo " + PATH_LOADBALANCER + " &> " + PATH_LOADBALANCER_OUT + " &"
+	#print "sudo " + PATH_LOADBALANCER + " &> " + PATH_LOADBALANCER_OUT + " &"
 	lbhost.cmd("sudo " + PATH_LOADBALANCER + " &> " + PATH_LOADBALANCER_OUT + " &")
 
 def runEdgeBroker(host):
 	"Run edge broker on a host"
 	print "* Starting edgeBroker on host " + str(host)
-	host.cmd("sudo " + PATH_EDGEBROKER + " &> " + PATH_EDGEBROKER_OUT + " &")
+	host.cmd("sudo " + PATH_EDGEBROKER + " &> " + PATH_TMP + 'edgeBroker' + str(host) + '.out' + " &")
 
 def runPublisher(host):
 	"Run publisher on a host"
 	print "* Starting publisher on host " + str(host)
 	host.cmd("sudo " + PATH_PUBLISHER + " &> " + PATH_PUBLISHER_OUT + " &")
 
-def runSubscriber(host):
-	"Run subscriber on a host"
-	print "* Starting subscriber on host " + str(host)
-	host.cmd("sudo " + PATH_SUBSCRIBER + " &> " + PATH_SUBSCRIBER_OUT + " &")
+def runSubscriber(host, instanceID):
+	"Run one subscriber instance on a host"
+	print "* Starting subscriber " + str(instanceID) + " on host " + str(host)
+	host.cmd("sudo " + PATH_SUBSCRIBER + " &> " + TEST_RESULT_PATH + 'Host' + str(host) + 'Sub' + str(instanceID) + '.out' + " &")
 
 def stopAllProc(host):
 	"Kill all background processes running on a host"
@@ -112,7 +115,25 @@ def stopAllHosts(hosts):
 	for host in hosts:
 		stopAllProc(host)
 
-def simpleTest(net):
+def test(hostnum, pubnum, subnum, ebrokernum):
+	global HOST_NUM
+	global TEST_NAME
+	global TEST_RESULT_PATH
+
+	HOST_NUM = hostnum
+	# build a mininet with hostnum hosts and 1 switch
+	topo = SingleSwitchTopo(n=hostnum)
+	privateDirs = [ ( '/var/log', PATH_TMP + '/private/%(name)s/var/log' ), ( '/var/run', PATH_TMP + '/private/%(name)s/var/run' ) ]
+	host = partial(Host, privateDirs=privateDirs)
+	net = Mininet(topo=topo, host=host)
+	# start mininet
+	net.start()
+
+	TEST_NAME = "_PUB" + str(pubnum) + "_EBROKER" + str(ebrokernum) + "_SUB" + str(subnum)
+	TEST_RESULT_PATH = PATH_RESULT + TEST_NAME + '/'
+
+	if not os.path.exists(TEST_RESULT_PATH):
+		os.makedirs(TEST_RESULT_PATH)
 
 	printIPconfig(net)
 	sleep(5)
@@ -125,33 +146,32 @@ def simpleTest(net):
 	runLoadBalancer(lbhost)
 	sleep(10)
 
-	# host number 11 - 50 is reserved for edge brokers
+	# host number 3 - 5 is reserved for edge brokers
 	edgeBrokerHosts = []
-	for n in range(EDGEBROKER_NUM):
-		host = net.get('h' + str(11 + n))
+	for n in range(ebrokernum):
+		host = net.get('h' + str(3 + n))
 		runEdgeBroker(host)
-		edgeBrokerHosts.append(host)
-		sleep(10)
+		edgeBrokerHosts.append(host)	
+	sleep(10)
 
-	# host number 51 - 70 is reserved for subscribers
+	# host number 11 - 10000 is reserved for subscribers
 	subscriberHosts = []
-	for n in range(SUBSCRIBER_NUM):
-		host = net.get('h' + str(51 + n))
-		runSubscriber(host)
+	for n in range(subnum):
+		host = net.get('h' + str(11 + n))
+		for i in range(SUB_NUM_PER_HOST):
+			runSubscriber(host, i)
 		subscriberHosts.append(host)
-		sleep(10)
+	sleep(10)
 
-	# host number 71 - 90 is reserved for publishers
+	# host number 6 - 10 is reserved for publishers
 	publisherHosts = []
-	for n in range(PUBLISHER_NUM):
-		host = net.get('h' + str(71 + n))
+	for n in range(pubnum):
+		host = net.get('h' + str(6 + n))
 		runPublisher(host)
 		publisherHosts.append(host)
-		sleep(10)
+	sleep(5)
 
-
-	sleep(60)
-
+	sleep(PUBLISHING_TIME_SCEONDS)
 
 	stopAllHosts(publisherHosts)
 	sleep(2)
@@ -164,22 +184,25 @@ def simpleTest(net):
 	stopZooKeeper(zkhost)
 	sleep(2)
 	stopAllProc(zkhost)
+	sleep(2)
+
+	# stop mininet
+	net.stop()
 
 if __name__ == '__main__':
 	# Tell mininet to print useful information
 	setLogLevel('info')
-	# build a mininet with HOST_NUM hosts and 1 switch
-	topo = SingleSwitchTopo(n=HOST_NUM)
-	privateDirs = [ ( '/var/log', PATH_TMP + '/private/%(name)s/var/log' ), ( '/var/run', PATH_TMP + '/private/%(name)s/var/run' ) ]
-	host = partial(Host, privateDirs=privateDirs)
-	net = Mininet(topo=topo, host=host)
-	# start mininet
-	net.start()
+
 	# testing.....
 	# testConnectivity(net)
 	# testIPconfig(net)
 	# printIPconfig(net)
 
-	simpleTest(net)
-	# stop mininet
-	net.stop()
+	startPubHostNum = 7
+	step = 2
+	time = 1
+
+	for i in range(time):
+		curSubNum = startPubHostNum	 + step * i
+		test(hostnum = 10 + curSubNum, subnum = curSubNum, pubnum = 1, ebrokernum = 1)
+	
