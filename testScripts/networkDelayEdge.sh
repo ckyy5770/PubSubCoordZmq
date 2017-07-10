@@ -33,8 +33,11 @@ sudo tc filter add dev enp0s3 protocol ip parent 1: prio 1 u32 match ip dst $ROU
 # foward pkgs for CLIENT_REGION to 1:2
 sudo tc filter add dev enp0s3 protocol ip parent 1: prio 1 u32 match ip dst $CLIENT_REGION flowid 1:2
 
-# forward other pkgs to 1:3
-sudo tc filter add dev enp0s3 protocol ip parent 1: prio 1 flowid 1:3
+# forward other pkgs to 1:3, just match every thing and forward them to 1:3
+sudo tc filter add dev enp0s3 protocol ip parent 1: prio 1 u32 match ip dst 0/0 flowid 1:3
+# this line doesn't work, it should work though, according to tc HOWTO
+# sudo tc filter add dev enp0s3 protocol ip parent 1: prio 1 flowid 1:3
 
 # print configuration results
 sudo tc -s qdisc ls dev enp0s3
+sudo tc filter show dev enp0s3
