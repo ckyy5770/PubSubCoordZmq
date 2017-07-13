@@ -1,5 +1,7 @@
 from __future__ import print_function
 import os
+import re
+import subprocess
 import shutil
 import time
 from time import localtime, strftime, sleep
@@ -41,6 +43,7 @@ TESTING_DATE = strftime("%Y-%m-%d", localtime())
 
 # this file stores the latest metrics at the time of last query
 LAST_METRICS_FOLDER = './lastMetrics'
+NETWORK_LIMIT = 0.0
 
 
 
@@ -97,11 +100,11 @@ def getMetrics():
 		os.remove(DATA_ROOT_PATH + '/' + mem + '/'  + 'percent-used-' + TESTING_DATE)
 
 	# get network metrics
-	# the calculation of network usage is different since collectd gives ACCUMULATIVE number of recived packets, transmitted packets of a interface
-	# we here calculate the number of packets received/transmitted per second in the time period between now and last query
+	# the calculation of network usage is different since collectd gives ACCUMULATIVE number of recived bytes, transmitted bytes of a interface
+	# we here calculate the number of bytes received/transmitted per second in the time period between now and last query
 	netUsage = []
 	for interface in INTERFACE_SET:
-		with open(DATA_ROOT_PATH + '/' + interface + '/' + 'if_packets-' + TESTING_DATE, 'r') as f:
+		with open(DATA_ROOT_PATH + '/' + interface + '/' + 'if_octets-' + TESTING_DATE, 'r') as f:
 			# save the last line
 			lastLine = None
 			# omit first line
@@ -111,7 +114,7 @@ def getMetrics():
 			# read previous last line from file
 			oldLastLine = None
 			directory = LAST_METRICS_FOLDER + '/' + interface + '/' 
-			with open(directory + 'if_packets-' + TESTING_DATE, 'r') as lastf:
+			with open(directory + 'if_octets-' + TESTING_DATE, 'r') as lastf:
 				oldLastLine = lastf.readline()
 			# get proper rx, tx rate
 			oldData = oldLastLine.split(',')
@@ -120,14 +123,20 @@ def getMetrics():
 			rxDiff = float(newData[1]) - float(oldData[1])
 			txDiff = float(newData[2]) - float(oldData[2])
 			res = [];
+			# rx bytes/s
 			res.append(rxDiff/timeElapsed)
+			# rx usage rate -> bytes/s / limit
+			res.append(rxDiff/timeElapsed/NETWORK_LIMIT)
+			# tx bytes/s
 			res.append(txDiff/timeElapsed)
+			# tx usage rate -> bytes/s / limit
+			res.append(txDiff/timeElapsed/NETWORK_LIMIT)
 			netUsage.append(res)
 			# save new last line to file
-			with open(directory + 'if_packets-' + TESTING_DATE, 'w') as lastf:
+			with open(directory + 'if_octets-' + TESTING_DATE, 'w') as lastf:
 				print(lastLine, file=lastf)
 		# clear the data file
-		os.remove(DATA_ROOT_PATH + '/' + interface + '/' + 'if_packets-' + TESTING_DATE)
+		os.remove(DATA_ROOT_PATH + '/' + interface + '/' + 'if_octets-' + TESTING_DATE)
 
 	# print metric or any other output methods
 	metricsOut(cpuUsage,memUsage,netUsage)
@@ -147,7 +156,7 @@ def metricsOut(cpu, mem, net):
 
 		print('network usage:', file=f, end=' ')
 		for entry in net:
-			print("rx=%.2f, tx=%.2f (pkt/s)" % (entry[0], entry[1]), file=f, end=' ')
+			print("rx=%.2f (bytes/s) usage=%.2f %% tx=%.2f (bytes/s) usage=%.2f %%" % (entry[0], entry[1]*100, entry[2], entry[3]*100), file=f, end=' ')
 		print('', file=f, end='\n')
 
 def initLastMetrics():
@@ -180,7 +189,7 @@ def initLastMetrics():
 				print(lastLine, file=lastf)
 	
 	for interface in INTERFACE_SET:
-		with open(DATA_ROOT_PATH + '/' + interface + '/' + 'if_packets-' + TESTING_DATE, 'r') as f:
+		with open(DATA_ROOT_PATH + '/' + interface + '/' + 'if_octets-' + TESTING_DATE, 'r') as f:
 			# save the last line
 			lastLine = None
 			# omit first line
@@ -190,11 +199,26 @@ def initLastMetrics():
 			directory = LAST_METRICS_FOLDER + '/' + interface + '/'
 			if not os.path.exists(directory):
 				os.makedirs(directory)
-			with open(directory + 'if_packets-' + TESTING_DATE, 'w') as lastf:
+			with open(directory + 'if_octets-' + TESTING_DATE, 'w') as lastf:
 				print(lastLine, file=lastf)
 
+def getNetworkLimit():
+	bashCommand = "sudo ethtool enp0s3"
+	process = subprocess.Popen(bashCommand.split(), stdout=subprocess.PIPE)
+	output, error = process.communicate()
+	speedstr = re.findall('Speed: \d+', str(output))[0]
+	limit = int(speedstr[7:])
+	if not os.path.exists(LAST_METRICS_FOLDER):
+		os.makedirs(LAST_METRICS_FOLDER)
+	with open(LAST_METRICS_FOLDER + '/' + 'netLimit', 'w') as f:
+		print(limit, file=f)
+	global NETWORK_LIMIT
+	# MegaBytes to Bytes
+	NETWORK_LIMIT = limit * 1e6 /8 /10
 
 if __name__ == '__main__':
+	# get network interface limit
+	getNetworkLimit()
 	# clear data folder
 	shutil.rmtree(DATA_ROOT_PATH)
 	# wait for 20 second and get init metrics
