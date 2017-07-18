@@ -100,6 +100,6 @@ public class DataReceiver {
     }
 
     public void calculateLatencyAndSave(DataSample data){
-        loggerTestResult.info("{}, {}", data.sampleId(), (System.currentTimeMillis() - data.tsMilisec()));
+        loggerTestResult.info("{}, {}, {}", this.topic, data.sampleId(), (System.currentTimeMillis() - data.tsMilisec()));
     }
 }

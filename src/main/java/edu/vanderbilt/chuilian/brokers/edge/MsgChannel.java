@@ -2,15 +2,14 @@ package edu.vanderbilt.chuilian.brokers.edge;
 
 import edu.vanderbilt.chuilian.loadbalancer.*;
 import edu.vanderbilt.chuilian.types.DataSampleHelper;
-import edu.vanderbilt.chuilian.util.PortList;
-import edu.vanderbilt.chuilian.util.ZkConnect;
+import edu.vanderbilt.chuilian.util.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.zeromq.ZMQ;
 import org.zeromq.ZMsg;
 
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Future;
+import java.util.HashMap;
+import java.util.concurrent.*;
 
 /**
  * Created by Chuilian on 5/23/17.
@@ -52,6 +51,7 @@ public class MsgChannel {
     // broker dispatcher
     Dispatcher dispatcher;
     LoadAnalyzer loadAnalyzer;
+    int priority;
 
     private static final Logger logger = LogManager.getLogger(MsgChannel.class.getName());
 
@@ -65,6 +65,16 @@ public class MsgChannel {
      * @param executor executor for worker threads, there should be only one executor within a broker
      */
     public MsgChannel(String topic, PortList portList, ExecutorService executor, ZkConnect zkConnect, ChannelMap channelMap, Dispatcher dispatcher, LoadAnalyzer loadAnalyzer, String ip) {
+        // priority settings
+        HashMap<String, Integer> priorityMap = new HashMap<>();
+        for(int i=0; i<50; i++){
+            priorityMap.put(Integer.toString(i), 50-i);
+        }
+        if(!priorityMap.containsKey(topic)){
+            this.priority = 0;
+        }else{
+            this.priority = priorityMap.get(topic);
+        }
         // initialize member vars
         this.ip = ip;
         this.topic = topic;
@@ -103,14 +113,10 @@ public class MsgChannel {
         logger.info("Channel Started. topic: {} ip: {} recPort: {} sendPort: {}", topic, ip, recPort, sendPort);
 
         // begin receiving messages
-        workerFuture = executor.submit(() -> {
-            logger.info("Channel Worker Thread Started. topic: {} ", topic);
-            while (true) {
-                worker();
-                //receiver();
-                //sender();
-            }
-        });
+        PriorityWorker pWorker = new PriorityWorker(this.priority);
+        workerFuture = executor.submit(pWorker);
+
+
 
         //
 
@@ -203,6 +209,73 @@ public class MsgChannel {
         br.updatePublications(msgTopic, 1);
         //logger.info("Message Sent from Channel ({}) Topic: {} ID: {}", topic, msgTopic, DataSampleHelper.deserialize(msgContent).sampleId());
     }
+
+    class PriorityWorker implements PriorityRunnable {
+        private int priority;
+
+        public PriorityWorker(int priority) {
+            this.priority = priority;
+        }
+
+        public void run() {
+            //Thread.currentThread().setPriority(this.priority);
+            logger.info("Channel Worker Thread Started. topic: {}, priority: {}", topic, priority);
+            while (true) {
+                worker();
+                //receiver();
+                //sender();
+            }
+        }
+
+        public int getPriority() {
+            return priority;
+        }
+    }
+
+    class PriorityReceiver implements PriorityRunnable {
+        private int priority;
+
+        public PriorityReceiver(int priority) {
+            this.priority = priority;
+        }
+
+        public void run() {
+            logger.info("Channel Receiver Thread Started. topic: {}, priority: {}", topic, priority);
+            while (true) {
+                receiver();
+                //sender();
+            }
+        }
+
+        public int getPriority() {
+            return priority;
+        }
+    }
+
+    class PrioritySender implements PriorityRunnable {
+        private int priority;
+
+        public PrioritySender(int priority) {
+            this.priority = priority;
+        }
+
+        public void run() {
+            logger.info("Channel Sender Thread Started. topic: {}, priority: {}", topic, priority);
+            while (true) {
+                //receiver();
+                try {
+                    sender();
+                }catch (Exception e){
+
+                }
+            }
+        }
+
+        public int getPriority() {
+            return priority;
+        }
+    }
+
 
 
 }

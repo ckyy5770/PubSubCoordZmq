@@ -2,16 +2,14 @@ package edu.vanderbilt.chuilian.brokers.edge;
 
 import edu.vanderbilt.chuilian.loadbalancer.Dispatcher;
 import edu.vanderbilt.chuilian.loadbalancer.LoadAnalyzer;
-import edu.vanderbilt.chuilian.util.PortList;
-import edu.vanderbilt.chuilian.util.UtilMethods;
-import edu.vanderbilt.chuilian.util.ZkConnect;
+import edu.vanderbilt.chuilian.util.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.core.net.Priority;
 
 import java.net.InetAddress;
 import java.util.Map;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.*;
 
 public class EdgeBroker {
     private String ip;
@@ -44,13 +42,24 @@ public class EdgeBroker {
         this.channelMap = new ChannelMap();
         // init port list
         this.portList = new PortList();
-        // init executors
-        this.channelExecutor = Executors.newFixedThreadPool(20);
         // make a new zookeeper connector
         this.zkConnect = new ZkConnect();
         // load balancer module: create a dispatcher
         this.dispatcher = new Dispatcher(brokerID, zkConnect, channelMap);
         this.loadAnalyzer = new LoadAnalyzer(brokerID, zkConnect);
+
+        // init prio executorService
+        int nThreads = 100;
+        int qInitialSize = 200;
+
+        this.channelExecutor = new ThreadPoolExecutor(nThreads, nThreads, 0L, TimeUnit.MILLISECONDS,
+                new PriorityBlockingQueue<Runnable>(qInitialSize, new PriorityFutureComparator())) {
+
+            protected <T> RunnableFuture<T> newTaskFor(Runnable runnable, T value) {
+                RunnableFuture<T> newTaskFor = super.newTaskFor(runnable, value);
+                return new PriorityFuture<T>(newTaskFor, ((PriorityRunnable) runnable).getPriority());
+            }
+        };
     }
 
     /**
@@ -109,7 +118,7 @@ public class EdgeBroker {
     public static void main(String args[]) throws Exception {
         EdgeBroker broker = new EdgeBroker();
         broker.start();
-        //Thread.sleep(10000);
+        //Thread.sleep(10*1000);
         //broker.stop();
     }
 

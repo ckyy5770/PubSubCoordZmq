@@ -33,15 +33,11 @@
         </File>
     </Appenders>
     <Loggers>
-        <Logger name="edu.vanderbilt.chuilian.brokers.edge" level="error" additivity="false">
+        <Logger name="edu.vanderbilt.chuilian.brokers.edge" level="info" additivity="false">
             <AppenderRef ref="Console"/>
-            <AppenderRef ref="all"/>
-            <AppenderRef ref="broker"/>
         </Logger>
-        <Logger name="edu.vanderbilt.chuilian.clients.publisher" level="error" additivity="false">
+        <Logger name="edu.vanderbilt.chuilian.clients.publisher" level="info" additivity="false">
             <AppenderRef ref="Console"/>
-            <AppenderRef ref="all"/>
-            <AppenderRef ref="publisher"/>
         </Logger>
         <Logger name="edu.vanderbilt.chuilian.clients.subscriber" level="error" additivity="false">
             <AppenderRef ref="all"/>

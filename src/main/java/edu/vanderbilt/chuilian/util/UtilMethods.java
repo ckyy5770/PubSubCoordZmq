@@ -41,7 +41,6 @@ public class UtilMethods {
         return fileLines[0];
 
 
-
     }
 
     public static String getZookeeperAddress(){

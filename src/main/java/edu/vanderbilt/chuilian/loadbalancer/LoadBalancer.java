@@ -129,14 +129,15 @@ public class LoadBalancer {
         byte[] msgContent = receivedMsg.getLast().getData();
         if (msgTopic.equals("registerChannel")) {
             String channel = new String(msgContent);
-            logger.debug("Received Channel Register request. Channel: {}", channel);
+            logger.info("Received Channel Register request. Channel: {}", channel);
             if (consistentHashingMap.getBroker(channel) != null) {
-                logger.debug("Channel Already Exists. Channel: {}", channel);
+                logger.info("Channel Already Exists. Channel: {}", channel);
             } else {
                 consistentHashingMap.registerChannel(channel);
                 currentPlan.getChannelMapping().registerNewChannel(channel, consistentHashingMap);
                 currentPlan.updateVersion();
                 logger.info("Registered new channel: {}", channel);
+                logger.info("Current Plan Changed. Version: {}", currentPlan.getVersion());
             }
             return;
         }
@@ -155,7 +156,8 @@ public class LoadBalancer {
      * process reports and generate new plan, send new plan to dispatchers
      */
     private void processor() {
-        //logger.info("Processor starts.");
+        logger.debug("Processor starts.");
+        /*
         BrokerLoadReportBuffer reports = brokerLoadReportBuffer.snapShot();
         // TODO: 6/7/17 not support Low load plan now. the generator for low load plan always returns null.
         // initialize a report analyzer
@@ -167,7 +169,7 @@ public class LoadBalancer {
         ArrayList<LowLoadPlan> lowLoadPlans = SystemPlanGenerator.lowLoadPlanGenerator(analyzer);
         // apply plan --> generate channel mapping
         currentPlan.applyNewPlan(channelPlans, highLoadPlans, lowLoadPlans);
-
+        */
         // TODO: 6/7/17 plan serialization
         sendSocket.sendMore("plan");
         sendSocket.send(TypesPlanHelper.serialize(currentPlan, System.currentTimeMillis()));

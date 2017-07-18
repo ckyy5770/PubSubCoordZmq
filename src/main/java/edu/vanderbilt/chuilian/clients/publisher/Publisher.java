@@ -4,6 +4,8 @@ import edu.vanderbilt.chuilian.types.DataSampleHelper;
 import edu.vanderbilt.chuilian.util.MsgBufferMap;
 import edu.vanderbilt.chuilian.util.UtilMethods;
 import edu.vanderbilt.chuilian.util.ZkConnect;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
@@ -19,6 +21,7 @@ public class Publisher {
 	private final MsgBufferMap msgBufferMap;
 	private final ZkConnect zkConnect;
 	private String zkAddress;
+	private static final Logger logger = LogManager.getLogger(Publisher.class.getName());
 
 	public Publisher() {
         // get zookeeper server address
@@ -84,6 +87,7 @@ public class Publisher {
 	 */
 	public void register(String topic) throws Exception{
 		// already registered
+		logger.info("registering topic: {}", topic);
 		if(topicSenderMap.get(topic) != null) return;
 
 		DefaultSender defaultSender = topicSenderMap.getDefault();
@@ -91,15 +95,23 @@ public class Publisher {
 			// this should never happen in a well-designed system
 			throw new IllegalStateException("cannot get default sender");
 		}
-		// register channel
-		defaultSender.send(topic, DataSampleHelper.serialize(-1, 1, 1, 0, -1, 10));
+		logger.info("sending a register msg to default broker");
 
-		while(true){
+		//defaultSender.send(topic, DataSampleHelper.serialize(-1, 1, 1, 0, -1, 10));
+
+		boolean isCreated = false;
+		while(!isCreated){
+			// register channel
+			defaultSender.send(topic, DataSampleHelper.serialize(-1, 1, 1, 0, -1, 10));
+			logger.debug("waiting for new channel to be created");
 			// wait for new channel to be created
 			Thread.sleep(5000);
+			logger.debug("trying to get sending address from zookeeper");
 			// try to get sending from zookeeper
 			String address = getAddress(topic);
 			if(address == null) continue;
+			isCreated = true;
+			logger.debug("got it, starting new sender");
 			DataSender sender = topicSenderMap.register(topic, address, this.msgBufferMap, this.executor, this.zkConnect, this.ip);
 			sender.start();
 		}
@@ -169,11 +181,18 @@ public class Publisher {
     }
 
 
+	/**
+	 *
+	 * @param args "topic1 topic2 topic3 ..."
+	 * @throws Exception
+	 */
 	public static void main(String args[]) throws Exception {
 		Publisher pub = new Publisher();
 		pub.start();
-		pub.register("topic1");
-		Thread.sleep(240 * 1000);
+		for(String arg : args){
+			pub.register(arg);
+		}
+		Thread.sleep(6 * 60 * 1000);
 		pub.close();
 
 		// correctness test

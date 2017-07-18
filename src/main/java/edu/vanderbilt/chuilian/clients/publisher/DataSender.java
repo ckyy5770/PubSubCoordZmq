@@ -70,7 +70,7 @@ public class DataSender {
         future = executor.submit(() -> {
             logger.info("New sender thread created, topic: {}", topic);
             int counter = 0;
-            double sendInterval = 50.0;
+            double sendInterval = 10.0;
             logger.info("sending messages in Interval: {} ms", sendInterval);
             while (true) {
                 try {
@@ -145,7 +145,7 @@ public class DataSender {
         byte[] msgContent = msg.getLast().getData();
         sendSocket.sendMore(msgTopic);
         sendSocket.send(msgContent);
-        logger.info("Message Sent from Sender ({}) Topic: {} ID: {}", topic, msgTopic, DataSampleHelper.deserialize(msgContent).sampleId());
+        logger.debug("Message Sent from Sender ({}) Topic: {} ID: {}", topic, msgTopic, DataSampleHelper.deserialize(msgContent).sampleId());
     }
 
     // user should send messages only through this method

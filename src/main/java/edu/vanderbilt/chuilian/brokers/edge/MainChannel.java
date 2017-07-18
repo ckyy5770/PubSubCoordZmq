@@ -43,6 +43,7 @@ public class MainChannel extends MsgChannel {
 
         // start receiving messages
         workerFuture = executor.submit(() -> {
+            Thread.currentThread().setPriority(Thread.NORM_PRIORITY);
             logger.info("Main Channel Worker Thread Started. ");
             while (true) {
                 receiver();
@@ -73,6 +74,7 @@ public class MainChannel extends MsgChannel {
         recContext.term();
         sendSocket.close();
         sendContext.term();
+
         // return used port to port list
         portList.put(recPort);
         portList.put(sendPort);

@@ -197,10 +197,17 @@ public class Subscriber {
 		return addresses[randomNum].split(",")[1];
 	}
 
+	/**
+	 *
+	 * @param args topics that this subscriber should subscribe
+	 * @throws Exception
+	 */
 	public static void main(String args[]) throws Exception {
 		Subscriber sub = new Subscriber();
 		sub.start();
-		sub.subscribe("topic1");
+		for(String arg : args){
+			sub.subscribe(arg);
+		}
 		Thread.sleep(200*1000);
 		//sub.close();
 
