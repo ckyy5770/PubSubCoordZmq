@@ -2,16 +2,36 @@
 from __future__ import print_function
 import os
 
-DATA_SET_PATH = "/media/sf_SharedFolderWithMininetVM/TestEnv/results/pr10ms_5subperhost/"
-RESULT_PATH = "/media/sf_SharedFolderWithMininetVM/TestEnv/results/" + 'pr10ms_5subperhost.res'
-CALCULATE_AVG_FROM_MSG = 27000
+DATA_SET_PATH = "/media/sf_SharedFolderWithMininetVM/TestEnv/results/pr10ms_1subperhost_1topics_12min/"
+#RESULT_PATH = "/media/sf_SharedFolderWithMininetVM/TestEnv/results/" + 'pr10ms_5subperhost_5topics.res'
+CALCULATE_AVG_FROM_MSG = 10000
+TOPIC_NUM = 9
 
 
 def isNumber(character):
 	return character >= '0' and character <= '9'
 
 
+class topicStats():
+	def __init__(self):
+		self.allMissingMsgNum = 0
+		self.allAvgCount = 0
+		self.allLatencySum = 0
+		self.allMsgNum = 0
+		self.allAvgCount = 0
+		self.allSubsNum = 0
+		self.allStartID = 0
+		self.allAvgLatency = 0
+		self.allAvgStartID = 0
+
 if __name__ == '__main__':
+	ignoreMsgMap = []
+	ignoreMsgMap.append(10000)
+	ignoreMsgMap.append(10000)
+	ignoreMsgMap.append(10000)
+	ignoreMsgMap.append(10000)
+	ignoreMsgMap.append(10000)
+
 	# clean up
 	for testResultDir in os.listdir(DATA_SET_PATH):
 		if testResultDir.endswith(".res"): os.remove(DATA_SET_PATH + testResultDir)
@@ -20,14 +40,17 @@ if __name__ == '__main__':
 		for filename in os.listdir(DATA_SET_PATH + testResultDir):
 			if filename.endswith(".res"): os.remove(DATA_SET_PATH + testResultDir + '/' + filename)
 
+	counter = 0
 	for testResultDir in os.listdir(DATA_SET_PATH):
 		if testResultDir[0] == '.': continue
+
+		global CALCULATE_AVG_FROM_MSG
+		CALCULATE_AVG_FROM_MSG = ignoreMsgMap[counter]
+		counter += 1
 		# statistics of this testset
-		allMissingMsgNum = 0
-		allAvgCount = 0
-		allLatencySum = 0
-		allMsgNum = 0
-		allAvgCount = 0
+		stats = [];
+		for i in range(TOPIC_NUM):
+			stats.append(topicStats())
 
 		allSubsNum = 0
 		allStartID = 0
@@ -39,15 +62,20 @@ if __name__ == '__main__':
 			# for calculating avg latency
 			latencySum = 0
 			avgCount = 0
+
+			msgTopic = None
 			with open(DATA_SET_PATH + testResultDir + '/' + filename) as rf:
 				for line in rf:
 					# valid data line should start with a number character
 					if not isNumber(line[0]):
 						continue
-					# get msgID and latency from data line
+					# get msgTopic, msgID and latency from data line
 					splitedLine = line.split(",");
-					msgID = int(splitedLine[0])
-					latency = int(splitedLine[1])
+					msgTopic = int(splitedLine[0])
+					if msgTopic == None:
+						break
+					msgID = int(splitedLine[1])
+					latency = int(splitedLine[2])
 					# get the starting ID of this test
 					if startID == -1:
 						startID = msgID
@@ -59,6 +87,8 @@ if __name__ == '__main__':
 						avgCount += 1
 					# update last message
 					lastID = msgID
+			if msgTopic == None:
+				continue
 			# get missing msg num
 			missingMsgNum = (lastID - startID + 1) - msgCount
 			# calculate avg latency
@@ -74,27 +104,29 @@ if __name__ == '__main__':
 			print("avgLatency: " + str(avgLatency), file=wf)
 			wf.close()
 			# add to statistics for all
-			allMissingMsgNum += missingMsgNum
-			allLatencySum += latencySum
-			allAvgCount += avgCount
-			allMsgNum += msgCount
+			stats[msgTopic].allMissingMsgNum += missingMsgNum
+			stats[msgTopic].allLatencySum += latencySum
+			stats[msgTopic].allAvgCount += avgCount
+			stats[msgTopic].allMsgNum += msgCount
 
-			allSubsNum += 1
-			allStartID += startID
+			stats[msgTopic].allSubsNum += 1
+			stats[msgTopic].allStartID += startID
 		# write overall statistics
 		allf = open(DATA_SET_PATH + testResultDir + '.res','w')
-		allAvgLatency = float(allLatencySum)/allAvgCount
-		allAvgStartID = float(allStartID)/allSubsNum
-		print("SubscriberNum: " + str(allSubsNum), file=allf)
-		print("avgLatency: " + str(allAvgLatency), file=allf)
-		print("avgStartID: " + str(allAvgStartID), file=allf)
+		for i in range(TOPIC_NUM):
+			stats[i].allAvgLatency = float(stats[i].allLatencySum)/stats[i].allAvgCount
+			stats[i].allAvgStartID = float(stats[i].allStartID)/stats[i].allSubsNum
+			print("Topic: " + str(i), file=allf) 
+			print("SubscriberNum: " + str(stats[i].allSubsNum), file=allf)
+			print("avgLatency: " + str(stats[i].allAvgLatency), file=allf)
+			print("avgStartID: " + str(stats[i].allAvgStartID), file=allf)
 
-		print("allMissingMsgNum: " + str(allMissingMsgNum), file=allf)
-		print("allMsgNum: " + str(allMsgNum), file=allf)
+			print("allMissingMsgNum: " + str(stats[i].allMissingMsgNum), file=allf)
+			print("allMsgNum: " + str(stats[i].allMsgNum), file=allf)
 
-		print("allAvgCount: " + str(allAvgCount), file=allf)
-		print("allLatencySum: " + str(allLatencySum), file=allf)
-
+			print("allAvgCount: " + str(stats[i].allAvgCount), file=allf)
+			print("allLatencySum: " + str(stats[i].allLatencySum), file=allf)
+		allf.close()
 
 
 

@@ -21,6 +21,9 @@ PATH_EDGEBROKER = '/media/sf_SharedFolderWithMininetVM/TestEnv/testScripts/runEd
 PATH_PUBLISHER = '/media/sf_SharedFolderWithMininetVM/TestEnv/testScripts/runPublisher.sh'
 PATH_SUBSCRIBER = '/media/sf_SharedFolderWithMininetVM/TestEnv/testScripts/runSubscriber.sh'
 
+JAVA_PUB = 'java -cp /media/sf_SharedFolderWithMininetVM/TestEnv/testScripts/PubSubCoordZmq.jar edu.vanderbilt.chuilian.clients.publisher.Publisher'
+JAVA_SUB = 'java -cp /media/sf_SharedFolderWithMininetVM/TestEnv/testScripts/PubSubCoordZmq.jar edu.vanderbilt.chuilian.clients.subscriber.Subscriber'
+
 PATH_ZOOKEEPER_SERVER_OUT = PATH_TMP + 'zkServer.out'
 PATH_ZOOKEEPER_CLIENT_OUT = PATH_TMP + 'zkCli.out'
 PATH_LOADBALANCER_OUT = PATH_TMP + 'loadBalancer.out'
@@ -28,9 +31,11 @@ PATH_EDGEBROKER_OUT = PATH_TMP + 'edgeBroker.out'
 PATH_PUBLISHER_OUT = PATH_TMP + 'publisher.out'
 PATH_SUBSCRIBER_OUT = PATH_TMP + 'subscriber.out'
 
-PUBLISHING_TIME_SCEONDS = 180
-HOST_NUM = 100;
-SUB_NUM_PER_HOST = 5
+PUBLISHING_TIME_SCEONDS = 360
+SUB_NUM = 40;
+SUB_NUM_PER_HOST = 1
+PUB_NUM = 5;
+PUB_NUM_PER_HOST = 2
 TEST_NAME = "PUB1_BROKER1_SUB100"
 TEST_RESULT_PATH = PATH_RESULT + TEST_NAME + '/'
 
@@ -94,15 +99,21 @@ def runEdgeBroker(host):
 	print "* Starting edgeBroker on host " + str(host)
 	host.cmd("sudo " + PATH_EDGEBROKER + " &> " + PATH_TMP + 'edgeBroker' + str(host) + '.out' + " &")
 
-def runPublisher(host):
+def runPublisher(host, instanceID, args):
+	'''
+	args format: ' arg1 arg2 arg3 ...', note there is a SPACE before first arg
+	'''
 	"Run publisher on a host"
 	print "* Starting publisher on host " + str(host)
-	host.cmd("sudo " + PATH_PUBLISHER + " &> " + PATH_PUBLISHER_OUT + " &")
+	host.cmd("sudo " + JAVA_PUB + args + " &> " + PATH_TMP + 'Host' + str(host) + 'Pub' + str(instanceID) + '.out' + " &")
 
-def runSubscriber(host, instanceID):
+def runSubscriber(host, instanceID, args):
+	'''
+	args format: ' arg1 arg2 arg3 ...', note there is a SPACE before first arg
+	'''
 	"Run one subscriber instance on a host"
 	print "* Starting subscriber " + str(instanceID) + " on host " + str(host)
-	host.cmd("sudo " + PATH_SUBSCRIBER + " &> " + TEST_RESULT_PATH + 'Host' + str(host) + 'Sub' + str(instanceID) + '.out' + " &")
+	host.cmd("sudo " + JAVA_SUB + args + " &> " + TEST_RESULT_PATH + 'Host' + str(host) + 'Sub' + str(instanceID) + '.out' + " &")
 
 def stopAllProc(host):
 	"Kill all background processes running on a host"
@@ -154,37 +165,43 @@ def test(hostnum, pubnum, subnum, ebrokernum):
 		edgeBrokerHosts.append(host)	
 	sleep(10)
 
-	# host number 11 - 10000 is reserved for subscribers
+	# host number 21 - 10000 is reserved for subscribers
+	counter = 0
 	subscriberHosts = []
 	for n in range(subnum):
-		host = net.get('h' + str(11 + n))
+		host = net.get('h' + str(21 + n))
 		for i in range(SUB_NUM_PER_HOST):
-			runSubscriber(host, i)
+			runSubscriber(host, i, ' ' + str(0))
+			sleep(5)
 		subscriberHosts.append(host)
-	sleep(10)
+	sleep(60)
 
-	# host number 6 - 10 is reserved for publishers
+	# host number 6 - 20 is reserved for publishers
+	counter = 0
 	publisherHosts = []
 	for n in range(pubnum):
 		host = net.get('h' + str(6 + n))
-		runPublisher(host)
+		for i in range(PUB_NUM_PER_HOST):
+			runPublisher(host, i,' ' + str(0))
+			sleep(5)
 		publisherHosts.append(host)
-	sleep(5)
+	sleep(20)
 
 	sleep(PUBLISHING_TIME_SCEONDS)
 
+	sleep(120)
 	stopAllHosts(publisherHosts)
-	sleep(2)
+	sleep(5)
 	stopAllHosts(subscriberHosts)
-	sleep(2)
+	sleep(5)
 	stopAllHosts(edgeBrokerHosts)
-	sleep(2)
+	sleep(5)
 	stopAllProc(lbhost)
-	sleep(2)
+	sleep(5)
 	stopZooKeeper(zkhost)
-	sleep(2)
+	sleep(5)
 	stopAllProc(zkhost)
-	sleep(2)
+	sleep(5)
 
 	# stop mininet
 	net.stop()
@@ -198,11 +215,11 @@ if __name__ == '__main__':
 	# testIPconfig(net)
 	# printIPconfig(net)
 
-	startPubHostNum = 7
-	step = 2
+	startSubHostNum = 1
+	step = 5
 	time = 1
 
 	for i in range(time):
-		curSubNum = startPubHostNum	 + step * i
-		test(hostnum = 10 + curSubNum, subnum = curSubNum, pubnum = 1, ebrokernum = 1)
+		curSubNum = startSubHostNum	 + step * i
+		test(hostnum = 20 + curSubNum, subnum = curSubNum, pubnum = 10, ebrokernum = 1)
 	
