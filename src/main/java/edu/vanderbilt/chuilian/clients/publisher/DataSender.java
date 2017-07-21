@@ -13,6 +13,7 @@ import org.zeromq.ZMsg;
 import java.util.Iterator;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
+import java.util.concurrent.ThreadLocalRandom;
 
 /**
  * Created by Killian on 5/24/17.
@@ -117,8 +118,9 @@ public class DataSender {
      * simplified version of sender, just making one fake message of this.topic and send it.
      */
     void senderSimplified(int MsgID){
+        int prio = ThreadLocalRandom.current().nextInt(0, 9 + 1);
         sendSocket.sendMore(topic);
-        sendSocket.send(DataSampleHelper.serialize(MsgID, 1, 1, 0, System.currentTimeMillis(), 10));
+        sendSocket.send(DataSampleHelper.serialize(MsgID, 1, 1, prio, System.currentTimeMillis(), 10));
     }
 
     void sender() {

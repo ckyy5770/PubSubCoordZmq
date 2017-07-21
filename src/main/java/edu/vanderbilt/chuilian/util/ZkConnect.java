@@ -200,7 +200,8 @@ public class ZkConnect {
         if (stat == null) throw new IllegalStateException("/topics/" + topic + "/pub" + " node does not exist");
         // here we create a new pub node under /pub
         //int pubNum = stat.getNumChildren() + 1;
-        createNode("/topics/" + topic + "/pub/" + "pub" + sendAddress, sendAddress.getBytes());
+        String id = sendAddress + Long.toString(ThreadLocalRandom.current().nextLong(Long.MIN_VALUE, Long.MAX_VALUE));
+        createNode("/topics/" + topic + "/pub/" + "pub" + id, sendAddress.getBytes());
         return sendAddress;
     }
 

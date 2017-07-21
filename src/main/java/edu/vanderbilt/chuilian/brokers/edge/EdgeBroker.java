@@ -49,8 +49,8 @@ public class EdgeBroker {
         this.loadAnalyzer = new LoadAnalyzer(brokerID, zkConnect);
 
         // init prio executorService
-        int nThreads = 100;
-        int qInitialSize = 200;
+        int nThreads = 10;
+        int qInitialSize = 20;
 
         this.channelExecutor = new ThreadPoolExecutor(nThreads, nThreads, 0L, TimeUnit.MILLISECONDS,
                 new PriorityBlockingQueue<Runnable>(qInitialSize, new PriorityFutureComparator())) {

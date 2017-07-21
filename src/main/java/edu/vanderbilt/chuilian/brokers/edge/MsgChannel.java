@@ -46,6 +46,7 @@ public class MsgChannel {
     // worker future is a reference of the worker thread, it can be used to stop the thread.
     Future<?> workerFuture;
     Future<?> senderFuture;
+    Future<?> recFuture;
     // terminator will periodically check if there is still a publisher or subscriber alive on this topic
     Future<?> terminatorFuture;
     // broker dispatcher
@@ -116,7 +117,13 @@ public class MsgChannel {
         PriorityWorker pWorker = new PriorityWorker(this.priority);
         workerFuture = executor.submit(pWorker);
 
+        /*
+        PriorityReceiver pReceiver = new PriorityReceiver(this.priority);
+        recFuture = executor.submit(pReceiver);
 
+        PrioritySender pSender = new PrioritySender(this.priority);
+        senderFuture = executor.submit(pSender);
+        */
 
         //
 
@@ -148,7 +155,9 @@ public class MsgChannel {
             logger.error("can not unregister this channel from zookeeper server: {}, error message: {}", topic, e.getMessage());
         }
         // stop worker thread
-        workerFuture.cancel(false);
+        //workerFuture.cancel(false);
+        senderFuture.cancel(false);
+        recFuture.cancel(false);
         // shutdown zmq socket and context
         recSocket.close();
         recContext.term();
@@ -191,12 +200,24 @@ public class MsgChannel {
         // load balancer module: update metrics
         loadAnalyzer.getBrokerReport().updateBytes(msgTopic, msgContent.length);
         //logger.info("Message Received at Channel ({}) Topic: {} ID: {}", topic, msgTopic, DataSampleHelper.deserialize(msgContent).sampleId());
+        logger.info("queue size: {}", messageQueue.getSize());
     }
 
     public void sender() throws Exception {
-        // get a message from messageQueue
-        ZMsg sendingMsg = messageQueue.getNextMsg();
-        if (sendingMsg == null) return;
+        //logger.info("enter sender");
+        // get a message from messageQueue, this call will block when queue is empty
+        ZMsg sendingMsg = null;
+        try{
+            sendingMsg = messageQueue.getNextMsg();
+            //logger.info("sendingMsg == null ?", sendingMsg == null);
+            if(sendingMsg == null){
+                Thread.sleep(20);
+                return;
+            }
+        }catch(Exception e){
+            logger.warn("retrieve message from pq interrupted");
+        }
+
         String msgTopic = new String(sendingMsg.getFirst().getData());
         byte[] msgContent = sendingMsg.getLast().getData();
         sendSocket.sendMore(msgTopic);
@@ -207,7 +228,7 @@ public class MsgChannel {
         br.updateBytes(msgTopic, msgContent.length);
         br.updateMsgs(msgTopic, 1);
         br.updatePublications(msgTopic, 1);
-        //logger.info("Message Sent from Channel ({}) Topic: {} ID: {}", topic, msgTopic, DataSampleHelper.deserialize(msgContent).sampleId());
+        //logger.info("Message Sent from Channel ({}) Topic: {} ID: {} prio: {}", topic, msgTopic, DataSampleHelper.deserialize(msgContent).sampleId(), DataSampleHelper.deserialize(msgContent).priority());
     }
 
     class PriorityWorker implements PriorityRunnable {

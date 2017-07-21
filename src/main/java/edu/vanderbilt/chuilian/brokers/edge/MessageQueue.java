@@ -9,12 +9,14 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.PriorityQueue;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.PriorityBlockingQueue;
 
 /**
  * Created by Killian on 6/8/17.
  */
 public class MessageQueue {
     //private final ArrayList<ZMsg> msgArrayList = new ArrayList<>();
+    //private final PriorityBlockingQueue<ZMsg> msgPQ = new PriorityBlockingQueue<>(1024, new ZMsgComparator());
     private final PriorityQueue<ZMsg> msgPQ = new PriorityQueue<>(1024, new ZMsgComparator());
     private int nextSendingMsg = 0;
 
@@ -22,11 +24,12 @@ public class MessageQueue {
     }
 
     public void add(ZMsg msg) {
+        //msgPQ.put(msg);
         msgPQ.offer(msg);
     }
 
-    public ZMsg getNextMsg() {
-        if (nextSendingMsg >= msgPQ.size()) return null;
+    public ZMsg getNextMsg() throws Exception{
+        //return msgPQ.take();
         return msgPQ.poll();
     }
 
