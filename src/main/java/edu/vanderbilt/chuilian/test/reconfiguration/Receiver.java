@@ -52,14 +52,15 @@ public class Receiver implements Runnable{
             // log
             logger.debug("Message Received. topic: {} content: {} src: {}", msgTopic, msgContent, srcAddr);
         }
-        // shutdown zmq socket and context
-        recSocket.close();
-        recContext.term();
         logger.debug("Receiver Stopped. topic: {}, srcAddr: {}", topic, srcAddr);
     }
 
     public void stop(){
         this.stop = true;
+        // shutdown zmq socket and context
+        // note Thread.interrupt will not terminate a blocked socket call.
+        recSocket.close();
+        recContext.term();
     }
 
     public String getSrcAddr() {

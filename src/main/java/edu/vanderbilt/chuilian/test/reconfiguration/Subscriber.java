@@ -5,6 +5,7 @@ import org.apache.logging.log4j.Logger;
 import zmq.Sub;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.PriorityBlockingQueue;
@@ -16,7 +17,7 @@ public class Subscriber{
     String myID;
     String myIP;
     // key: topic, value: a list of senders corresponding to this topic
-    HashMap<String, ArrayList<Receiver>> receivers;
+    HashMap<String, ArrayList<Receiver>> receivers = new HashMap<>();
     // msg buffer
     BlockingQueue<String> msgBuffer = new PriorityBlockingQueue<>();
 
@@ -34,7 +35,7 @@ public class Subscriber{
         receiverList.add(newReceiver);
         receivers.put(topic, receiverList);
         Thread t = new Thread(newReceiver);
-        t.run();
+        t.start();
         logger.debug("New Sender Created. topic: {}, srcAddr: {}", topic, srcAddr);
     }
 
@@ -51,4 +52,11 @@ public class Subscriber{
         }
     }
 
+    public BlockingQueue<String> getMsgBuffer() {
+        return msgBuffer;
+    }
+
+    public String getMyID() {
+        return myID;
+    }
 }

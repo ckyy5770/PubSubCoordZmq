@@ -44,6 +44,7 @@ public class Channel implements Runnable {
         recSocket.bind("tcp://*:" + recPort);
         recSocket.subscribe(topic.getBytes());
         sendSocket.bind("tcp://*:" + sendPort);
+        logger.debug("Channel Started. topic: {}", topic);
         while(!stop){
             // rec 1 msg
             ZMsg receivedMsg = ZMsg.recvMsg(recSocket);
@@ -55,15 +56,16 @@ public class Channel implements Runnable {
             // log
             logger.debug("Message Transmitted. topic: {} content: {}", msgTopic, msgContent);
         }
-        // shutdown zmq socket and context
-        recSocket.close();
-        recContext.term();
-        sendSocket.close();
-        sendContext.term();
         logger.debug("Channel Stopped. topic: {}", topic);
     }
 
     public void stop(){
         stop = true;
+        // shutdown zmq socket and context
+        // note Thread.interrupt will not terminate a blocked socket call.
+        recSocket.close();
+        recContext.term();
+        sendSocket.close();
+        sendContext.term();
     }
 }

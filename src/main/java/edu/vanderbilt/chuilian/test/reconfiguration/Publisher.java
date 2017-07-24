@@ -13,7 +13,7 @@ public class Publisher{
     String myID;
     String myIP;
     // key: topic, value: a list of senders corresponding to this topic
-    HashMap<String, ArrayList<Sender>> senders;
+    HashMap<String, ArrayList<Sender>> senders = new HashMap<>();
 
     // logger config
     private static final Logger logger = LogManager.getLogger(Publisher.class.getName());
@@ -29,7 +29,7 @@ public class Publisher{
         senderList.add(newSender);
         senders.put(topic, senderList);
         Thread t = new Thread(newSender);
-        t.run();
+        t.start();
         logger.debug("New Sender Created. topic: {}, destAddr: {}", topic, destAddr);
     }
 

@@ -58,8 +58,9 @@
         </Logger>
         <Logger name="TestResult" level="info" additivity="false">
             <AppenderRef ref="Console"/>
+            <AppenderRef ref="results"/>
         </Logger>
-        <Logger name="edu.vanderbilt.chuilian.test" level="debug" additivity="false">
+        <Logger name="edu.vanderbilt.chuilian.test" level="info" additivity="false">
             <AppenderRef ref="Console"/>
         </Logger>
         <Root level="error">

@@ -12,7 +12,7 @@ public class EdgeBroker {
     private String myID;
     private String myIP;
     // key: topic, value: msg channel for this topic
-    private HashMap<String, Channel> channels;
+    private HashMap<String, Channel> channels = new HashMap<>();
 
     // logger config
     private static final Logger logger = LogManager.getLogger(EdgeBroker.class.getName());
@@ -26,7 +26,7 @@ public class EdgeBroker {
         Channel newChannel = new Channel(topic, myIP, recPort, sendPort);
         channels.put(topic, newChannel);
         Thread t = new Thread(newChannel);
-        t.run();
+        t.start();
         logger.debug("New Channel Created. topic: {}", topic);
     }
 

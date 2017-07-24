@@ -11,6 +11,7 @@ import java.util.concurrent.LinkedBlockingQueue;
  * Created by Killian on 7/24/17.
  */
 public class Sender implements Runnable{
+    private Thread thread;
     // sender attrs
     private String topic;
     private String destAddr;
@@ -35,6 +36,7 @@ public class Sender implements Runnable{
 
     @Override
     public void run(){
+        this.thread = Thread.currentThread();
         sendSocket.connect("tcp://" + destAddr);
         String nextMsg = null;
         while(!stop){
@@ -42,6 +44,9 @@ public class Sender implements Runnable{
                 nextMsg = bq.take();
             }catch(InterruptedException ie){
                 logger.warn(ie.getMessage());
+                sendSocket.close();
+                sendContext.term();
+                logger.debug("Sender Stopped. topic: {}, destAddr: {}", topic, destAddr);
             }
             sendSocket.sendMore(topic);
             sendSocket.send(nextMsg);
@@ -64,6 +69,7 @@ public class Sender implements Runnable{
 
     public void stop(){
         this.stop = true;
+        this.thread.interrupt();
     }
 
     public String getDestAddr() {
