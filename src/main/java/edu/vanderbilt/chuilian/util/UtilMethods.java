@@ -26,10 +26,10 @@ public class UtilMethods {
      */
     public static String getIPaddress(){
         // for local test
-        //return "127.0.0.1";
+        return "127.0.0.1";
 
         // for mininet test
-
+        /*
         String fileString = null;
         try{
             fileString = readFile("/var/run/hostIP.config");
@@ -39,16 +39,15 @@ public class UtilMethods {
         String[] fileLines = fileString.split(System.getProperty("line.separator"));
         logger.info("Get host ip: " + fileLines[0]);
         return fileLines[0];
-
-
+        */
     }
 
     public static String getZookeeperAddress(){
-        // for mininet test
-        return "10.0.0.1:2181";
-
         // for local test
-        //return "127.0.0.1:2181";
+        return "127.0.0.1:2181";
+
+        // for mininet test
+        //return "10.0.0.1:2181";
     }
 
     private static String readFile(String file) throws Exception {

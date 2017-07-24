@@ -157,6 +157,7 @@ public class LoadBalancer {
      */
     private void processor() {
         logger.debug("Processor starts.");
+        // main plan generation logic
         /*
         BrokerLoadReportBuffer reports = brokerLoadReportBuffer.snapShot();
         // TODO: 6/7/17 not support Low load plan now. the generator for low load plan always returns null.

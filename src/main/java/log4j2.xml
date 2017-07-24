@@ -43,10 +43,8 @@
             <AppenderRef ref="all"/>
             <AppenderRef ref="subscriber"/>
         </Logger>
-        <Logger name="edu.vanderbilt.chuilian.loadbalancer" level="error" additivity="false">
+        <Logger name="edu.vanderbilt.chuilian.loadbalancer" level="info" additivity="false">
             <AppenderRef ref="Console"/>
-            <AppenderRef ref="all"/>
-            <AppenderRef ref="loadBalancer"/>
         </Logger>
         <Logger name="edu.vanderbilt.chuilian.util" level="error" additivity="false">
             <AppenderRef ref="Console"/>
@@ -59,6 +57,9 @@
             <AppenderRef ref="types"/>
         </Logger>
         <Logger name="TestResult" level="info" additivity="false">
+            <AppenderRef ref="Console"/>
+        </Logger>
+        <Logger name="edu.vanderbilt.chuilian.test" level="debug" additivity="false">
             <AppenderRef ref="Console"/>
         </Logger>
         <Root level="error">
