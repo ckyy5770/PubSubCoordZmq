@@ -16,7 +16,8 @@ import java.util.concurrent.BlockingQueue;
 public class TestReconfiguration {
     private static final Logger logger = LogManager.getLogger(TestReconfiguration.class.getName());
     private static final Logger resLogger = LogManager.getLogger("TestResult");
-    public static void main(String[] args) throws InterruptedException{
+
+    public static void testBaseLine() throws InterruptedException{
         int PUB_NUM = 2;
         int SUB_NUM = 2;
         int BROKER_NUM = 1;
@@ -84,5 +85,9 @@ public class TestReconfiguration {
                 resLogger.info("{},{}", id, buff.take());
             }
         }
+    }
+
+    public static void main(String[] args) throws InterruptedException{
+        testBaseLine();
     }
 }

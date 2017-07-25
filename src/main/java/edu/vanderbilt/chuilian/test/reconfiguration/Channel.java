@@ -18,25 +18,23 @@ public class Channel implements Runnable {
     private volatile boolean stop = false;
 
     // zmq config
-    private ZMQ.Context sendContext;
+    private ZMQ.Context zmqContext;
     private ZMQ.Socket sendSocket;
-    private ZMQ.Context recContext;
     private ZMQ.Socket recSocket;
 
     // logger config
     private static final Logger logger = LogManager.getLogger(Channel.class.getName());
 
-    public Channel(String topic, String myIP, String recPort, String sendPort){
+    public Channel(String topic, String myIP, String recPort, String sendPort, ZMQ.Context zmqContext){
         this.topic = topic;
         this.myIP = myIP;
         this.recPort = recPort;
         this.sendPort = sendPort;
 
         // init zmq socket
-        this.recContext = ZMQ.context(1);
-        this.recSocket = this.recContext.socket(ZMQ.SUB);
-        this.sendContext = ZMQ.context(1);
-        this.sendSocket = this.sendContext.socket(ZMQ.PUB);
+        this.zmqContext = zmqContext;
+        this.recSocket = zmqContext.socket(ZMQ.SUB);
+        this.sendSocket = zmqContext.socket(ZMQ.PUB);
     }
 
     @Override
@@ -45,27 +43,30 @@ public class Channel implements Runnable {
         recSocket.subscribe(topic.getBytes());
         sendSocket.bind("tcp://*:" + sendPort);
         logger.debug("Channel Started. topic: {}", topic);
-        while(!stop){
-            // rec 1 msg
-            ZMsg receivedMsg = ZMsg.recvMsg(recSocket);
-            String msgTopic = new String(receivedMsg.getFirst().getData());
-            byte[] msgContent = receivedMsg.getLast().getData();
-            // send it out
-            sendSocket.sendMore(msgTopic);
-            sendSocket.send(msgContent);
-            // log
-            logger.debug("Message Transmitted. topic: {} content: {}", msgTopic, msgContent);
+        try{
+            while(!stop){
+                // rec 1 msg
+                ZMsg receivedMsg = ZMsg.recvMsg(recSocket);
+                String msgTopic = new String(receivedMsg.getFirst().getData());
+                byte[] msgContent = receivedMsg.getLast().getData();
+                // send it out
+                sendSocket.sendMore(msgTopic);
+                sendSocket.send(msgContent);
+                // log
+                logger.debug("Message Transmitted. topic: {} content: {}", msgTopic, msgContent);
+            }
+        }catch(Exception e){
+            logger.debug("Exception: {}",e.getMessage());
+        }finally {
+            recSocket.close();
+            sendSocket.close();
+            logger.debug("Channel Stopped. topic: {}", topic);
         }
-        logger.debug("Channel Stopped. topic: {}", topic);
     }
 
     public void stop(){
         stop = true;
-        // shutdown zmq socket and context
-        // note Thread.interrupt will not terminate a blocked socket call.
         recSocket.close();
-        recContext.term();
         sendSocket.close();
-        sendContext.term();
     }
 }

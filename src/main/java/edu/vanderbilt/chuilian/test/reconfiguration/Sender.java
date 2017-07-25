@@ -19,44 +19,41 @@ public class Sender implements Runnable{
     private BlockingQueue<String> bq = new LinkedBlockingQueue<>();
 
     // zmq config
-    private ZMQ.Context sendContext;
+    private ZMQ.Context zmqContext;
     private ZMQ.Socket sendSocket;
 
 
     // logger config
     private static final Logger logger = LogManager.getLogger(Sender.class.getName());
 
-    public Sender(String topic, String destAddr){
+    public Sender(String topic, String destAddr, ZMQ.Context zmqContext){
         this.topic = topic;
         this.destAddr = destAddr;
         // init zmq socket
-        this.sendContext = ZMQ.context(1);
-        this.sendSocket = sendContext.socket(ZMQ.PUB);
+        this.zmqContext = zmqContext;
+        this.sendSocket = zmqContext.socket(ZMQ.PUB);
     }
 
     @Override
     public void run(){
         this.thread = Thread.currentThread();
         sendSocket.connect("tcp://" + destAddr);
-        String nextMsg = null;
-        while(!stop){
-            try{
+        String nextMsg;
+        try {
+            while (!stop) {
                 nextMsg = bq.take();
-            }catch(InterruptedException ie){
-                logger.warn(ie.getMessage());
-                sendSocket.close();
-                sendContext.term();
-                logger.debug("Sender Stopped. topic: {}, destAddr: {}", topic, destAddr);
+                sendSocket.sendMore(topic);
+                sendSocket.send(nextMsg);
+                // log
+                logger.debug("Message Sent. topic: {} content: {} dest: {}", topic, nextMsg, destAddr);
             }
-            sendSocket.sendMore(topic);
-            sendSocket.send(nextMsg);
-            // log
-            logger.debug("Message Sent. topic: {} content: {} dest: {}", topic, nextMsg, destAddr);
+        } catch(Exception e){
+            logger.debug("Exception: {}",e.getMessage());
+        } finally {
+            // shutdown zmq socket
+            sendSocket.close();
+            logger.debug("Sender Stopped. topic: {}, destAddr: {}", topic, destAddr);
         }
-        // shutdown zmq socket and context
-        sendSocket.close();
-        sendContext.term();
-        logger.debug("Sender Stopped. topic: {}, destAddr: {}", topic, destAddr);
     }
 
     public void send(String msg){
