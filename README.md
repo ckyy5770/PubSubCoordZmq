@@ -216,11 +216,11 @@ There are 9 scenarios when reconfiguration may happen. Each of those scenarios, 
 
 * all subscribers of this topic reconnect (**Important Note**: every "reconnect" step in all scenarios should be interpreted as following three sub-steps):
 
-    * first connect to new broker
+    * first connect to new channel
     
     * wait for connection stable
     
-    * then disconnect from old broker
+    * then disconnect from old channel
     
 #### 2. consistent hashing --> all-sub replication
 
