@@ -182,10 +182,6 @@ Each edge broker will be equipped with a Local Load Analyzer(LLA) and a Dispatch
 
 * (TBD) unregister broker: load balancer will periodically check if there are broker that don't update reports for a long time and unregister them as needed. 
 
-#### Reconfiguration (TBD):
-
-* each publisher/subscriber has a partial plan.
-
 ### Plan
 
 plan is a data structure that encapsulates all information needed to instruct to which address a given publication or subscription should be sent to. It's like a lookup table where the keys are channels(topics), and the values are the list of servers that should be used for each channel.
@@ -207,6 +203,24 @@ Default strategy:
 * High-load rebalancing: If there is a pub/sub server with a load ratio that exceeds a given threshold, then a new high-load plan must be generated so that the new plan ensures that the load returns below a safe threshold for all servers. Basically, what new plan does is to migrate some channels from the overload channel, to the least busiest channel.
 
 * Low-load rebalancing: If the global load ratio is below a given threshold, then one or more servers can be freed. Channel from the lowest loaded server are slowly migrated to the other servers as long as the load on the other server stays below a given limit.
+
+### Reconfiguration:
+
+There are 9 scenarios when reconfiguration may happen. Each of those scenarios, we carefully defined a reconfiguration steps that clients and brokers should follow in order to prevent losing messages.
+
+#### consistent hash --> all-pub replication
+
+* broker open new channel
+
+* all publishers of this topic connect to new channel
+
+* all subscriber of this topic re-connect:
+
+    * first connect to new broker
+    
+    * wait for connection stable
+    
+    * then disconnect from old broker
 
 ## Serialization/Deserialization
 using [flatbuffer](https://google.github.io/flatbuffers/index.html)
