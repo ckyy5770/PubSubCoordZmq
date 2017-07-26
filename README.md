@@ -214,7 +214,7 @@ There are 9 scenarios when reconfiguration may happen. Each of those scenarios, 
 
 * all publishers of this topic connect to new channel
 
-* all subscribers of this topic reconnect (Important Note: every "reconnect" step in all scenarios should be interpreted as following three sub-steps):
+* all subscribers of this topic reconnect (**Important Note**: every "reconnect" step in all scenarios should be interpreted as following three sub-steps):
 
     * first connect to new broker
     
