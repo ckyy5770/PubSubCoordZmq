@@ -1,5 +1,6 @@
 package edu.vanderbilt.chuilian.test.reconfiguration;
 
+import com.sun.javafx.geom.Edge;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.zeromq.ZMQ;
@@ -42,7 +43,7 @@ public class EdgeBroker {
     }
 
     public static void main(String[] args) throws Exception {
-        testAllPubSubHash();
+        testHashHash();
     }
 
     static void testHashAllPubSub() throws Exception{
@@ -95,6 +96,95 @@ public class EdgeBroker {
         Thread.sleep((PHASE2_TIME - DELAY)*1000);
 
         brokers.get(0).closeChannel("t0");
+
+    }
+
+    static void testAllPubSubCreate() throws Exception{
+        int BROKER_NUM = 3;
+        int PHASE1_TIME = 15;
+        int PHASE2_TIME = 15;
+        int DELAY = 5;
+
+        ArrayList<EdgeBroker> brokers = new ArrayList<>();
+        for(int i =0; i< BROKER_NUM; i++){
+            brokers.add(new EdgeBroker("broker" + i, "127.0.0.1"));
+        }
+
+        // create channels
+        brokers.get(0).createChannel("t0", Integer.toString(5000), Integer.toString(6000));
+        brokers.get(1).createChannel("t0", Integer.toString(5001), Integer.toString(6001));
+
+        // channel should be opened firstly
+        Thread.sleep((PHASE1_TIME - DELAY)*1000);
+
+        // open channel in broker 2
+        brokers.get(2).createChannel("t0", Integer.toString(5002), Integer.toString(6002));
+
+        Thread.sleep((PHASE2_TIME + DELAY)*1000);
+
+        for(EdgeBroker broker : brokers){
+            broker.closeChannel("t0");
+        }
+
+    }
+
+    static void testAllPubSubClose() throws Exception{
+        int BROKER_NUM = 3;
+        int PHASE1_TIME = 15;
+        int PHASE2_TIME = 15;
+        int DELAY = 5;
+
+        ArrayList<EdgeBroker> brokers = new ArrayList<>();
+        for(int i =0; i< BROKER_NUM; i++){
+            brokers.add(new EdgeBroker("broker" + i, "127.0.0.1"));
+        }
+
+        // create channels
+        brokers.get(0).createChannel("t0", Integer.toString(5000), Integer.toString(6000));
+        brokers.get(1).createChannel("t0", Integer.toString(5001), Integer.toString(6001));
+        brokers.get(2).createChannel("t0", Integer.toString(5002), Integer.toString(6002));
+
+        // channel should be closed lastly
+        Thread.sleep((PHASE1_TIME + DELAY)*1000);
+
+        // close channel in broker 2
+        brokers.get(2).closeChannel("t0");
+
+        Thread.sleep((PHASE2_TIME - DELAY)*1000);
+
+        brokers.get(0).closeChannel("t0");
+        brokers.get(1).closeChannel("t0");
+    }
+
+    static void testHashHash() throws Exception{
+        int BROKER_NUM = 2;
+        int PHASE1_TIME = 15;
+        int PHASE2_TIME = 20;
+        int DELAY = 5;
+
+        ArrayList<EdgeBroker> brokers = new ArrayList<>();
+        for(int i =0; i< BROKER_NUM; i++){
+            brokers.add(new EdgeBroker("broker" + i, "127.0.0.1"));
+        }
+
+        // create channel on broker 0
+        brokers.get(0).createChannel("t0", Integer.toString(5000), Integer.toString(6000));
+
+        // channel should be opened firstly
+        Thread.sleep((PHASE1_TIME - DELAY)*1000);
+
+        // phase 2: open channel on b1, wait for clients reconfiguration finish, then close b0
+        brokers.get(1).createChannel("t0", Integer.toString(5001), Integer.toString(6001));
+
+        Thread.sleep(4*(DELAY)*1000);
+
+        brokers.get(0).closeChannel("t0");
+
+        Thread.sleep((PHASE2_TIME - 3*DELAY)*1000);
+
+
+
+        brokers.get(1).closeChannel("t0");
 
     }
 }

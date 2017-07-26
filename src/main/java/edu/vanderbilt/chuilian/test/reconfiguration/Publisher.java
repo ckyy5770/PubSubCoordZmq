@@ -80,7 +80,7 @@ public class Publisher{
     }
 
     public static void main(String[] args) throws Exception {
-        testAllPubHash();
+        testHashHash();
     }
 
     static void testHashAllPub() throws Exception{
@@ -272,4 +272,245 @@ public class Publisher{
         pubs.get(1).stopSender("t0", "127.0.0.1:5000");
 
     }
+
+    static void testAllPubCreate() throws Exception {
+        int PUB_NUM = 3;
+        int PHASE1_TIME = 15;
+        int PHASE2_TIME = 15;
+        int DELAY = 5;
+
+        ArrayList<Publisher> pubs = new ArrayList<>();
+        for(int i =0; i< PUB_NUM; i++){
+            pubs.add(new Publisher("pub" + i, "127.0.0.1"));
+        }
+
+        // connect pubs to all two brokers
+        for(Publisher pub : pubs){
+            pub.createSender("t0", "127.0.0.1:5000");
+            pub.createSender("t0", "127.0.0.1:5001");
+        }
+
+        // send messages
+        Thread t = new Thread(()->{
+            int counter = 0;
+            try{
+                while(true){
+                    for(int j=0; j<PUB_NUM; j++){
+                        pubs.get(j).send("t0", "pub" + j + "," + counter);
+                    }
+                    counter++;
+                    Thread.sleep(10);
+                }
+            }catch(Exception e){
+                logger.debug(e.getMessage());
+            }
+
+        });
+        t.start();
+
+        Thread.sleep((PHASE1_TIME)*1000);
+
+        // enter phase 2: pubs all connect to new broker
+        for(Publisher pub : pubs){
+            pub.createSender("t0", "127.0.0.1:5002");
+        }
+
+        Thread.sleep((PHASE2_TIME)*1000);
+
+        for(Publisher pub : pubs){
+            pub.stopSender("t0","127.0.0.1:5000");
+            pub.stopSender("t0","127.0.0.1:5001");
+            pub.stopSender("t0","127.0.0.1:5002");
+        }
+
+    }
+
+    static void testAllSubCreate() throws Exception {
+        int PUB_NUM = 3;
+        int PHASE1_TIME = 15;
+        int PHASE2_TIME = 15;
+        int DELAY = 5;
+
+        ArrayList<Publisher> pubs = new ArrayList<>();
+        for(int i =0; i< PUB_NUM; i++){
+            pubs.add(new Publisher("pub" + i, "127.0.0.1"));
+        }
+
+        // connect pub0 to b0, pub1,2 to b1
+        pubs.get(0).createSender("t0", "127.0.0.1:5000");
+        pubs.get(1).createSender("t0", "127.0.0.1:5001");
+        pubs.get(2).createSender("t0", "127.0.0.1:5001");
+
+        // send messages
+        Thread t = new Thread(()->{
+            int counter = 0;
+            try{
+                while(true){
+                    for(int j=0; j<PUB_NUM; j++){
+                        pubs.get(j).send("t0", "pub" + j + "," + counter);
+                    }
+                    counter++;
+                    Thread.sleep(10);
+                }
+            }catch(Exception e){
+                logger.debug(e.getMessage());
+            }
+
+        });
+        t.start();
+
+        Thread.sleep((PHASE1_TIME + DELAY)*1000);
+
+        // enter phase 2: reconnect pub2 to b2
+        pubs.get(2).reconnect("t0","127.0.0.1:5001", "127.0.0.1:5002");
+
+        Thread.sleep((PHASE2_TIME - DELAY)*1000);
+
+        pubs.get(0).stopSender("t0","127.0.0.1:5000");
+        pubs.get(1).stopSender("t0","127.0.0.1:5001");
+        pubs.get(2).stopSender("t0","127.0.0.1:5002");
+    }
+
+    static void testAllPubClose() throws Exception {
+        int PUB_NUM = 3;
+        int PHASE1_TIME = 15;
+        int PHASE2_TIME = 15;
+        int DELAY = 5;
+
+        ArrayList<Publisher> pubs = new ArrayList<>();
+        for(int i =0; i< PUB_NUM; i++){
+            pubs.add(new Publisher("pub" + i, "127.0.0.1"));
+        }
+
+        // connect all pubs to all three brokers
+        for(Publisher pub : pubs){
+            pub.createSender("t0", "127.0.0.1:5000");
+            pub.createSender("t0", "127.0.0.1:5001");
+            pub.createSender("t0", "127.0.0.1:5002");
+        }
+
+        // send messages
+        Thread t = new Thread(()->{
+            int counter = 0;
+            try{
+                while(true){
+                    for(int j=0; j<PUB_NUM; j++){
+                        pubs.get(j).send("t0", "pub" + j + "," + counter);
+                    }
+                    counter++;
+                    Thread.sleep(10);
+                }
+            }catch(Exception e){
+                logger.debug(e.getMessage());
+            }
+
+        });
+        t.start();
+
+        Thread.sleep((PHASE1_TIME)*1000);
+
+        // enter phase 2: all pub disconnect from b2
+        for(Publisher pub : pubs){
+            pub.stopSender("t0", "127.0.0.1:5002");
+        }
+
+        Thread.sleep((PHASE2_TIME)*1000);
+
+        for(Publisher pub : pubs){
+            pub.stopSender("t0", "127.0.0.1:5000");
+            pub.stopSender("t0", "127.0.0.1:5001");
+        }
+
+    }
+
+    static void testAllSubClose() throws Exception {
+        int PUB_NUM = 3;
+        int PHASE1_TIME = 15;
+        int PHASE2_TIME = 15;
+        int DELAY = 5;
+
+        ArrayList<Publisher> pubs = new ArrayList<>();
+        for(int i =0; i< PUB_NUM; i++){
+            pubs.add(new Publisher("pub" + i, "127.0.0.1"));
+        }
+
+        // connect p0-b0 p1-b1 p2-b2
+        pubs.get(0).createSender("t0", "127.0.0.1:5000");
+        pubs.get(1).createSender("t0", "127.0.0.1:5001");
+        pubs.get(2).createSender("t0", "127.0.0.1:5002");
+
+        // send messages
+        Thread t = new Thread(()->{
+            int counter = 0;
+            try{
+                while(true){
+                    for(int j=0; j<PUB_NUM; j++){
+                        pubs.get(j).send("t0", "pub" + j + "," + counter);
+                    }
+                    counter++;
+                    Thread.sleep(10);
+                }
+            }catch(Exception e){
+                logger.debug(e.getMessage());
+            }
+
+        });
+        t.start();
+
+        Thread.sleep((PHASE1_TIME - DELAY)*1000);
+
+        // enter phase 2: pub2 reconnect to b1
+        pubs.get(2).reconnect("t0", "127.0.0.1:5002", "127.0.0.1:5001");
+
+        Thread.sleep((PHASE2_TIME + DELAY)*1000);
+
+        pubs.get(0).stopSender("t0", "127.0.0.1:5000");
+        pubs.get(1).stopSender("t0", "127.0.0.1:5001");
+        pubs.get(2).stopSender("t0", "127.0.0.1:5001");
+    }
+
+    static void testHashHash() throws Exception {
+        int PUB_NUM = 2;
+        int PHASE1_TIME = 15;
+        int PHASE2_TIME = 20;
+        int DELAY = 5;
+
+        ArrayList<Publisher> pubs = new ArrayList<>();
+        for(int i =0; i< PUB_NUM; i++){
+            pubs.add(new Publisher("pub" + i, "127.0.0.1"));
+        }
+
+        // connect p0,1 to b0
+        for(Publisher pub : pubs){
+            pub.createSender("t0", "127.0.0.1:5000");
+        }
+
+        // send messages
+        Thread t = new Thread(()->{
+            int counter = 0;
+            try{
+                while(true){
+                    for(int j=0; j<PUB_NUM; j++){
+                        pubs.get(j).send("t0", "pub" + j + "," + counter);
+                    }
+                    counter++;
+                    Thread.sleep(10);
+                }
+            }catch(Exception e){
+                logger.debug(e.getMessage());
+            }
+
+        });
+        t.start();
+
+        Thread.sleep((PHASE1_TIME + DELAY)*1000);
+
+        for(Publisher pub : pubs){
+            pub.reconnect("t0", "127.0.0.1:5000", "127.0.0.1:5001");
+        }
+
+        Thread.sleep((PHASE2_TIME - DELAY)*1000);
+
+    }
+
 }

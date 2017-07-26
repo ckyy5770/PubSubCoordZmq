@@ -127,7 +127,7 @@ public class Subscriber{
     }
 
     public static void main(String[] args) throws Exception {
-        testAllPubHash();
+        testHashHash();
     }
 
     static void testHashAllPub() throws Exception{
@@ -273,6 +273,202 @@ public class Subscriber{
         for(Subscriber sub : subs){
             sub.stopReceiver("t0", "127.0.0.1:6000");
         }
+
+        // get result
+        for(Subscriber sub : subs){
+            ArrayList<String> buff = sub.getCleanedBuffer(true);
+            String id = sub.getMyID();
+            for(String elem : buff){
+                resLogger.info("{},{}", id, elem);
+            }
+        }
+    }
+
+    static void testAllPubCreate() throws Exception{
+        int SUB_NUM = 3;
+        int PHASE1_TIME = 15;
+        int PHASE2_TIME = 15;
+        int DELAY = 5;
+
+        ArrayList<Subscriber> subs = new ArrayList<>();
+        for(int i =0; i< SUB_NUM; i++){
+            subs.add(new Subscriber("sub" + i, "127.0.0.1"));
+        }
+
+        // connect sub0 to b0, sub1,2 to b1
+        subs.get(0).createReceiver("t0","127.0.0.1:6000");
+        subs.get(1).createReceiver("t0","127.0.0.1:6001");
+        subs.get(2).createReceiver("t0","127.0.0.1:6001");
+
+        Thread.sleep((PHASE1_TIME + DELAY) *1000);
+
+        // enter phase 2: reconnect sub2 to b2
+        subs.get(2).reconnect("t0", "127.0.0.1:6001", "127.0.0.1:6002");
+
+        Thread.sleep((PHASE2_TIME - DELAY)*1000);
+
+        subs.get(0).stopReceiver("t0","127.0.0.1:6000");
+        subs.get(1).stopReceiver("t0","127.0.0.1:6001");
+        subs.get(2).stopReceiver("t0","127.0.0.1:6002");
+
+        // get result
+        for(Subscriber sub : subs){
+            ArrayList<String> buff = sub.getCleanedBuffer(true);
+            String id = sub.getMyID();
+            for(String elem : buff){
+                resLogger.info("{},{}", id, elem);
+            }
+        }
+    }
+
+    static void testAllSubCreate() throws Exception {
+        int SUB_NUM = 3;
+        int PHASE1_TIME = 15;
+        int PHASE2_TIME = 15;
+        int DELAY = 5;
+
+        ArrayList<Subscriber> subs = new ArrayList<>();
+        for(int i =0; i< SUB_NUM; i++){
+            subs.add(new Subscriber("sub" + i, "127.0.0.1"));
+        }
+
+        //connect subs to all two brokers
+        for(Subscriber sub : subs){
+            sub.createReceiver("t0","127.0.0.1:6000");
+            sub.createReceiver("t0","127.0.0.1:6001");
+        }
+
+        Thread.sleep((PHASE1_TIME) *1000);
+
+        // enter phase 2: connect all subs to the new broker
+        for(Subscriber sub : subs) {
+            sub.createReceiver("t0", "127.0.0.1:6002");
+        }
+
+        Thread.sleep((PHASE2_TIME)*1000);
+
+        for(Subscriber sub : subs){
+            sub.stopReceiver("t0", "127.0.0.1:6000");
+            sub.stopReceiver("t0", "127.0.0.1:6001");
+            sub.stopReceiver("t0", "127.0.0.1:6002");
+        }
+
+        // get result
+        for(Subscriber sub : subs){
+            ArrayList<String> buff = sub.getCleanedBuffer(true);
+            String id = sub.getMyID();
+            for(String elem : buff){
+                resLogger.info("{},{}", id, elem);
+            }
+        }
+    }
+
+    static void testAllPubClose() throws Exception {
+        int SUB_NUM = 3;
+        int PHASE1_TIME = 15;
+        int PHASE2_TIME = 15;
+        int DELAY = 5;
+
+        ArrayList<Subscriber> subs = new ArrayList<>();
+        for(int i =0; i< SUB_NUM; i++){
+            subs.add(new Subscriber("sub" + i, "127.0.0.1"));
+        }
+
+        // connect sub0-b0, sub1-b1, sub2-b2
+        subs.get(0).createReceiver("t0","127.0.0.1:6000");
+        subs.get(1).createReceiver("t0","127.0.0.1:6001");
+        subs.get(2).createReceiver("t0","127.0.0.1:6002");
+
+        Thread.sleep((PHASE1_TIME - DELAY) *1000);
+
+        // enter phase 2: reconnect sub2 to b1
+        subs.get(2).reconnect("t0", "127.0.0.1:6002", "127.0.0.1:6001");
+
+        Thread.sleep((PHASE2_TIME + DELAY)*1000);
+
+        subs.get(0).stopReceiver("t0","127.0.0.1:6000");
+        subs.get(1).stopReceiver("t0","127.0.0.1:6001");
+        subs.get(2).stopReceiver("t0","127.0.0.1:6001");
+
+        // get result
+        for(Subscriber sub : subs){
+            ArrayList<String> buff = sub.getCleanedBuffer(true);
+            String id = sub.getMyID();
+            for(String elem : buff){
+                resLogger.info("{},{}", id, elem);
+            }
+        }
+
+    }
+
+    static void testAllSubClose() throws Exception {
+        int SUB_NUM = 3;
+        int PHASE1_TIME = 15;
+        int PHASE2_TIME = 15;
+        int DELAY = 5;
+
+        ArrayList<Subscriber> subs = new ArrayList<>();
+        for(int i =0; i< SUB_NUM; i++){
+            subs.add(new Subscriber("sub" + i, "127.0.0.1"));
+        }
+
+        // connect all subs to all three brokers
+        for(Subscriber sub : subs){
+            sub.createReceiver("t0", "127.0.0.1:6000");
+            sub.createReceiver("t0", "127.0.0.1:6001");
+            sub.createReceiver("t0", "127.0.0.1:6002");
+        }
+
+        Thread.sleep((PHASE1_TIME) *1000);
+
+        // enter phase 2: disconnect all subs from b2
+        for(Subscriber sub : subs){
+            sub.stopReceiver("t0", "127.0.0.1:6002");
+        }
+
+        Thread.sleep((PHASE2_TIME)*1000);
+
+        // get result
+        for(Subscriber sub : subs){
+            ArrayList<String> buff = sub.getCleanedBuffer(true);
+            String id = sub.getMyID();
+            for(String elem : buff){
+                resLogger.info("{},{}", id, elem);
+            }
+        }
+    }
+
+    static void testHashHash() throws Exception {
+        int SUB_NUM = 2;
+        int PHASE1_TIME = 15;
+        int PHASE2_TIME = 20;
+        int DELAY = 5;
+
+        ArrayList<Subscriber> subs = new ArrayList<>();
+        for(int i =0; i< SUB_NUM; i++){
+            subs.add(new Subscriber("sub" + i, "127.0.0.1"));
+        }
+
+        // connect all subs to b0
+        for(Subscriber sub : subs){
+            sub.createReceiver("t0", "127.0.0.1:6000");
+        }
+
+        Thread.sleep((PHASE1_TIME) *1000);
+
+        // connect all subs to b1
+        for(Subscriber sub : subs){
+            sub.createReceiver("t0", "127.0.0.1:6001");
+        }
+
+        Thread.sleep(2*(DELAY) *1000);
+
+        // disconnect all subs from b0
+        for(Subscriber sub : subs){
+            sub.stopReceiver("t0", "127.0.0.1:6000");
+        }
+
+        Thread.sleep((PHASE2_TIME-2*DELAY)*1000);
 
         // get result
         for(Subscriber sub : subs){
