@@ -214,7 +214,21 @@ There are 9 scenarios when reconfiguration may happen. Each of those scenarios, 
 
 * all publishers of this topic connect to new channel
 
-* all subscriber of this topic re-connect:
+* all subscribers of this topic re-connect:
+
+    * first connect to new broker
+    
+    * wait for connection stable
+    
+    * then disconnect from old broker
+    
+#### consistent hash --> all-sub replication
+
+* broker open new channel
+
+* all subscribers of this topic connect to new channel
+
+* all publishers of this topic re-connect:
 
     * first connect to new broker
     
