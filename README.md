@@ -208,13 +208,13 @@ Default strategy:
 
 There are 9 scenarios when reconfiguration may happen. Each of those scenarios, we carefully defined a reconfiguration steps that clients and brokers should follow in order to prevent losing messages.
 
-#### consistent hash --> all-pub replication
+#### 1. consistent hashing --> all-pub replication
 
 * broker open new channel
 
 * all publishers of this topic connect to new channel
 
-* all subscribers of this topic re-connect:
+* all subscribers of this topic reconnect (Important Note: every "reconnect" step in all scenarios should be interpreted as following three sub-steps):
 
     * first connect to new broker
     
@@ -222,19 +222,74 @@ There are 9 scenarios when reconfiguration may happen. Each of those scenarios, 
     
     * then disconnect from old broker
     
-#### consistent hash --> all-sub replication
+#### 2. consistent hashing --> all-sub replication
 
 * broker open new channel
 
 * all subscribers of this topic connect to new channel
 
-* all publishers of this topic re-connect:
+* all publishers of this topic reconnect
 
-    * first connect to new broker
-    
-    * wait for connection stable
-    
-    * then disconnect from old broker
+#### 3. all-pub replication --> consistent hashing
+
+* all subs on the closing channel reconnect to another broker
+
+* all pubs on the closing channel disconnect from it
+
+* broker close the channel
+
+#### 4. all-sub replication --> consistent hashing
+
+* all pubs on the closing channel reconnect to another broker
+
+* all subs on the closing channel disconnect from it
+
+* broker close the channel
+
+#### 5. all-pub replication: create new channels
+
+* broker open new channel
+
+* all pubs connect to the new channel
+
+* some subs reconnect to the new channel
+
+#### 6. all-sub replication: create new channels
+
+* broker open new channel
+
+* all subs connect to the new channel
+
+* some pubs reconnect to the new channel
+
+#### 7. all-pub replication: close channels
+
+* all subs on the closing channel reconnect to some other brokers
+
+* all pubs on the closing channel disconnect from it
+
+* broker close the channel
+
+#### 8. all-sub replication: close channels
+
+* all pubs on the closing channel reconnect to some other brokers
+
+* all subs on the closing channel disconnect from it
+
+* broker close the channel
+
+#### 9. consistent hashing: rehash
+
+* open new channel
+
+* all subs connect to the new channel
+
+* all pubs reconnect to the new channel
+
+* all subs disconnect from the old channel
+
+* close the old channel
+
 
 ## Serialization/Deserialization
 using [flatbuffer](https://google.github.io/flatbuffers/index.html)
