@@ -290,7 +290,6 @@ There are 9 scenarios when reconfiguration may happen. Each of those scenarios, 
 
 * close the old channel
 
-
 ## Serialization/Deserialization
 using [flatbuffer](https://google.github.io/flatbuffers/index.html)
 
