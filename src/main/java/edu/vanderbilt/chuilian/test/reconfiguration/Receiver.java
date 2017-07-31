@@ -23,6 +23,7 @@ public class Receiver implements Runnable{
 
     // logger config
     private static final Logger logger = LogManager.getLogger(Receiver.class.getName());
+    private static final Logger resLogger = LogManager.getLogger("TestResult");
 
     public Receiver(String topic, String srcAddr, BlockingQueue<String> msgBuff, ZMQ.Context zmqContext){
         this.topic = topic;
@@ -43,9 +44,17 @@ public class Receiver implements Runnable{
                 ZMsg receivedMsg = ZMsg.recvMsg(recSocket);
                 String msgTopic = new String(receivedMsg.getFirst().getData());
                 byte[] msgContent = receivedMsg.getLast().getData();
-                // put msg to buffer
+
+                // take care of received messages
                 String msgString = msgTopic + "," + new String(msgContent);
-                msgBuff.put(msgString);
+
+                // put msg to buffer
+                //msgBuff.put(msgString);
+
+                // or log into a file
+                resLogger.info("{},{}" , msgString, System.currentTimeMillis());
+
+
                 // log
                 logger.debug("Message Received. topic: {} content: {} src: {}", msgTopic, msgContent, srcAddr);
             }

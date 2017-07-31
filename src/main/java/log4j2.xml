@@ -61,7 +61,6 @@
         </Logger>
         <Logger name="TestResult" level="info" additivity="false">
             <AppenderRef ref="ConsoleResult"/>
-            <AppenderRef ref="results"/>
         </Logger>
         <Logger name="edu.vanderbilt.chuilian.test" level="error" additivity="false">
             <AppenderRef ref="Console"/>

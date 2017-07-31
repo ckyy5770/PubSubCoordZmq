@@ -43,7 +43,24 @@ public class EdgeBroker {
     }
 
     public static void main(String[] args) throws Exception {
-        testHashHash();
+        // hard coded config
+        String brokerID = "broker0";
+        String brokerIP = "10.0.2.15";
+        String[] topics = new String[1];
+        topics[0] = "t0";
+        String[] recPorts = new String[1];
+        recPorts[0] = "5000";
+        String[] sendPorts = new String[1];
+        sendPorts[0] = "6000";
+        testBasic(brokerID, brokerIP, topics, recPorts, sendPorts);
+    }
+
+
+    static void testBasic(String brokerID, String brokerIP, String[] topics, String[] recPorts, String[] sendPorts) throws Exception{
+        EdgeBroker broker = new EdgeBroker(brokerID, brokerIP);
+        for(int i=0; i<topics.length; i++){
+            broker.createChannel(topics[i], recPorts[i], sendPorts[i]);
+        }
     }
 
     static void testHashAllPubSub() throws Exception{

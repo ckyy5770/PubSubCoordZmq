@@ -127,7 +127,22 @@ public class Subscriber{
     }
 
     public static void main(String[] args) throws Exception {
-        testHashHash();
+        // hard coded config
+        String subID = "sub0";
+        String subIP = "129.59.105.128";
+        String[] topics = new String[1];
+        topics[0] = "t0";
+        String[] srcAddrs = new String[1];
+        srcAddrs[0] = "10.0.2.15:6000";
+        //srcAddrs[0] = "127.0.0.1:6000";
+
+        testBasic(subID, subIP, topics, srcAddrs);
+    }
+    static void testBasic(String subID, String subIP, String[] topics, String[] srcAddrs) throws Exception{
+        Subscriber sub = new Subscriber(subID, subIP);
+        for(int i=0; i< topics.length; i++){
+            sub.createReceiver(topics[i], srcAddrs[i]);
+        }
     }
 
     static void testHashAllPub() throws Exception{

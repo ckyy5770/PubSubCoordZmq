@@ -80,7 +80,30 @@ public class Publisher{
     }
 
     public static void main(String[] args) throws Exception {
-        testHashHash();
+        // hard coded config
+        String pubID = "pub0";
+        String pubIP = "10.0.2.15";
+        String[] topics = new String[1];
+        topics[0] = "t0";
+        String[] destAddrs = new String[1];
+        destAddrs[0] = "10.0.2.15:5000";
+        //destAddrs[0] = "127.0.0.1:5000";
+        int[] sendIntervals = new int[1];
+        sendIntervals[0] = 10;
+
+
+        testBasic(pubID, pubIP, topics, destAddrs, sendIntervals);
+    }
+
+    static void testBasic(String pubID, String pubIP, String[] topics, String[] destAddrs, int[] sendIntervals) throws Exception{
+        Publisher pub = new Publisher(pubID, pubIP);
+        for(int i=0; i< topics.length; i++){
+            pub.createSender(topics[i], destAddrs[i]);
+        }
+        for(int i=0; i<topics.length; i++){
+            Thread t = new Thread(new SenderFeed(pub, topics[i], sendIntervals[i]));
+            t.start();
+        }
     }
 
     static void testHashAllPub() throws Exception{
